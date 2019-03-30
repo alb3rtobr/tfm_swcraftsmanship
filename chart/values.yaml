@@ -1,0 +1,5 @@
+# Default values for looking4sitter application.
+# Declare variables to be passed into your templates.
+
+global:
+  student: carlostorresfanlo
