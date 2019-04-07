@@ -1,5 +1,5 @@
-# Default values for looking4sitter application.
+# Default values for tfm-almacar application.
 # Declare variables to be passed into your templates.
 
 global:
-  student: carlostorresfanlo
+  var1: value1
