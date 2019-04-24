@@ -3,8 +3,6 @@ package com.craftsmanship.tfm.restapi.kafka.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.craftsmanship.tfm.restapi.kafka.model.Greetings;
-
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +19,5 @@ public class KafkaTopicConfig {
         Map<String, Object> configs = new HashMap<>();
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         return new KafkaAdmin(configs);
-    }
-     
-    @Bean
-    public Greetings topic1() {
-        return new Greetings.Builder().withTimestamp(System.currentTimeMillis()).withMessage("topic1").build();
     }
 }

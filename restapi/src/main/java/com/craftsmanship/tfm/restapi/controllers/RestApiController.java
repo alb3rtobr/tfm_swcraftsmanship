@@ -1,34 +1,32 @@
 package com.craftsmanship.tfm.restapi.controllers;
 
-import com.craftsmanship.tfm.restapi.kafka.model.Greetings;
-import com.craftsmanship.tfm.restapi.kafka.service.GreetingsService;
+import com.craftsmanship.tfm.restapi.kafka.model.Item;
+import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("api/v1/")
 public class RestApiController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestApiController.class);
 
-    private final GreetingsService greetingsService;
+    private final ItemOperationService itemOperationService;
 
-    public RestApiController(GreetingsService greetingsService) {
-        this.greetingsService = greetingsService;
+    public RestApiController(ItemOperationService itemOperationService) {
+        this.itemOperationService = itemOperationService;
     }
 
-    @RequestMapping("/greetings")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public String greetings(@RequestParam("message") String message) {
-        LOGGER.info("KIKO: /greetings mapping was called");
+    @RequestMapping(value = "/items", method = RequestMethod.POST)
+    public Item create(@RequestBody Item item) {
+        LOGGER.info("Creating item");
 
-        Greetings greetings = new Greetings.Builder().withMessage(message).withTimestamp(System.currentTimeMillis()).build();
-        //greetingsService.sendGreeting(greetings);
-        greetingsService.sendMessage("hola");
-        return "OK";
+        itemOperationService.sendItemOperation(new ItemOperation(item));
+        return item;
     }
 }

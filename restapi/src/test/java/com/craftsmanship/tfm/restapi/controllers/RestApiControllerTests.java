@@ -3,14 +3,18 @@ package com.craftsmanship.tfm.restapi.controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 import static org.springframework.kafka.test.hamcrest.KafkaMatchers.hasValue;
-import static org.springframework.kafka.test.assertj.KafkaConditions.key;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.craftsmanship.tfm.restapi.kafka.model.Item;
+import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,11 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
@@ -51,9 +56,9 @@ public class RestApiControllerTests {
         System.setProperty("kafka.bootstrap-servers", embeddedKafka.getEmbeddedKafka().getBrokersAsString());
     }
 
-    private KafkaMessageListenerContainer<String, String> container;
+    private KafkaMessageListenerContainer<String, ItemOperation> container;
 
-    private BlockingQueue<ConsumerRecord<String, String>> records;
+    private BlockingQueue<ConsumerRecord<String, ItemOperation>> records;
 
     @LocalServerPort
     private int restPort;
@@ -67,9 +72,12 @@ public class RestApiControllerTests {
         Map<String, Object> consumerProperties = KafkaTestUtils.consumerProps("sender", "false",
                 embeddedKafka.getEmbeddedKafka());
 
+        consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+
         // create a Kafka consumer factory
-        DefaultKafkaConsumerFactory<String, String> consumerFactory = new DefaultKafkaConsumerFactory<String, String>(
-                consumerProperties);
+        DefaultKafkaConsumerFactory<String, ItemOperation> consumerFactory = new DefaultKafkaConsumerFactory<>(
+                consumerProperties, new StringDeserializer(), new JsonDeserializer<>(ItemOperation.class));
 
         // set the topic that needs to be consumed
         ContainerProperties containerProperties = new ContainerProperties(SENDER_TOPIC);
@@ -81,9 +89,9 @@ public class RestApiControllerTests {
         records = new LinkedBlockingQueue<>();
 
         // setup a Kafka message listener
-        container.setupMessageListener(new MessageListener<String, String>() {
+        container.setupMessageListener(new MessageListener<String, ItemOperation>() {
             @Override
-            public void onMessage(ConsumerRecord<String, String> record) {
+            public void onMessage(ConsumerRecord<String, ItemOperation> record) {
                 LOGGER.debug("test-listener received message='{}'", record.toString());
                 records.add(record);
             }
@@ -108,23 +116,18 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_when_item_is_added_then_kafka_topic_is_added() throws InterruptedException {
-        String message = "hola";
-
+    public void test_when_item_is_created_then_kafka_topic_is_added() throws InterruptedException {
+        String url = "http://localhost:" + restPort + "/api/v1/items";
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate
-                .getForEntity("http://localhost:" + restPort + "/greetings?message=" + message, String.class);
-        // assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-
+        Item item = new Item.Builder().withId(1).withDescription("Zapato").build();
+        HttpEntity<Item> request = new HttpEntity<>(item);
+        restTemplate.postForLocation(url, request);
+        
         // check that the message was received
-        ConsumerRecord<String, String> received = records.poll(10, TimeUnit.SECONDS);
+        ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
 
-        LOGGER.info("KIKO: received = " + received);
-
-        // Hamcrest Matchers to check the value
-        assertThat(received, hasValue(message));
-        // AssertJ Condition to check the key
-        assertThat(received).has(key(null));
+        ItemOperation expectedOperation = new ItemOperation(item);
+        assertThat(received, hasValue(expectedOperation));
     }
 
 }
