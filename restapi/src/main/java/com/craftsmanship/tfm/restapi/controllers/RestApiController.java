@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.craftsmanship.tfm.restapi.kafka.model.Item;
 import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.restapi.kafka.model.OperationType;
 import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
 import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
 
@@ -41,7 +42,7 @@ public class RestApiController {
         itemsPersistence.create(item);
 
         // Send message to Kafka topic
-        itemOperationService.sendItemOperation(new ItemOperation(item));
+        itemOperationService.sendItemOperation(new ItemOperation(OperationType.CREATED, item));
         return item;
     }
 
@@ -69,7 +70,7 @@ public class RestApiController {
 
         // Send message to Kafka topic
         Item item = itemsPersistence.get(id);
-        itemOperationService.sendItemOperation(new ItemOperation(item));
+        itemOperationService.sendItemOperation(new ItemOperation(OperationType.DELETED, item));
 
         return itemsPersistence.delete(id);
     }

@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.craftsmanship.tfm.restapi.kafka.model.Item;
 import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.restapi.kafka.model.OperationType;
 import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -152,7 +153,7 @@ public class RestApiControllerTests {
 
         // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
-        ItemOperation expectedOperation = new ItemOperation(item);
+        ItemOperation expectedOperation = new ItemOperation(OperationType.CREATED, item);
         assertThat(received, hasValue(expectedOperation));
     }
 
@@ -247,8 +248,7 @@ public class RestApiControllerTests {
 
         // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
-        ItemOperation expectedOperation = new ItemOperation(item2);
+        ItemOperation expectedOperation = new ItemOperation(OperationType.DELETED, item2);
         assertThat(received, hasValue(expectedOperation));
     }
-
 }
