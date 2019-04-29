@@ -8,7 +8,12 @@ Our awesome TFM
 
 ### Docker image preparations
 
-TBD
+#### Rest Api application
+
+```bash
+$ cd $GIT_REPO/restapi
+$ docker build --tag=almacar_restapi:0.1 --rm=true .
+```
 
 ### Helm dependencies
 

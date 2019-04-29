@@ -3,22 +3,22 @@ package com.craftsmanship.tfm.restapi.kafka.model;
 import java.util.Objects;
 
 public class Item {
-    private int id;
+    private Long id;
     private String description;
 
     private Item() {
     }
 
-    private Item(int id, String description) {
-        this.id = id;
+    private Item(String description) {
+        this.id = 0L;
         this.description = description;
     }
 
-    public int getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -56,13 +56,14 @@ public class Item {
 
     public static class Builder {
 
-        private int id;
+        private Long id;
         private String description;
 
         public Builder() {
+            this.id = 0L;
         }
 
-        public Builder withId(int id) {
+        public Builder withId(Long id) {
             this.id = id;
             return this;
         }

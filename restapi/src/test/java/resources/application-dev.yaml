@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+kafka:
+  bootstrap-servers: localhost
+  topic:
+    receiver: receiver.t
+

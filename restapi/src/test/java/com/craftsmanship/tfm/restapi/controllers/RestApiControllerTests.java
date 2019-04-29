@@ -1,7 +1,7 @@
 package com.craftsmanship.tfm.restapi.controllers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.kafka.test.hamcrest.KafkaMatchers.hasValue;
 
 import java.util.Map;
@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.craftsmanship.tfm.restapi.kafka.model.Item;
 import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -37,12 +38,14 @@ import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
+@ActiveProfiles("dev")
 public class RestApiControllerTests {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestApiControllerTests.class);
 
@@ -65,6 +68,9 @@ public class RestApiControllerTests {
 
     @Autowired
     private RestApiController restApiController;
+
+    @Autowired
+    private ItemsPersistence itemsPersistence;
 
     @Before
     public void setUp() {
@@ -112,20 +118,27 @@ public class RestApiControllerTests {
 
     @Test
     public void contexLoads() throws Exception {
-        assertThat(restApiController).isNotNull();
+        assertThat(restApiController, is(notNullValue()));
     }
 
     @Test
     public void test_when_item_is_created_then_kafka_topic_is_added() throws InterruptedException {
+        Long expectedId = 1L;
+        String itemDescription = "Zapato";
+        Item item = new Item.Builder().withDescription(itemDescription).build();
+
         String url = "http://localhost:" + restPort + "/api/v1/items";
         RestTemplate restTemplate = new RestTemplate();
-        Item item = new Item.Builder().withId(1).withDescription("Zapato").build();
         HttpEntity<Item> request = new HttpEntity<>(item);
         restTemplate.postForLocation(url, request);
+
+        // check item was created in persistence
+        item.setId(expectedId);
+        Item storedItem = itemsPersistence.get(expectedId);
+        assertThat(storedItem, equalTo(item));
         
         // check that the message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
-
         ItemOperation expectedOperation = new ItemOperation(item);
         assertThat(received, hasValue(expectedOperation));
     }
