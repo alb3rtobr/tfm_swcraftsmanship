@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.kafka.test.hamcrest.KafkaMatchers.hasValue;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -28,7 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
@@ -114,6 +118,11 @@ public class RestApiControllerTests {
     public void tearDown() {
         // stop the container
         container.stop();
+
+        // empty persistence
+        for (Item item : itemsPersistence.list()) {
+            itemsPersistence.delete(item.getId());
+        }
     }
 
     @Test
@@ -122,24 +131,123 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_when_item_is_created_then_kafka_topic_is_added() throws InterruptedException {
-        Long expectedId = 1L;
+    public void test_when_item_is_created_then_item_persisted_and_kafka_message_sent() throws InterruptedException {
         String itemDescription = "Zapato";
         Item item = new Item.Builder().withDescription(itemDescription).build();
 
         String url = "http://localhost:" + restPort + "/api/v1/items";
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<Item> request = new HttpEntity<>(item);
-        restTemplate.postForLocation(url, request);
+        Item responseItem = restTemplate.postForObject(url, request, Item.class);
+
+        // first, for comparison, we need to set the item id, created in persistence
+        item.setId(responseItem.getId());
+
+        // check returned item in the one created
+        assertThat(responseItem, equalTo(item));
 
         // check item was created in persistence
-        item.setId(expectedId);
-        Item storedItem = itemsPersistence.get(expectedId);
+        Item storedItem = itemsPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
-        
-        // check that the message was received
+
+        // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
         ItemOperation expectedOperation = new ItemOperation(item);
+        assertThat(received, hasValue(expectedOperation));
+    }
+
+    @Test
+    public void test_given_some_items_when_get_items_mapping_then_items_are_returned() {
+        // Given
+        Item item1 = new Item.Builder().withDescription("item1").build();
+        Item item2 = new Item.Builder().withDescription("item2").build();
+        Item item3 = new Item.Builder().withDescription("item3").build();
+        itemsPersistence.create(item1);
+        itemsPersistence.create(item2);
+        itemsPersistence.create(item3);
+
+        // When
+        String url = "http://localhost:" + restPort + "/api/v1/items";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<List<Item>> response = restTemplate.exchange(url, HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<Item>>() {
+                });
+        List<Item> items = response.getBody();
+
+        // Then
+        assertThat(items, equalTo(itemsPersistence.list()));
+    }
+
+    @Test
+    public void test_given_some_items_when_get_item_mapping_then_item_is_returned() {
+        // Given
+        Item item1 = new Item.Builder().withDescription("item1").build();
+        Item item2 = new Item.Builder().withDescription("item2").build();
+        Item item3 = new Item.Builder().withDescription("item3").build();
+        itemsPersistence.create(item1);
+        itemsPersistence.create(item2);
+        itemsPersistence.create(item3);
+
+        // When
+        Long id = 2L;
+        String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
+        RestTemplate restTemplate = new RestTemplate();
+        Item responseItem = restTemplate.getForObject(url, Item.class);
+
+        // Then
+        assertThat(responseItem, equalTo(itemsPersistence.get(id)));
+    }
+
+    @Test
+    public void test_given_item_when_edit_mapping_then_edited_item_is_returned() {
+        // Given
+        Item item1 = new Item.Builder().withDescription("item1").build();
+        Item item2 = new Item.Builder().withDescription("item2").build();
+        Item item3 = new Item.Builder().withDescription("item3").build();
+        itemsPersistence.create(item1);
+        itemsPersistence.create(item2);
+        itemsPersistence.create(item3);
+
+        // When
+        Long id = 2L;
+        Item updatedItem = new Item.Builder().withDescription("updated_item2").build();
+        String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Item> request = new HttpEntity<>(updatedItem);
+        ResponseEntity<Item> response = restTemplate.exchange(url, HttpMethod.PUT, request, Item.class);
+        Item responseItem = response.getBody();
+
+        // Then
+        updatedItem.setId(id);
+        assertThat(responseItem, equalTo(updatedItem));
+        assertThat(responseItem, equalTo(itemsPersistence.get(id)));
+    }
+
+    @Test
+    public void test_given_some_items_when_delete_item_mapping_then_item_is_deleted_and_kafka_message_sent()
+            throws InterruptedException {
+        // Given
+        Item item1 = new Item.Builder().withDescription("item1").build();
+        Item item2 = new Item.Builder().withDescription("item2").build();
+        Item item3 = new Item.Builder().withDescription("item3").build();
+        itemsPersistence.create(item1);
+        itemsPersistence.create(item2);
+        itemsPersistence.create(item3);
+
+        // When
+        Long id = 2L;
+        String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.delete(url);
+
+        // Then
+        assertThat(2, equalTo(itemsPersistence.list().size()));
+        Item responseItem = restTemplate.getForObject(url, Item.class);
+        assertThat(responseItem, is(nullValue()));
+
+        // check that the Kafka message was received
+        ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
+        ItemOperation expectedOperation = new ItemOperation(item2);
         assertThat(received, hasValue(expectedOperation));
     }
 

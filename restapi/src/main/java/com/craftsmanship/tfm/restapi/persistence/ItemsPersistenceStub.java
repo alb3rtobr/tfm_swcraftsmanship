@@ -31,6 +31,7 @@ public class ItemsPersistenceStub implements ItemsPersistence {
 
     @Override
     public Item update(Long id, Item item) {
+        item.setId(id);
         items.put(id, item);
         return item;
     }
