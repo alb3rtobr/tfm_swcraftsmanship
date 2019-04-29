@@ -3,3 +3,10 @@
 
 global:
   var1: value1
+
+# Kafka configuration
+kafka:
+  replicas: 1
+  #external:
+    #enabled: True
+    #servicePort: '19092'

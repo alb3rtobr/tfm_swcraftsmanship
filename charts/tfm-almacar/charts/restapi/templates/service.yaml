@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "restapi.fullname" . }}-service
+  labels:
+    app.kubernetes.io/name: {{ include "restapi.fullname" . }}-service
+    app.kubernetes.io/component: {{ include "restapi.fullname" . }}
+    app.kubernetes.io/part-of: {{ .Values.global.appname }}
+    {{- range .Values.global.labels }}
+    {{ .name }}: {{ .value }}
+    {{- end }}
+spec:
+  selector:
+    app.kubernetes.io/component: {{ include "restapi.fullname" . }}
+  ports:
+  - port: {{ .Values.service.port }}
+    protocol: TCP
+    name: restapi-port
+  type: {{ .Values.service.type }}

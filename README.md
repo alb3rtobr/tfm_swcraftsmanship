@@ -2,6 +2,8 @@
 
 Our awesome TFM
 
+## Architecture
+
 ## Installation
 
 ### Docker image preparations
