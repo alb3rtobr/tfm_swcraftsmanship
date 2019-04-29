@@ -1,0 +1,4 @@
+kafka:
+  bootstrap-servers: localhost
+  topic:
+    receiver: receiver.t
