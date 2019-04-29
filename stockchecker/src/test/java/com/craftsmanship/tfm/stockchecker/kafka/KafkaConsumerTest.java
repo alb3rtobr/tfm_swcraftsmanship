@@ -16,9 +16,12 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.MessageListenerContainer;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
+import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.craftsmanship.tfm.stockchecker.kafka.model.Item;
@@ -27,62 +30,45 @@ import com.craftsmanship.tfm.stockchecker.kafka.model.ItemOperation;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@DirtiesContext
+
 public class KafkaConsumerTest {
 
-  @Autowired
-  private Sender sender;
+	public static final String RECEIVER_TOPIC=KafkaConsumer.TOPIC_NAME;
 
-  public static final String RECEIVER_TOPIC="receiver.t";
-  
-  @Autowired
-  private KafkaConsumer consumer;
+	@Autowired
+	private KafkaProducer producer;
+	
+	@Autowired
+	private KafkaConsumer consumer;
 
-  @Autowired
-  private KafkaTemplate<String, ItemOperation> template;
+	@Autowired
+	private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+	
+	@ClassRule
+	public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, "json.t");
+	
+	@Before
+	public void setUp() throws Exception {
 
-  
-  @Autowired
-  private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+		// wait until the partitions are assigned
+	    for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry
+	        .getListenerContainers()) {
+	      ContainerTestUtils.waitForAssignment(messageListenerContainer,
+	          embeddedKafka.getEmbeddedKafka().getPartitionsPerTopic());
+	    }
 
-  @ClassRule
-  public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, RECEIVER_TOPIC);
+	}
 
-  @Before
-  public void setUp() throws Exception {
-	  
-	// set up the Kafka producer properties
-	    Map<String, Object> senderProperties =
-	        KafkaTestUtils.senderProps(
-	            embeddedKafka.getEmbeddedKafka().getBrokersAsString());
+	@Test
+	public void testReceive() throws Exception {
+		Item item= new Item.Builder().withDescription("PS4").build();
+		ItemOperation itemOp = new ItemOperation(item);
+		producer.send(itemOp);
 
-	    // create a Kafka producer factory
-	    ProducerFactory<String, ItemOperation> producerFactory =
-	        new DefaultKafkaProducerFactory<String, ItemOperation>(
-	            senderProperties);
-
-	    // create a Kafka template
-	    template = new KafkaTemplate<>(producerFactory);
-	    // set the default topic to send to
-	    template.setDefaultTopic(RECEIVER_TOPIC);
-	  
-	  
-    // wait until the partitions are assigned
-    for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry
-        .getListenerContainers()) {
-      ContainerTestUtils.waitForAssignment(messageListenerContainer,
-          embeddedKafka.getEmbeddedKafka().getPartitionsPerTopic());
-    }
-  }
-
-  @Test
-  public void testReceive() throws Exception {
-	  Item item= new Item.Builder().withDescription("PS4").build();
-	  ItemOperation itemOp = new ItemOperation(item);
-	  template.sendDefault(itemOp);
-   
-    consumer.getLatch().await(10000, TimeUnit.MILLISECONDS);
-    assertThat(consumer.getLatch().getCount()).isEqualTo(0);
-  }
+		consumer.getLatch().await(10000, TimeUnit.MILLISECONDS);
+		assertThat(consumer.getLatch().getCount()).isEqualTo(0);
+	}
 }
 
 

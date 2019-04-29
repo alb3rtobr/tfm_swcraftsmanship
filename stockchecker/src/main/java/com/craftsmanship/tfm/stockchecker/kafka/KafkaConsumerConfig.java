@@ -45,8 +45,8 @@ public class KafkaConsumerConfig {
     return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
             new JsonDeserializer<>(ItemOperation.class));
   }
-
- 
+  
+   
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, ItemOperation> kafkaListenerContainerFactory() {
     ConcurrentKafkaListenerContainerFactory<String, ItemOperation> factory =
@@ -58,7 +58,7 @@ public class KafkaConsumerConfig {
   
 
   @Bean
-  public KafkaConsumer receiver() {
+  public KafkaConsumer kafkaConsumer() {
     return new KafkaConsumer();
   }
 }
