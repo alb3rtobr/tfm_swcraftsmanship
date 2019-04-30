@@ -25,6 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.craftsmanship.tfm.stockchecker.kafka.model.Item;
 import com.craftsmanship.tfm.stockchecker.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.stockchecker.kafka.model.OperationType;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -77,7 +78,7 @@ public class OtherKafkaConsumerTest {
   public void testReceive() throws Exception {
     // send the message
 	Item item= new Item.Builder().withDescription("PS4").build();
-	ItemOperation itemOp = new ItemOperation(item);
+	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
 	template.sendDefault(itemOp);
     
     LOGGER.debug("test-sender sent message='{}'", itemOp.toString());

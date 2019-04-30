@@ -2,21 +2,36 @@ package com.craftsmanship.tfm.stockchecker.kafka.model;
 
 import java.util.Objects;
 
-import com.craftsmanship.tfm.stockchecker.kafka.model.Item;
+import com.craftsmanship.tfm.stockchecker.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.stockchecker.kafka.model.OperationType;
 
 public class ItemOperation {
 
+    private OperationType type;
     private Item item;
 
     public ItemOperation() {
     }
 
-    public ItemOperation(Item item) {
+    public ItemOperation(OperationType type, Item item) {
+        this.type = type;
         this.item = item;
     }
 
     public Item getItem() {
         return this.item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public OperationType getType() {
+        return this.type;
+    }
+
+    public void setType(OperationType type) {
+        this.type = type;
     }
 
     @Override
@@ -27,7 +42,7 @@ public class ItemOperation {
             return false;
         }
         ItemOperation operation = (ItemOperation) o;
-        return Objects.equals(item, operation.item);
+        return Objects.equals(type, operation.type) && Objects.equals(item, operation.item);
     }
 
     @Override
@@ -38,6 +53,7 @@ public class ItemOperation {
     @Override
     public String toString() {
         return "{" +
+            " type='" + this.type + "', " +
             " item='" + this.item + "'" +
             "}";
     }
