@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.restapi.kafka.model;
+package com.craftsmanship.tfm.models;
 
 public enum OperationType {
     CREATED("CREATED"), DELETED("DELETED");

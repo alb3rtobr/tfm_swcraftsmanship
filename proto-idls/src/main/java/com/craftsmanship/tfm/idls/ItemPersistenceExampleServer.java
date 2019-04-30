@@ -1,9 +1,9 @@
-package com.craftmanship.tfm.idls;
+package com.craftsmanship.tfm.idls;
 
 import java.io.IOException;
 
-import com.craftmanship.tfm.idls.models.Item;
-import com.craftmanship.tfm.idls.stubs.ItemsPersistenceStub;
+import com.craftsmanship.tfm.idls.stubs.ItemsPersistenceStub;
+import com.craftsmanship.tfm.models.Item;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

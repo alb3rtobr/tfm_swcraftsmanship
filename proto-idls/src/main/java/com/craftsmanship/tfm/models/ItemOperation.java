@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.restapi.kafka.model;
+package com.craftsmanship.tfm.models;
 
 import java.util.Objects;
 

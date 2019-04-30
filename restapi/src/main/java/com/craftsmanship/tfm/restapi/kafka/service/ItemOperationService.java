@@ -1,6 +1,6 @@
 package com.craftsmanship.tfm.restapi.kafka.service;
 
-import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.models.ItemOperation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

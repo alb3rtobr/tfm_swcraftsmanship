@@ -3,7 +3,8 @@ package com.craftsmanship.tfm.restapi.kafka.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
+import com.craftsmanship.tfm.models.ItemOperation;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -20,7 +21,7 @@ public class KafkaProducerConfig {
 
     @Value(value = "${kafka.bootstrap-servers}")
     private String bootstrapServers;
- 
+
     @Bean
     public ProducerFactory<String, ItemOperation> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();

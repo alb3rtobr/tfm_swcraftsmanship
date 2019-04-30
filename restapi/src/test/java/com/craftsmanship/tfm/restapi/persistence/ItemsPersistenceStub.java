@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.craftsmanship.tfm.restapi.kafka.model.Item;
+import com.craftsmanship.tfm.models.Item;
 
 public class ItemsPersistenceStub implements ItemsPersistence {
     private static Map<Long, Item> items = new HashMap<Long, Item>();

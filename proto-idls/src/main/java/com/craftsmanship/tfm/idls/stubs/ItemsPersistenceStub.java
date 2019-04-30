@@ -1,11 +1,11 @@
-package com.craftmanship.tfm.idls.stubs;
+package com.craftsmanship.tfm.idls.stubs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.craftmanship.tfm.idls.models.Item;
+import com.craftsmanship.tfm.models.Item;
 
 public class ItemsPersistenceStub {
     private static Map<Long, Item> items = new HashMap<Long, Item>();

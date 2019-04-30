@@ -2,9 +2,9 @@ package com.craftsmanship.tfm.restapi.controllers;
 
 import java.util.List;
 
-import com.craftsmanship.tfm.restapi.kafka.model.Item;
-import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
-import com.craftsmanship.tfm.restapi.kafka.model.OperationType;
+import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.ItemOperation;
+import com.craftsmanship.tfm.models.OperationType;
 import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
 import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
 

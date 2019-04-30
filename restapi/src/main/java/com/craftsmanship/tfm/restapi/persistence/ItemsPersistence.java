@@ -2,7 +2,7 @@ package com.craftsmanship.tfm.restapi.persistence;
 
 import java.util.List;
 
-import com.craftsmanship.tfm.restapi.kafka.model.Item;
+import com.craftsmanship.tfm.models.Item;
 
 public interface ItemsPersistence {
     public Item create(Item item);

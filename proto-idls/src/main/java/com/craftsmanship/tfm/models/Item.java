@@ -1,4 +1,4 @@
-package com.craftmanship.tfm.idls.models;
+package com.craftsmanship.tfm.models;
 
 import java.util.Objects;
 

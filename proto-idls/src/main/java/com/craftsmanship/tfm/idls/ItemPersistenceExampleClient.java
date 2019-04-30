@@ -1,8 +1,8 @@
-package com.craftmanship.tfm.idls;
+package com.craftsmanship.tfm.idls;
 
 import java.util.concurrent.TimeUnit;
 
-import com.craftmanship.tfm.idls.models.Item;
+import com.craftsmanship.tfm.models.Item;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

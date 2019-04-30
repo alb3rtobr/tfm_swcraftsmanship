@@ -10,9 +10,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.craftsmanship.tfm.restapi.kafka.model.Item;
-import com.craftsmanship.tfm.restapi.kafka.model.ItemOperation;
-import com.craftsmanship.tfm.restapi.kafka.model.OperationType;
+import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.ItemOperation;
+import com.craftsmanship.tfm.models.OperationType;
 import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
