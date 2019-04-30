@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 
-import com.craftsmanship.tfm.stockchecker.kafka.model.ItemOperation;
+import com.craftsmanship.tfm.models.ItemOperation;
 
 public class KafkaConsumer {
 

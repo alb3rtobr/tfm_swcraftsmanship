@@ -28,9 +28,9 @@ import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.craftsmanship.tfm.stockchecker.kafka.model.Item;
-import com.craftsmanship.tfm.stockchecker.kafka.model.ItemOperation;
-import com.craftsmanship.tfm.stockchecker.kafka.model.OperationType;
+import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.ItemOperation;
+import com.craftsmanship.tfm.models.OperationType;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
