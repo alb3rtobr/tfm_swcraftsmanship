@@ -4,19 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.MessageListenerContainer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
@@ -32,10 +37,10 @@ import com.craftsmanship.tfm.stockchecker.kafka.model.OperationType;
 @DirtiesContext
 public class OtherKafkaConsumerTest {
 
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(OtherKafkaConsumerTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OtherKafkaConsumerTest.class);
 
-  private static String RECEIVER_TOPIC = "receiver.t";
+  @Value("${kafka.topic.json}")
+  private static String RECEIVER_TOPIC = "mytopic";
 
   @Autowired
   private KafkaConsumer	consumer;
@@ -46,20 +51,22 @@ public class OtherKafkaConsumerTest {
   private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
 
   @ClassRule
-  public static EmbeddedKafkaRule embeddedKafka =
-      new EmbeddedKafkaRule(1, true, RECEIVER_TOPIC);
+  public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, RECEIVER_TOPIC);
 
+  @BeforeClass
+  public static void setup() {
+    System.setProperty("kafka.bootstrap-servers", embeddedKafka.getEmbeddedKafka().getBrokersAsString());
+  }
+  
   @Before
   public void setUp() throws Exception {
     // set up the Kafka producer properties
-    Map<String, Object> senderProperties =
-        KafkaTestUtils.senderProps(
-            embeddedKafka.getEmbeddedKafka().getBrokersAsString());
-
+    Map<String, Object> senderProperties = KafkaTestUtils.senderProps(embeddedKafka.getEmbeddedKafka().getBrokersAsString());
+    senderProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    senderProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+    
     // create a Kafka producer factory
-    ProducerFactory<String, ItemOperation> producerFactory =
-        new DefaultKafkaProducerFactory<String, ItemOperation>(
-            senderProperties);
+    ProducerFactory<String, ItemOperation> producerFactory = new DefaultKafkaProducerFactory<String, ItemOperation>(senderProperties);
 
     // create a Kafka template
     template = new KafkaTemplate<>(producerFactory);

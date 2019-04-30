@@ -10,16 +10,16 @@ import com.craftsmanship.tfm.stockchecker.kafka.model.ItemOperation;
 
 public class KafkaProducer {
 
+	@Value("${kafka.topic.json}")
+	private static String TOPIC_NAME="mytopic";
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducer.class);
-
-	  @Value("${kafka.topic.json}")
-	  private String jsonTopic;
 
 	  @Autowired
 	  private KafkaTemplate<String, ItemOperation> kafkaTemplate;
 
 	  public void send(ItemOperation itemOp) {
-	    LOGGER.info("sending car='{}'", itemOp.toString());
-	    kafkaTemplate.send(jsonTopic, itemOp);
+	    LOGGER.info("sending itemOp='{}'", itemOp.toString());
+	    kafkaTemplate.send(TOPIC_NAME, itemOp);
 	  }
 }
