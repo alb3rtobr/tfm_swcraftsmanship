@@ -6,3 +6,7 @@ kafka:
   topic:
     receiver: receiver.t
 
+dal:
+  host: dal
+  port: 50051
+
