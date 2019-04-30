@@ -75,7 +75,7 @@
 
         <!-- TFM Proto generated library -->
         <dependency>
-            <groupId>com.craftmanship.tfm.idls</groupId>
+            <groupId>com.craftsmanship.tfm.idls</groupId>
             <artifactId>proto-idls</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
