@@ -13,11 +13,6 @@ public class Item {
         this.id = 0L;
         this.description = description;
     }
-    
-    private Item(String description) {
-        this.id = 0L;
-        this.description = description;
-    }
 
     public Long getId() {
         return this.id;
