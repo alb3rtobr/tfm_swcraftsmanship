@@ -13,6 +13,7 @@ service ItemPersistenceService {
 message GrpcItem {
     int64 id = 1;
     string description = 2;
+    int32 stock = 3;
 }
 
 message CreateItemRequest {
