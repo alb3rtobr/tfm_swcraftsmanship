@@ -1,16 +1,22 @@
-package com.craftsmanship.tfm.idls;
+package com.craftsmanship.tfm.idls.utils;
 
 import java.io.IOException;
 
 import com.craftsmanship.tfm.idls.stubs.ItemsPersistenceStub;
 import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.utils.ConversionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import v1.ItemPersistence.CreateItemResponse;
+import v1.ItemPersistence.DeleteItemResponse;
+import v1.ItemPersistence.GetItemResponse;
 import v1.ItemPersistence.GrpcItem;
+import v1.ItemPersistence.ListItemResponse;
+import v1.ItemPersistence.UpdateItemResponse;
+import v1.ItemPersistence.ListItemResponse.Builder;
 import v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 
 public class ItemPersistenceExampleServer {
@@ -88,24 +94,61 @@ public class ItemPersistenceExampleServer {
     public void list(v1.ItemPersistence.ListItemRequest request,
         io.grpc.stub.StreamObserver<v1.ItemPersistence.ListItemResponse> responseObserver) {
       logger.info("LIST RPC CALLED");
+
+      Builder responseBuilder = ListItemResponse.newBuilder();
+      for (Item item: itemsPersistence.list()) {
+        GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
+        responseBuilder.addItem(grpcItem);
+      }
+      ListItemResponse response = responseBuilder.build();
+
+      responseObserver.onNext(response);
+      responseObserver.onCompleted();
     }
 
     @Override
     public void get(v1.ItemPersistence.GetItemRequest request,
         io.grpc.stub.StreamObserver<v1.ItemPersistence.GetItemResponse> responseObserver) {
       logger.info("GET RPC CALLED");
+
+      Item item = itemsPersistence.get(request.getId());
+      GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
+      GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
+
+      responseObserver.onNext(response);
+      responseObserver.onCompleted();
     }
 
     @Override
     public void update(v1.ItemPersistence.UpdateItemRequest request,
         io.grpc.stub.StreamObserver<v1.ItemPersistence.UpdateItemResponse> responseObserver) {
       logger.info("UPDATE RPC CALLED");
+
+      //TODO: right now, if the id does not exists, the item is creted, Should we raise an error?
+      Item item = ConversionUtils.getItemFromGrpcItem(request.getItem());
+      Item createdItem = itemsPersistence.update(request.getId(), item);
+
+      GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
+
+      UpdateItemResponse response = UpdateItemResponse.newBuilder()
+      .setItem(grpcItemResponse)
+      .build();
+
+      responseObserver.onNext(response);
+      responseObserver.onCompleted();
     }
 
     @Override
     public void delete(v1.ItemPersistence.DeleteItemRequest request,
         io.grpc.stub.StreamObserver<v1.ItemPersistence.DeleteItemResponse> responseObserver) {
       logger.info("DELETE RPC CALLED");
+
+      Item deletedItem = itemsPersistence.delete(request.getId());
+      GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
+
+      DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
+      responseObserver.onNext(response);
+      responseObserver.onCompleted();
     }
   }
 }

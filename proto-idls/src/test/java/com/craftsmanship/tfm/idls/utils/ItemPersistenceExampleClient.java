@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.idls;
+package com.craftsmanship.tfm.idls.utils;
 
 import java.util.concurrent.TimeUnit;
 
