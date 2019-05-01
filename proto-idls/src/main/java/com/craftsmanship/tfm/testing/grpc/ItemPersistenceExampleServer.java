@@ -1,9 +1,9 @@
-package com.craftsmanship.tfm.idls.utils;
+package com.craftsmanship.tfm.testing.grpc;
 
 import java.io.IOException;
 
-import com.craftsmanship.tfm.idls.stubs.ItemsPersistenceStub;
 import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.testing.persistence.ItemsPersistenceStub;
 import com.craftsmanship.tfm.utils.ConversionUtils;
 
 import org.slf4j.Logger;

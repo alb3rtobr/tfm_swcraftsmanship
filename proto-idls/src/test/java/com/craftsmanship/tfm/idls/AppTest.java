@@ -1,4 +1,4 @@
-package com.craftmanship.tfm.idls;
+package com.craftsmanship.tfm.idls;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

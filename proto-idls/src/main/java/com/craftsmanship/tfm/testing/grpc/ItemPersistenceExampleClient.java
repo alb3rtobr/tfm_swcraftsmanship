@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.idls.utils;
+package com.craftsmanship.tfm.testing.grpc;
 
 import java.util.concurrent.TimeUnit;
 

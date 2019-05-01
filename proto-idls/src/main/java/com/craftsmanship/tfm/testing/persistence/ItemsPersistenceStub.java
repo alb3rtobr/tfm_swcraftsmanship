@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.idls.stubs;
+package com.craftsmanship.tfm.testing.persistence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
