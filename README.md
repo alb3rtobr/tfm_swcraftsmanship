@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship.svg?branch=master)](https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship)
+
 # tfm_swcraftsmanship
 
 Our awesome TFM
