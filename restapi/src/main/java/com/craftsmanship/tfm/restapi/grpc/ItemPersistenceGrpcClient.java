@@ -11,14 +11,14 @@ import org.slf4j.LoggerFactory;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import v1.ItemPersistenceServiceGrpc;
-import v1.ItemPersistence.CreateItemRequest;
-import v1.ItemPersistence.CreateItemResponse;
-import v1.ItemPersistence.ListItemRequest;
-import v1.ItemPersistence.ListItemResponse;
-import v1.ItemPersistence.GrpcItem;
-import v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.Empty;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 
 public class ItemPersistenceGrpcClient {
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceGrpcClient.class);
@@ -67,7 +67,7 @@ public class ItemPersistenceGrpcClient {
     public List<Item> list() {
         logger.info("List all Items");
 
-        ListItemRequest request = ListItemRequest.newBuilder().build();
+        Empty request = Empty.newBuilder().build();
 
         ListItemResponse response = blockingStub.list(request);
         List<GrpcItem> itemsResponse = response.getItemList();

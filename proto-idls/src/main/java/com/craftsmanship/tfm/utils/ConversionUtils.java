@@ -2,7 +2,7 @@ package com.craftsmanship.tfm.utils;
 
 import com.craftsmanship.tfm.models.Item;
 
-import v1.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
 
 public class ConversionUtils {
     public static Item getItemFromGrpcItem(GrpcItem grpcItem) {

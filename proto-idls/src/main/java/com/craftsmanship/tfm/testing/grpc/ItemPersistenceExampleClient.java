@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import v1.ItemPersistenceServiceGrpc;
-import v1.ItemPersistence.CreateItemRequest;
-import v1.ItemPersistence.CreateItemResponse;
-import v1.ItemPersistence.GrpcItem;
-import v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 
 public class ItemPersistenceExampleClient {
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceExampleClient.class);
