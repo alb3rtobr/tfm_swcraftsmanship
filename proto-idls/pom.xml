@@ -127,7 +127,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.craftmanship.tfm.idls.ItemPersistenceExampleServer</mainClass>
+              <mainClass>com.craftsmanship.tfm.idls.ItemPersistenceExampleServer</mainClass>
             </manifest>
           </archive>
         </configuration>
