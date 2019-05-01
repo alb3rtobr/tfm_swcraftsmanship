@@ -5,7 +5,7 @@ dirs=('stockchecker' 'restapi')
 cd proto-idls
 mvn clean install
 if [ $? -ne 0 ];then
-  print "Error while running 'mvn clean install' in proto-idls project."
+  echo "Error while running 'mvn clean install' in proto-idls project."
   return 1
 fi
 cd ..
@@ -16,7 +16,7 @@ for dir in ${dirs[@]}; do
   mvn test
   exit_code=$?
   if [ ${exit_code} -ne 0 ];then
-    print "Error while running 'mvn test' in ${dir} project."
+    echo "Error while running 'mvn test' in ${dir} project."
     err=$((err + exit_code))
   fi
   cd ..

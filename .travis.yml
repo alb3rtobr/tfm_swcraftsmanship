@@ -1,3 +1,13 @@
 language: java
 
-script: "./ci_tests.sh"
+jobs:
+  include:
+    - stage: test
+      script: cd proto-idls;mvn clean install;cd ..
+    - stage: test restapi
+      script: cd restapi;mvn test;cd ..
+    - stage: test stockchecker
+      script: cd stockchecker;mvn test;cd ..
+
+
+#script: "./ci_tests.sh"
