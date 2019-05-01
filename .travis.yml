@@ -1,2 +1,10 @@
 language: java
-
+jobs:
+  include:
+  - stage: test restapi
+    script: cd proto-idls;mvn clean install;cd ..;cd restapi;mvn test
+  - stage: test stockchecker
+    script: cd proto-idls;mvn clean install;cd ..;cd stockchecker;mvn test
+notifications:
+  slack:
+    secure: CD4PXGtzOtoQtO4Gah6TwItEvPZZGZ/fSfZZGV/lasjj6qrfYQnSO8Qtc0OGPUZHR/ygbB18u6lON2Ko5AT/7pQNyXeImRXKnEMz05Y94iHzrjqzWrq5Q5OfafhlKJLulfFo9v9ChfdrhN/J8qKxUKtsXmTaPzmD4k02dVzPmTzKLyL/TKX21DKUUJlqvRIB/vZgOsaCsfPHjzVd/9Sr9TzUWEMN759pNlmnFgfrr0BDXrIgaPzKrG2h1CnHkHevR+rBBOP3IBCOuxIt5BxjHet3lUizTO4SybLVk3LhkYmg+1pbiSYv0iYUnhXNZcdX23NNryc34Rg+At1rbU4ARX336Qx2jRiBbtE2a1T2JEoMJVa67mspw7frLBWIoJGN1vPpoIUvHqu80YntYe55jCyw/d5aYaAThQnLtpZSFPJoTP6IZnv6sVqzPZ59+g8xG3j0kRggWkRlP8b6gafPzedRx+JcRdA7kpJqVffFTk8AkUOYcl2CRpynd/Cc0MSv4hueeB7Z6yOacWO5op6slgCfTk7UPxtdZLxHAAv/ewgE0fX7x/3uLERkSVoqKgCMOAHoYrJYQK1J3FmTHAn1fdVN67OvFOhotoQiXyn2LV4wbRTBxfVHehw6vvkjA7UwUCiAx2fzQwR9cX1nRBG9UjBVYr7bSNzOyr8Y/rl/z/A=

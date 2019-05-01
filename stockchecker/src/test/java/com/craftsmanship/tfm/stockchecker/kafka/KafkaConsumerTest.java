@@ -84,13 +84,13 @@ public class KafkaConsumerTest {
   @Test
   public void testReceive() throws Exception {
     // send the message
-	Item item= new Item.Builder().withDescription("PS4").build();
+	Item item= new Item.Builder().withStock(5).withDescription("PS4").build();
 	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
 	template.sendDefault(itemOp);
     
     LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
 
-    consumer.getLatch().await(10000, TimeUnit.MILLISECONDS);
+    consumer.getLatch().await(20000, TimeUnit.MILLISECONDS);
     // check that the message was received
     assertThat(consumer.getLatch().getCount()).isEqualTo(0);
   }
