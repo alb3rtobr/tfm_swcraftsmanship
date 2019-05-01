@@ -8,12 +8,12 @@ service ItemPersistenceService {
     rpc get (GetItemRequest) returns (GetItemResponse);
     rpc update (UpdateItemRequest) returns (UpdateItemResponse);
     rpc delete (DeleteItemRequest) returns (DeleteItemResponse);
+    rpc count (Empty) returns (CountItemResponse);
 }
 
 message GrpcItem {
     int64 id = 1;
     string description = 2;
-    int32 stock = 3;
 }
 
 message CreateItemRequest {
@@ -54,4 +54,12 @@ message DeleteItemRequest {
 
 message DeleteItemResponse {
     GrpcItem item = 1;
+}
+
+message Empty {
+
+}
+
+message CountItemResponse {
+    int32 numberOfItems = 1;
 }
