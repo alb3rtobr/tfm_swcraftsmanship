@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.CountItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemRequest;
@@ -28,12 +29,19 @@ import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceS
 public class ItemPersistenceExampleServer {
   private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceExampleServer.class);
 
+  private int port;
   private Server server;
+  private ItemsPersistenceStub itemsPersistenceStub;
 
-  private void start() throws IOException {
-    /* The port on which the server should run */
-    int port = 50051;
-    server = ServerBuilder.forPort(port).addService(new ItemPersistenceServiceImpl()).build().start();
+  public ItemPersistenceExampleServer(int port) {
+    this.port = port;
+  }
+
+  public void start() throws IOException {
+    // create the items persistence stub
+    itemsPersistenceStub = new ItemsPersistenceStub();
+
+    server = ServerBuilder.forPort(this.port).addService(new ItemPersistenceServiceImpl(itemsPersistenceStub)).build().start();
     logger.info("Server started, listening on " + port);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -47,7 +55,7 @@ public class ItemPersistenceExampleServer {
     });
   }
 
-  private void stop() {
+  public void stop() {
     if (server != null) {
       server.shutdown();
     }
@@ -57,24 +65,32 @@ public class ItemPersistenceExampleServer {
    * Await termination on the main thread since the grpc library uses daemon
    * threads.
    */
-  private void blockUntilShutdown() throws InterruptedException {
+  public void blockUntilShutdown() throws InterruptedException {
     if (server != null) {
       server.awaitTermination();
     }
+  }
+
+  public void initialize() {
+    itemsPersistenceStub.initialize();
   }
 
   /**
    * Main launches the server from the command line.
    */
   public static void main(String[] args) throws IOException, InterruptedException {
-    final ItemPersistenceExampleServer server = new ItemPersistenceExampleServer();
+    final ItemPersistenceExampleServer server = new ItemPersistenceExampleServer(50051);
     server.start();
     server.blockUntilShutdown();
   }
 
-  static class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
+  class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
 
-    private static ItemsPersistenceStub itemsPersistence = new ItemsPersistenceStub();
+    private ItemsPersistenceStub itemsPersistence;
+
+    public ItemPersistenceServiceImpl(ItemsPersistenceStub itemsPersistenceStub) {
+      this.itemsPersistence = itemsPersistenceStub;
+    }
 
     @Override
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
@@ -143,6 +159,16 @@ public class ItemPersistenceExampleServer {
       GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
 
       DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
+      responseObserver.onNext(response);
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void count(Empty request, io.grpc.stub.StreamObserver<CountItemResponse> responseObserver) {
+      logger.info("DELETE RPC CALLED");
+
+      CountItemResponse response = CountItemResponse.newBuilder().setNumberOfItems(itemsPersistence.count()).build();
+
       responseObserver.onNext(response);
       responseObserver.onCompleted();
     }

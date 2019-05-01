@@ -40,4 +40,9 @@ public class ItemsPersistenceStub implements ItemsPersistence {
     public Item delete(Long id) {
         return items.remove(id);
     }
+
+    @Override
+    public int count() {
+        return items.size();
+    }
 }

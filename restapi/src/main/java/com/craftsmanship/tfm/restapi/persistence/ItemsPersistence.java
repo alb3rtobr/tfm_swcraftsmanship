@@ -10,4 +10,5 @@ public interface ItemsPersistence {
     public Item get(Long id);
     public Item update(Long id, Item item);
     public Item delete(Long id);
+    public int count();
 }

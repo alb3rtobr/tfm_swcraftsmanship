@@ -35,4 +35,13 @@ public class ItemsPersistenceStub {
     public Item delete(Long id) {
         return items.remove(id);
     }
+
+    public int count() {
+        return items.size();
+    }
+
+    public void initialize() {
+        items.clear();
+        currentIndex = 1L;
+    }
 }

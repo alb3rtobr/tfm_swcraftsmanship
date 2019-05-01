@@ -15,7 +15,7 @@ public class ItemsPersistenceGrpc implements ItemsPersistence {
 
     @Override
     public Item create(Item item) {
-        return grpcClient.createItem(item);
+        return grpcClient.create(item);
     }
 
     @Override
@@ -25,17 +25,22 @@ public class ItemsPersistenceGrpc implements ItemsPersistence {
 
     @Override
     public Item get(Long id) {
-        return null;
+        return grpcClient.get(id);
     }
 
     @Override
     public Item update(Long id, Item item) {
-        return null;
+        return grpcClient.update(id, item);
     }
 
     @Override
     public Item delete(Long id) {
         return null;
+    }
+
+    @Override
+    public int count() {
+        return grpcClient.count();
     }
 
 }
