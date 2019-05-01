@@ -2,12 +2,10 @@ language: java
 
 jobs:
   include:
-    - stage: test
-      script: cd proto-idls;mvn clean install;cd ..
     - stage: test restapi
-      script: cd restapi;mvn test;cd ..
+      script: cd proto-idls;mvn clean install;cd ..;cd restapi;mvn test;cd ..
     - stage: test stockchecker
-      script: cd stockchecker;mvn test;cd ..
+      script: cd proto-idls;mvn clean install;cd ..;cd stockchecker;mvn test;cd ..
 
 
 #script: "./ci_tests.sh"
