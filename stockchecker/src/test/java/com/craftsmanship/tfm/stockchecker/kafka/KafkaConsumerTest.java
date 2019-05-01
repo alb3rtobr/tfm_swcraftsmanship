@@ -90,7 +90,7 @@ public class KafkaConsumerTest {
     
     LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
 
-    consumer.getLatch().await(10000, TimeUnit.MILLISECONDS);
+    consumer.getLatch().await(20000, TimeUnit.MILLISECONDS);
     // check that the message was received
     assertThat(consumer.getLatch().getCount()).isEqualTo(0);
   }
