@@ -10,6 +10,7 @@ if [ $? -ne 0 ];then
 fi
 cd ..
 
+
 err=0
 for dir in ${dirs[@]}; do
   cd ${dir}
