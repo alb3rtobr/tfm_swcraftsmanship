@@ -84,7 +84,7 @@ public class KafkaConsumerTest {
   @Test
   public void testReceive() throws Exception {
     // send the message
-	Item item= new Item.Builder().withStock(5).withDescription("PS4").build();
+	Item item= new Item.Builder().withDescription("PS4").build();
 	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
 	template.sendDefault(itemOp);
     
