@@ -1,6 +1,8 @@
 language: java
 jobs:
   include:
+  - stage: test dal
+    script: cd dal; mvn test
   - stage: test restapi
     script: cd proto-idls;mvn clean install;cd ..;cd restapi;mvn test
   - stage: test stockchecker
