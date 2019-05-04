@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dirs=('stockchecker' 'restapi')
+dirs=('stockchecker' 'restapi' 'dal')
 
 cd proto-idls
 mvn clean install
