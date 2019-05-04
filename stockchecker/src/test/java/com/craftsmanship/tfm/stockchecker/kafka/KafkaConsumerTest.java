@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,24 +75,42 @@ public class KafkaConsumerTest {
     template.setDefaultTopic(RECEIVER_TOPIC);
 
     // wait until the partitions are assigned
-    for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry
-        .getListenerContainers()) {
-      ContainerTestUtils.waitForAssignment(messageListenerContainer,
-          embeddedKafka.getEmbeddedKafka().getPartitionsPerTopic());
+    for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry.getListenerContainers()) {
+      ContainerTestUtils.waitForAssignment(messageListenerContainer,embeddedKafka.getEmbeddedKafka().getPartitionsPerTopic());
     }
   }
-
+  
   @Test
-  public void testReceive() throws Exception {
-    // send the message
-	Item item= new Item.Builder().withDescription("PS4").build();
+  public void whenItemsAreBelowThreshold_thenRestApiIsCalled() throws Exception {
+	// send the message
+	consumer.resetLatch(1);
+	Mockito.when(consumer.getItemsPersistence().count()).thenReturn(0);
+	Item item= new Item.Builder().withDescription("PlayStation4").build();
 	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
 	template.sendDefault(itemOp);
     
     LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
 
-    consumer.getLatch().await(20000, TimeUnit.MILLISECONDS);
-    // check that the message was received
+    consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
+    // check that the message was received, so the latch is 0
     assertThat(consumer.getLatch().getCount()).isEqualTo(0);
+  }
+  
+  @Test
+  public void whenItemsAreAboveThreshold_thenRestApiIsNotCalled() throws Exception {
+    // send the message
+	consumer.resetLatch(1);
+	Mockito.when(consumer.getItemsPersistence().count()).thenReturn(3);
+	LOGGER.info("count(): "+consumer.getLatch().getCount());
+	Item item= new Item.Builder().withDescription("PlayStation4").build();
+	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
+	template.sendDefault(itemOp);
+    
+    LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
+
+    consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
+    
+    // check that the latch was not decreased, so the latch is 1
+    assertThat(consumer.getLatch().getCount()).isEqualTo(1);
   }
 }

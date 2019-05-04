@@ -3,16 +3,24 @@ package com.craftsmanship.tfm.stockchecker.kafka;
 import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 
 import com.craftsmanship.tfm.models.ItemOperation;
+import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistence;
 
 public class KafkaConsumer {
 
 	@Value("${kafka.topic.json}")
 	public static String TOPIC_NAME="mytopic";
+	
+	@Autowired
+	private ItemsPersistence itemsPersistence;
 
+	@Value("${stockchecker.threshold}")
+	private int MIN_STOCK_THRESHOLD;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumer.class);
 
 	private CountDownLatch latch = new CountDownLatch(1);
@@ -21,9 +29,24 @@ public class KafkaConsumer {
 		return latch;
 	}
 
+	//TODO: Used in tests with Mockito
+	public ItemsPersistence getItemsPersistence() {
+		return itemsPersistence;
+	}
+	
+	//TODO: UGLY!!!
+	public void resetLatch(int i) {
+		latch = new CountDownLatch(i);
+	}
+
 	@KafkaListener(topics = "${kafka.topic.json}")
 	public void consume(ItemOperation payload) {
 		LOGGER.info("received payload='{}'", payload.toString());
-		latch.countDown();
+		if (itemsPersistence.count()<MIN_STOCK_THRESHOLD) {
+			LOGGER.info("Items below threshold ( "+itemsPersistence.count()+"<"+MIN_STOCK_THRESHOLD+" ), contacting REST API.");
+			latch.countDown();
+		}else {
+			LOGGER.info("Items above threshold ( "+itemsPersistence.count()+">="+MIN_STOCK_THRESHOLD+" ), NOT contacting REST API.");
+		}		
 	}
 }

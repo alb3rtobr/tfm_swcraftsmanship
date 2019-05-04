@@ -1,3 +1,11 @@
+spring:
+  application:
+    name: stockchecker
+stockchecker:
+  threshold: 2
+dal:
+  host: dal
+  port: 50051
 kafka:
   bootstrap-servers: localhost:9092
   topic:
