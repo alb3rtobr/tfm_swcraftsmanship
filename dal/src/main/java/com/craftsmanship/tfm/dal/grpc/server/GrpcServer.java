@@ -6,6 +6,9 @@ import com.craftsmanship.tfm.dal.model.Item;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
@@ -25,22 +28,19 @@ import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse.Builder;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 
+@Component
 public class GrpcServer {
   private static final Logger logger = LoggerFactory.getLogger(GrpcServer.class);
 
   private int port;
   private Server server;
-  private DataAccess dataAccess;
-
-  public GrpcServer(int port) {
-    this.port = port;
-  }
+  
+  @Autowired 
+  private ItemPersistenceServiceImpl itemPersistenceServiceImpl;
 
   public void start() throws IOException {
-    // create the items persistence stub
-    dataAccess = new DataAccess();
-
-    server = ServerBuilder.forPort(this.port).addService(new ItemPersistenceServiceImpl(dataAccess)).build().start();
+	  
+    server = ServerBuilder.forPort(this.port).addService(itemPersistenceServiceImpl).build().start();
     logger.info("Server started, listening on " + port);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -73,8 +73,10 @@ public class GrpcServer {
   public void initialize() {
   }
 
+  @Component
   class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
 
+	@Autowired
     private DataAccess dataAccess;
 
     public ItemPersistenceServiceImpl(DataAccess dataAccess) {
@@ -169,6 +171,10 @@ public class GrpcServer {
 	private Item getItemFromGrpcItem(GrpcItem grpcItem) {
         return new Item(grpcItem.getId(),grpcItem.getDescription());
     }
+  }
+
+  public void setPort(int port) {
+	  this.port = port;
 
   }
 }

@@ -1,14 +1,24 @@
 package com.craftsmanship.tfm.dal;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 
 @SpringBootApplication
+@ComponentScan("com.craftsmanship.tfm.dal")
 public class GrpcServerApplication implements CommandLineRunner{
 
+	@Autowired 
+	private GrpcServer grpcServer;
+	
+	@Value(value = "${grpc-server.port}")
+	private int grpcServerPort;
+	
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(GrpcServerApplication.class);
         app.run(args);
@@ -16,8 +26,9 @@ public class GrpcServerApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		final GrpcServer grpcServer = new GrpcServer(50051);
+		grpcServer.setPort(grpcServerPort);
 		grpcServer.start();
+		
 		//TODO: check if needed next line ??
 //		grpcServer.blockUntilShutdown();
 	}

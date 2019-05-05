@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 import com.craftsmanship.tfm.dal.model.Item;
 
 @RunWith(SpringRunner.class)
@@ -21,6 +22,10 @@ public class ItemEntityTest {
 	
 	@Autowired
 	private TestEntityManager entityManager;
+	
+	//Needed to be able to stop server when running all unit tests in a row
+	@Autowired
+	private GrpcServer grpcServer;
 	
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -34,6 +39,7 @@ public class ItemEntityTest {
 
 	@After
 	public void tearDown() throws Exception {
+		grpcServer.stop();
 	}
 	
 	@Test

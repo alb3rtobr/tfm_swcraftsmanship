@@ -3,10 +3,12 @@ package com.craftsmanship.tfm.dal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.craftsmanship.tfm.dal.model.Item;
 import com.craftsmanship.tfm.dal.repository.ItemRepository;
 
+@Component
 public class DataAccess {
 	
 	@Autowired

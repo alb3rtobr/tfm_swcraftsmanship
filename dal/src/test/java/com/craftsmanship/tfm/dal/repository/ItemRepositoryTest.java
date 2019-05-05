@@ -1,7 +1,6 @@
 package com.craftsmanship.tfm.dal.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 import java.util.Optional;
 
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 import com.craftsmanship.tfm.dal.model.Item;
 
 @RunWith(SpringRunner.class)
@@ -21,6 +21,10 @@ public class ItemRepositoryTest {
 
 	@Autowired 
 	private ItemRepository itemRepository;
+
+	//Needed to be able to stop server when running all unit tests in a row
+	@Autowired
+	private GrpcServer grpcServer;
 	
 	private Item item;
 	
@@ -31,6 +35,7 @@ public class ItemRepositoryTest {
 
 	@After
 	public void tearDown() throws Exception {
+		grpcServer.stop();
 	}
 
 	@Test
