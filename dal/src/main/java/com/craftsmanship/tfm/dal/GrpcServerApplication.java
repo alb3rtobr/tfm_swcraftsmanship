@@ -21,11 +21,15 @@ public class GrpcServerApplication implements CommandLineRunner{
 	
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(GrpcServerApplication.class);
+		for (String arg:args) {
+			System.out.println(arg + ":" + arg);
+		}
         app.run(args);
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
+		System.out.println("grpcServerPort: " + grpcServerPort);
 		grpcServer.setPort(grpcServerPort);
 		grpcServer.start();
 		

@@ -1,0 +1,11 @@
+# Default values for dal.
+# Declare variables to be passed into your templates.
+
+dal:
+  port: 50057
+  replicaCount: 1
+
+  image:
+    repository: almacar_dal
+    tag: 0.1
+    pullPolicy: IfNotPresent

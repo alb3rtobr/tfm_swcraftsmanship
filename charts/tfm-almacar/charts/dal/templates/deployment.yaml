@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dal
+spec:
+  selector:
+    matchLabels:
+      app: dal
+  strategy:
+    type: Recreate
+  replicas: {{ .Values.dal.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: dal
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.dal.image.repository }}:{{ .Values.dal.image.tag }}"
+        imagePullPolicy: {{ .Values.dal.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.dal.port }}
+        env:
+        - name: GRPC_SERVER_PORT
+          value: "{{ .Values.dal.port }}"
+
