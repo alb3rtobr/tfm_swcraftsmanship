@@ -5,6 +5,10 @@ spring:
     active: dev
 stockchecker:
   threshold: 1
+  rest:
+    host: localhost
+    port: 8080
+    endpoint: order
 dal:
   host: localhost
   port: 50051

@@ -3,6 +3,10 @@ spring:
     name: stockchecker
 stockchecker:
   threshold: 2
+  rest:
+    host: localhost
+    port: 8080
+    endpoint: order
 dal:
   host: dal
   port: 50051

@@ -9,6 +9,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistence;
+import com.craftsmanship.tfm.stockchecker.rest.RestClient;
 
 public class KafkaConsumer {
 
@@ -18,6 +19,9 @@ public class KafkaConsumer {
 	@Autowired
 	private ItemsPersistence itemsPersistence;
 
+	@Autowired
+	private RestClient restClient;
+	
 	@Value("${stockchecker.threshold}")
 	private int MIN_STOCK_THRESHOLD;
 	
@@ -44,6 +48,7 @@ public class KafkaConsumer {
 		LOGGER.info("received payload='{}'", payload.toString());
 		if (itemsPersistence.count()<MIN_STOCK_THRESHOLD) {
 			LOGGER.info("Items below threshold ( "+itemsPersistence.count()+"<"+MIN_STOCK_THRESHOLD+" ), contacting REST API.");
+			//restClient.sendPurchaseOrder(payload.getItem());
 			latch.countDown();
 		}else {
 			LOGGER.info("Items above threshold ( "+itemsPersistence.count()+">="+MIN_STOCK_THRESHOLD+" ), NOT contacting REST API.");
