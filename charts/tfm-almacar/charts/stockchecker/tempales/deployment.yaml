@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stockchecker
+spec:
+  selector:
+    matchLabels:
+      app: stockchecker
+  strategy:
+    type: Recreate
+  replicas: {{ .Values.stockchecker.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: stockchecker
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.stockchecker.image.repository }}:{{ .Values.stockchecker.image.tag }}"
+        imagePullPolicy: {{ .Values.stockchecker.image.pullPolicy }}
+        env:
+        - name: KAFKA_HOST
+          value: kafka
+        - name: KAFKA_PORT
+          value: "9092"
+
+
