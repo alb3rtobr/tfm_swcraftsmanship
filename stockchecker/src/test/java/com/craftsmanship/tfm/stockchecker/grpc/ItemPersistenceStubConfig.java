@@ -1,7 +1,6 @@
 package com.craftsmanship.tfm.stockchecker.grpc;
 
 import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistence;
-import com.craftsmanship.tfm.testing.persistence.ItemsPersistenceStub;
 import com.craftsmanship.tfm.stockchecker.grpc.ItemPersistenceStub;
 
 import org.mockito.Mockito;

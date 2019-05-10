@@ -35,7 +35,12 @@ public class KafkaConsumer {
 
 	//TODO: Used in tests with Mockito
 	public ItemsPersistence getItemsPersistence() {
-		return itemsPersistence;
+		return this.itemsPersistence;
+	}
+	
+	//TODO: Used in tests with Mockito
+	public void setRestClient(RestClient restClient) {
+		this.restClient=restClient;
 	}
 	
 	//TODO: UGLY!!!
@@ -48,7 +53,7 @@ public class KafkaConsumer {
 		LOGGER.info("received payload='{}'", payload.toString());
 		if (itemsPersistence.count()<MIN_STOCK_THRESHOLD) {
 			LOGGER.info("Items below threshold ( "+itemsPersistence.count()+"<"+MIN_STOCK_THRESHOLD+" ), contacting REST API.");
-			//restClient.sendPurchaseOrder(payload.getItem());
+			restClient.sendPurchaseOrder(payload.getItem());
 			latch.countDown();
 		}else {
 			LOGGER.info("Items above threshold ( "+itemsPersistence.count()+">="+MIN_STOCK_THRESHOLD+" ), NOT contacting REST API.");

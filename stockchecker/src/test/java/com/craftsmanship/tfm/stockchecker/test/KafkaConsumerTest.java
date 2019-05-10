@@ -1,6 +1,8 @@
-package com.craftsmanship.tfm.stockchecker.kafka;
+package com.craftsmanship.tfm.stockchecker.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
+import com.craftsmanship.tfm.stockchecker.kafka.KafkaConsumer;
+import com.craftsmanship.tfm.stockchecker.rest.RestClientStub;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -77,30 +82,48 @@ public class KafkaConsumerTest {
     // wait until the partitions are assigned
     for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry.getListenerContainers()) {
       ContainerTestUtils.waitForAssignment(messageListenerContainer,embeddedKafka.getEmbeddedKafka().getPartitionsPerTopic());
-    }
+    }    
+    
   }
   
   @Test
-  public void whenItemsAreBelowThreshold_thenRestApiIsCalled() throws Exception {
+  public void whenItemsAreBelowThreshold_thenRestApiIsCalledWithExpectedItem() throws Exception {
+	  
 	// send the message
 	consumer.resetLatch(1);
-	Mockito.when(consumer.getItemsPersistence().count()).thenReturn(0);
 	Item item= new Item.Builder().withDescription("PlayStation4").build();
+	
+	//DB is mocked
+	Mockito.when(consumer.getItemsPersistence().count()).thenReturn(0);
+		
 	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
+	
+    ArgumentCaptor<Item> argument = ArgumentCaptor.forClass(Item.class);
+    RestClientStub mockRestClient = Mockito.mock(RestClientStub.class);
+    consumer.setRestClient(mockRestClient);
+	
 	template.sendDefault(itemOp);
     
     LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
 
+    //Wait for the message to be received
     consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
     // check that the message was received, so the latch is 0
     assertThat(consumer.getLatch().getCount()).isEqualTo(0);
+    
+    //check that sendPurchaseOrder was called with 'item'
+    verify(mockRestClient).sendPurchaseOrder(argument.capture());
+    assertEquals("{ id='0', description='PlayStation4'}",argument.getValue().toString());
   }
   
   @Test
   public void whenItemsAreAboveThreshold_thenRestApiIsNotCalled() throws Exception {
     // send the message
 	consumer.resetLatch(1);
+	
+	//DB is mocked
 	Mockito.when(consumer.getItemsPersistence().count()).thenReturn(3);
+	
 	LOGGER.info("count(): "+consumer.getLatch().getCount());
 	Item item= new Item.Builder().withDescription("PlayStation4").build();
 	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);

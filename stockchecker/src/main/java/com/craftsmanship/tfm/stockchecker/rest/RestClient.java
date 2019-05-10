@@ -1,10 +1,13 @@
 
 package com.craftsmanship.tfm.stockchecker.rest;
 
+import org.springframework.web.client.RestTemplate;
+
 import com.craftsmanship.tfm.models.Item;
 
 public interface RestClient {
 
-	public void sendPurchaseOrder(Item item);
-	
+	public PurchaseOrder sendPurchaseOrder(Item item);
+
+	public RestTemplate getRestTemplate();
 }
