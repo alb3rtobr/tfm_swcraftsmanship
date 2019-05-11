@@ -23,5 +23,9 @@ spec:
           value: kafka
         - name: KAFKA_PORT
           value: "9092"
+        - name: DAL_HOST
+          value: dal
+        - name: DAL_PORT
+          value: "50057"
 
 
