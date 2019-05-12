@@ -35,6 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
+
 import com.craftsmanship.tfm.stockchecker.kafka.KafkaConsumer;
 import com.craftsmanship.tfm.stockchecker.rest.RestClientStub;
 
@@ -43,97 +44,95 @@ import com.craftsmanship.tfm.stockchecker.rest.RestClientStub;
 @DirtiesContext
 public class KafkaConsumerTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerTest.class);
 
-  @Value("${kafka.topic.json}")
-  private static String RECEIVER_TOPIC = "mytopic";
+	@Value("${kafka.topic.json}")
+	private static String RECEIVER_TOPIC = "mytopic";
 
-  @Autowired
-  private KafkaConsumer	consumer;
+	@Autowired
+	private KafkaConsumer consumer;
 
-  private KafkaTemplate<String, ItemOperation> template;
+	private KafkaTemplate<String, ItemOperation> template;
 
-  @Autowired
-  private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+	@Autowired
+	private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
 
-  @ClassRule
-  public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, RECEIVER_TOPIC);
+	@ClassRule
+	public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, RECEIVER_TOPIC);
 
-  @BeforeClass
-  public static void setup() {
-    System.setProperty("kafka.bootstrap-servers", embeddedKafka.getEmbeddedKafka().getBrokersAsString());
-  }
-  
-  @Before
-  public void setUp() throws Exception {
-    // set up the Kafka producer properties
-    Map<String, Object> senderProperties = KafkaTestUtils.senderProps(embeddedKafka.getEmbeddedKafka().getBrokersAsString());
-    senderProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-    senderProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-    
-    // create a Kafka producer factory
-    ProducerFactory<String, ItemOperation> producerFactory = new DefaultKafkaProducerFactory<String, ItemOperation>(senderProperties);
+	@BeforeClass
+	public static void setup() {
+		System.setProperty("kafka.bootstrap-servers", embeddedKafka.getEmbeddedKafka().getBrokersAsString());
+	}
 
-    // create a Kafka template
-    template = new KafkaTemplate<>(producerFactory);
-    // set the default topic to send to
-    template.setDefaultTopic(RECEIVER_TOPIC);
+	@Before
+	public void setUp() throws Exception {
+		// set up the Kafka producer properties
+		Map<String, Object> senderProperties = KafkaTestUtils.senderProps(embeddedKafka.getEmbeddedKafka().getBrokersAsString());
+		senderProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		senderProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-    // wait until the partitions are assigned
-    for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry.getListenerContainers()) {
-      ContainerTestUtils.waitForAssignment(messageListenerContainer,embeddedKafka.getEmbeddedKafka().getPartitionsPerTopic());
-    }    
-    
-  }
-  
-  @Test
-  public void whenItemsAreBelowThreshold_thenRestApiIsCalledWithExpectedItem() throws Exception {
-	  
-	// send the message
-	consumer.resetLatch(1);
-	Item item= new Item.Builder().withDescription("PlayStation4").build();
-	
-	//DB is mocked
-	Mockito.when(consumer.getItemsPersistence().count()).thenReturn(0);
+		// create a Kafka producer factory
+		ProducerFactory<String, ItemOperation> producerFactory = new DefaultKafkaProducerFactory<String, ItemOperation>(senderProperties);
+
+		// create a Kafka template
+		template = new KafkaTemplate<>(producerFactory);
+		// set the default topic to send to
+		template.setDefaultTopic(RECEIVER_TOPIC);
+
+		// wait until the partitions are assigned
+		for (MessageListenerContainer messageListenerContainer : kafkaListenerEndpointRegistry.getListenerContainers()) {
+			ContainerTestUtils.waitForAssignment(messageListenerContainer,embeddedKafka.getEmbeddedKafka().getPartitionsPerTopic());
+		}    
+
+	}
+
+	@Test
+	public void whenItemsAreBelowThreshold_thenRestApiIsCalledWithExpectedItem() throws Exception {
+
+		Item item= new Item.Builder().withDescription("PlayStation4").build();
+		consumer.resetLatch(1);
 		
-	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
-	
-    ArgumentCaptor<Item> argument = ArgumentCaptor.forClass(Item.class);
-    RestClientStub mockRestClient = Mockito.mock(RestClientStub.class);
-    consumer.setRestClient(mockRestClient);
-	
-	template.sendDefault(itemOp);
-    
-    LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
+		//DB is mocked
+		Mockito.when(consumer.getItemsPersistence().count()).thenReturn(0);
 
-    //Wait for the message to be received
-    consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
-    // check that the message was received, so the latch is 0
-    assertThat(consumer.getLatch().getCount()).isEqualTo(0);
-    
-    //check that sendPurchaseOrder was called with 'item'
-    verify(mockRestClient).sendPurchaseOrder(argument.capture());
-    assertEquals("{ id='0', description='PlayStation4'}",argument.getValue().toString());
-  }
-  
-  @Test
-  public void whenItemsAreAboveThreshold_thenRestApiIsNotCalled() throws Exception {
-    // send the message
-	consumer.resetLatch(1);
-	
-	//DB is mocked
-	Mockito.when(consumer.getItemsPersistence().count()).thenReturn(3);
-	
-	LOGGER.info("count(): "+consumer.getLatch().getCount());
-	Item item= new Item.Builder().withDescription("PlayStation4").build();
-	ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
-	template.sendDefault(itemOp);
-    
-    LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
+		ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
 
-    consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
-    
-    // check that the latch was not decreased, so the latch is 1
-    assertThat(consumer.getLatch().getCount()).isEqualTo(1);
-  }
+		ArgumentCaptor<Item> argument = ArgumentCaptor.forClass(Item.class);
+		RestClientStub mockRestClient = Mockito.mock(RestClientStub.class);
+		consumer.setRestClient(mockRestClient);
+
+		template.sendDefault(itemOp);
+
+		LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
+
+		//Wait for the message to be received
+		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
+		// check that the message was received, so the latch is 0
+		assertThat(consumer.getLatch().getCount()).isEqualTo(0);
+
+		//check that sendPurchaseOrder was called with 'item'
+		verify(mockRestClient).sendPurchaseOrder(argument.capture());
+		assertEquals("{ id='0', description='PlayStation4'}",argument.getValue().toString());
+	}
+
+	@Test
+	public void whenItemsAreAboveThreshold_thenRestApiIsNotCalled() throws Exception {
+		consumer.resetLatch(1);
+
+		//DB is mocked
+		Mockito.when(consumer.getItemsPersistence().count()).thenReturn(3);
+
+		LOGGER.info("count(): "+consumer.getLatch().getCount());
+		Item item= new Item.Builder().withDescription("PlayStation4").build();
+		ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
+		template.sendDefault(itemOp);
+
+		LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
+
+		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
+
+		// check that the latch was not decreased, so the latch is 1
+		assertThat(consumer.getLatch().getCount()).isEqualTo(1);
+	}
 }

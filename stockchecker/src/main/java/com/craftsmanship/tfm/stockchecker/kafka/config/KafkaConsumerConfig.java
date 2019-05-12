@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.stockchecker.kafka;
+package com.craftsmanship.tfm.stockchecker.kafka.config;
 
 
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import com.craftsmanship.tfm.models.ItemOperation;
+import com.craftsmanship.tfm.stockchecker.kafka.KafkaConsumer;
 
 @Configuration
 @EnableKafka

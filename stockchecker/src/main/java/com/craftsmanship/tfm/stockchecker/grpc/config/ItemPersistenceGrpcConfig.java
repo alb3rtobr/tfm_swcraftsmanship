@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.stockchecker.grpc;
+package com.craftsmanship.tfm.stockchecker.grpc.config;
 
 import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistence;
 import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistenceGrpc;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("!dev")
-public class ItemPersistenceGrpcClientConfig {
+public class ItemPersistenceGrpcConfig {
 
   @Value(value = "${dal.host}")
   private String serverHost;
