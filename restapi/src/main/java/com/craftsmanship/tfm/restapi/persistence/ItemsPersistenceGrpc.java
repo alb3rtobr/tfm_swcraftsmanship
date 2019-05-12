@@ -13,6 +13,10 @@ public class ItemsPersistenceGrpc implements ItemsPersistence {
         grpcClient = new ItemPersistenceGrpcClient(serverHost, serverPort);
     }
 
+    public void close() throws InterruptedException {
+        grpcClient.shutdown();
+    }
+
     @Override
     public Item create(Item item) {
         return grpcClient.create(item);

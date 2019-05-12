@@ -49,6 +49,7 @@ public class ItemsPersistenceGrpcTests {
     }
 
     private GrpcServerRunnable grpcServerRunnable;
+    private ItemsPersistenceGrpc itemsPersistenceGrpc;
 
     // TODO: This should be BeforeClass
     @Before
@@ -56,6 +57,8 @@ public class ItemsPersistenceGrpcTests {
         grpcServerRunnable = new GrpcServerRunnable();
         Thread thread = new Thread(grpcServerRunnable);
         thread.start();
+
+        itemsPersistenceGrpc = new ItemsPersistenceGrpc("localhost", 50051);
     }
 
     // TODO: the server stop should be AfterClass and initialize @After
@@ -69,14 +72,15 @@ public class ItemsPersistenceGrpcTests {
             e.printStackTrace();
         }
 
+        itemsPersistenceGrpc.close();
+
         grpcServerRunnable.initialize();
         grpcServerRunnable.doStop();
     }
 
     @Test
-    public void test_when_item_is_created() {
+    public void test_when_item_is_created() throws InterruptedException {
         Item item = new Item.Builder().withDescription("Shoe").build();
-        ItemsPersistenceGrpc itemsPersistenceGrpc = new ItemsPersistenceGrpc("localhost", 50051);
         Item createdItem = itemsPersistenceGrpc.create(item);
         int count = itemsPersistenceGrpc.count();
 
