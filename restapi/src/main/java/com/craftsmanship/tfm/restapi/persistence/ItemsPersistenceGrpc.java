@@ -5,12 +5,18 @@ import java.util.List;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.restapi.grpc.ItemPersistenceGrpcClient;
 
+import io.grpc.ManagedChannel;
+
 public class ItemsPersistenceGrpc implements ItemsPersistence {
 
     private ItemPersistenceGrpcClient grpcClient;
 
     public ItemsPersistenceGrpc(String serverHost, int serverPort) {
         grpcClient = new ItemPersistenceGrpcClient(serverHost, serverPort);
+    }
+
+    public ItemsPersistenceGrpc(ManagedChannel channel) {
+        grpcClient = new ItemPersistenceGrpcClient(channel);
     }
 
     public void close() throws InterruptedException {

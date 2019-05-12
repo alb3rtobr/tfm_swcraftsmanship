@@ -3,86 +3,74 @@ package com.craftsmanship.tfm.restapi.persistence;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
+import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.restapi.grpc.ItemPersistenceGrpcClient;
+import com.craftsmanship.tfm.testing.grpc.ItemPersistenceDummyService;
 import com.craftsmanship.tfm.testing.grpc.ItemPersistenceExampleServer;
+import com.craftsmanship.tfm.testing.grpc.ItemPersistenceInProcessServer;
+import com.craftsmanship.tfm.testing.persistence.ItemsPersistenceStub;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.grpc.ManagedChannel;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.testing.GrpcCleanupRule;
+import io.grpc.util.MutableHandlerRegistry;
+
 public class ItemsPersistenceGrpcTests {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemsPersistenceGrpcTests.class);
+    private ItemPersistenceInProcessServer itemPersistenceGrpcServer;
+    private ItemsPersistenceGrpc grpcClient;
+    private ItemPersistenceServiceBlockingStub blockingStub;
+    private ItemPersistenceServiceStub asyncStub;
 
-    private class GrpcServerRunnable implements Runnable {
-        private ItemPersistenceExampleServer gRpcServer;
-
-        public synchronized void doStop() throws InterruptedException {
-            LOGGER.info("Stopping gRPC Server...");
-            gRpcServer.stop();
-            gRpcServer.blockUntilShutdown();
-        }
-
-        public synchronized void initialize() {
-            LOGGER.info("Initializing gRPC Server...");
-            gRpcServer.initialize();
-        }
-
-        @Override
-        public void run() {
-            gRpcServer = new ItemPersistenceExampleServer(50051);
-            try {
-                LOGGER.info("Starting gRPC Server...");
-                gRpcServer.start();
-                gRpcServer.blockUntilShutdown();
-            } catch (Exception e) {
-                throw new RuntimeException("Exception running gRPC Server");
-            }
-        }
-    }
-
-    private GrpcServerRunnable grpcServerRunnable;
-    private ItemsPersistenceGrpc itemsPersistenceGrpc;
-
-    // TODO: This should be BeforeClass
     @Before
-    public void setUp() {
-        grpcServerRunnable = new GrpcServerRunnable();
-        Thread thread = new Thread(grpcServerRunnable);
-        thread.start();
-
-        itemsPersistenceGrpc = new ItemsPersistenceGrpc("localhost", 50051);
+    public void setUp() throws IOException, InstantiationException, IllegalAccessException {
+        // Create the Item Persistence stub
+        ItemsPersistenceStub itemPersistenceStub = new ItemsPersistenceStub(); 
+        itemPersistenceGrpcServer = new ItemPersistenceInProcessServer(itemPersistenceStub);
+        itemPersistenceGrpcServer.start();
+        ManagedChannel channel = InProcessChannelBuilder
+            .forName("test")
+            .directExecutor()
+            // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
+            // needing certificates.
+            .usePlaintext(true)
+            .build();
+        grpcClient = new ItemsPersistenceGrpc(channel);
+        blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
+        asyncStub = ItemPersistenceServiceGrpc.newStub(channel);
     }
 
-    // TODO: the server stop should be AfterClass and initialize @After
     @After
     public void tearDown() throws InterruptedException {
-        //TODO
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        itemsPersistenceGrpc.close();
-
-        grpcServerRunnable.initialize();
-        grpcServerRunnable.doStop();
+        grpcClient.close();
+        itemPersistenceGrpcServer.stop();
     }
 
     @Test
     public void test_when_item_is_created() throws InterruptedException {
         Item item = new Item.Builder().withDescription("Shoe").build();
-        Item createdItem = itemsPersistenceGrpc.create(item);
-        int count = itemsPersistenceGrpc.count();
+
+        Item createdItem = grpcClient.create(item);
+        int count = grpcClient.count();
 
         item.setId(1L);
         assertThat(createdItem, equalTo(item));
@@ -91,21 +79,19 @@ public class ItemsPersistenceGrpcTests {
 
     @Test
     public void test_given_zero_items_when_list_is_queried_then_no_items_received() {
-        ItemsPersistenceGrpc itemsPersistenceGrpc = new ItemsPersistenceGrpc("localhost", 50051);
-        List<Item> items = itemsPersistenceGrpc.list();
+        List<Item> items = grpcClient.list();
 
         assertThat(items, is(empty()));
     }
 
     @Test
     public void test_given_some_items_when_list_is_queried_then_items_received() {
-        ItemsPersistenceGrpc itemsPersistenceGrpc = new ItemsPersistenceGrpc("localhost", 50051);
         Item item1 = new Item.Builder().withDescription("Shoe").build();
-        Item itemResponse1 = itemsPersistenceGrpc.create(item1);
+        Item itemResponse1 = grpcClient.create(item1);
         Item item2 = new Item.Builder().withDescription("Car").build();
-        Item itemResponse2 = itemsPersistenceGrpc.create(item2);
+        Item itemResponse2 = grpcClient.create(item2);
 
-        List<Item> items = itemsPersistenceGrpc.list();
+        List<Item> items = grpcClient.list();
 
         List<Item> expectedList = new ArrayList<Item>();
         expectedList.add(itemResponse1);
@@ -116,48 +102,46 @@ public class ItemsPersistenceGrpcTests {
 
     @Test
     public void test_given_some_items_when_get_is_queried_then_item_received() {
-        ItemsPersistenceGrpc itemsPersistenceGrpc = new ItemsPersistenceGrpc("localhost", 50051);
         Item item1 = new Item.Builder().withDescription("Shoe").build();
-        Item itemResponse1 = itemsPersistenceGrpc.create(item1);
+        Item itemResponse1 = grpcClient.create(item1);
         Item item2 = new Item.Builder().withDescription("Car").build();
-        itemsPersistenceGrpc.create(item2);
+        grpcClient.create(item2);
 
-        Item responseItem = itemsPersistenceGrpc.get(1L);
+        Item responseItem = grpcClient.get(1L);
 
         assertThat(responseItem, equalTo(itemResponse1));
     }
 
-    public void test_when_get_is_queried_with_id_that_does_not_exist_then_error() {
-        //TODO
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+    // public void test_when_get_is_queried_with_id_that_does_not_exist_then_error() {
+    //     // TODO
+    //     try {
+    //         Thread.sleep(1000);
+    //     } catch (InterruptedException e) {
+    //         // TODO Auto-generated catch block
+    //         e.printStackTrace();
+    //     }
+    // }
 
     @Test
     public void test_given_item_when_updated_is_queried_then_item_is_updated() {
-        ItemsPersistenceGrpc itemsPersistenceGrpc = new ItemsPersistenceGrpc("localhost", 50051);
         Item item1 = new Item.Builder().withDescription("Shoe").build();
-        Item itemResponse1 = itemsPersistenceGrpc.create(item1);
+        Item itemResponse1 = grpcClient.create(item1);
         Item item2 = new Item.Builder().withDescription("Car").build();
 
-        Item responseItem = itemsPersistenceGrpc.update(itemResponse1.getId(), item2);
+        Item responseItem = grpcClient.update(itemResponse1.getId(), item2);
 
         item2.setId(itemResponse1.getId());
         assertThat(responseItem, equalTo(item2));
     }
 
-    @Test
-    public void test_when_updated_is_queried_over_non_existing_id_then_item_is_created() {
-        //TODO
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+    // @Test
+    // public void test_when_updated_is_queried_over_non_existing_id_then_item_is_created() {
+    //     // TODO
+    //     try {
+    //         Thread.sleep(1000);
+    //     } catch (InterruptedException e) {
+    //         // TODO Auto-generated catch block
+    //         e.printStackTrace();
+    //     }
+    // }
 }

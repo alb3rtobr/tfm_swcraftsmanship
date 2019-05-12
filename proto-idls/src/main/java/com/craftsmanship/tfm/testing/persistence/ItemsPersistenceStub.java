@@ -8,8 +8,8 @@ import java.util.Map;
 import com.craftsmanship.tfm.models.Item;
 
 public class ItemsPersistenceStub {
-    private static Map<Long, Item> items = new HashMap<Long, Item>();
-    private static Long currentIndex = 1L;
+    private Map<Long, Item> items = new HashMap<Long, Item>();
+    private Long currentIndex = 1L;
 
     public Item create(Item item) {
         item.setId(currentIndex);

@@ -1,7 +1,7 @@
 package com.craftsmanship.tfm.restapi.persistence.config;
 
 import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
-import com.craftsmanship.tfm.restapi.persistence.ItemsPersistenceStub;
+import com.craftsmanship.tfm.restapi.persistence.stubs.ItemsPersistenceStub;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
