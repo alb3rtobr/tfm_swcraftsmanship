@@ -25,15 +25,15 @@ public class ItemPersistenceGrpcClient {
     
     /** Construct client for accessing ItemPersistenceService server at {@code host:port}. */
     public ItemPersistenceGrpcClient(String host, int port) {
-        this(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
+        this(ManagedChannelBuilder.forAddress(host, port).usePlaintext().build());
     }
 
     /**
      * Construct client for accessing ItemPersistenceService server using the existing channel.
      */
-    public ItemPersistenceGrpcClient(ManagedChannelBuilder<?> channelBuilder) {
-        channel = channelBuilder.build();
-        blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
+    public ItemPersistenceGrpcClient(ManagedChannel channel) {
+    	this.channel = channel;
+    	this.blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
     }
 
     public void shutdown() throws InterruptedException {
