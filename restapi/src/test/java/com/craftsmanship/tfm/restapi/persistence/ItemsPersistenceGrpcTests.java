@@ -24,9 +24,10 @@ public class ItemsPersistenceGrpcTests {
     private class GrpcServerRunnable implements Runnable {
         private ItemPersistenceExampleServer gRpcServer;
 
-        public synchronized void doStop() {
+        public synchronized void doStop() throws InterruptedException {
             LOGGER.info("Stopping gRPC Server...");
             gRpcServer.stop();
+            gRpcServer.blockUntilShutdown();
         }
 
         public synchronized void initialize() {
@@ -59,7 +60,7 @@ public class ItemsPersistenceGrpcTests {
 
     // TODO: the server stop should be AfterClass and initialize @After
     @After
-    public void tearDown() {
+    public void tearDown() throws InterruptedException {
         //TODO
         try {
             Thread.sleep(1000);
