@@ -1,7 +1,7 @@
 package com.craftsmanship.tfm.stockchecker.grpc.config;
 
 import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistence;
-import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistenceStub;
+import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistenceGrpc;
 
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +15,6 @@ public class ItemsPersistenceStubConfig {
     @Bean
     @Primary
     public ItemsPersistence persistenceHandler(){
-      return Mockito.mock(ItemsPersistenceStub.class);
+      return Mockito.mock(ItemsPersistenceGrpc.class);
     }
 }
