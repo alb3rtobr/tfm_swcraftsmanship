@@ -19,6 +19,9 @@ public class GrpcServerApplication implements CommandLineRunner{
 	@Value(value = "${grpc-server.port}")
 	private int grpcServerPort;
 	
+	@Value(value = "${grpc-server.test}")
+	private boolean test;
+
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(GrpcServerApplication.class);
 		for (String arg:args) {
@@ -33,7 +36,7 @@ public class GrpcServerApplication implements CommandLineRunner{
 		grpcServer.setPort(grpcServerPort);
 		grpcServer.start();
 		
-		//TODO: check if needed next line ??
-//		grpcServer.blockUntilShutdown();
+		if (!test)
+			grpcServer.blockUntilShutdown();
 	}
 }

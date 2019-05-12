@@ -16,7 +16,7 @@ import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 import com.craftsmanship.tfm.dal.model.Item;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
+@DataJpaTest(properties = "grpc-server.test=true")
 public class ItemRepositoryTest {
 
 	@Autowired 

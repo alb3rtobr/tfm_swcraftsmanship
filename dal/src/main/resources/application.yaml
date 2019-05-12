@@ -1,3 +1,4 @@
 grpc-server:
   host: localhost
   port: 50057
+  test: false
