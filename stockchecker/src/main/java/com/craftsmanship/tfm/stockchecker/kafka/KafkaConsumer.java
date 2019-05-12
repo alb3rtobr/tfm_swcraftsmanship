@@ -14,7 +14,7 @@ import com.craftsmanship.tfm.stockchecker.rest.RestClient;
 public class KafkaConsumer {
 
 	@Value("${kafka.topic.json}")
-	public static String TOPIC_NAME="mytopic";
+	public String TOPIC_NAME="mytopic";
 	
 	@Autowired
 	private ItemsPersistence itemsPersistence;
