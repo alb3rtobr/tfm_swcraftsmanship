@@ -51,7 +51,7 @@ public class ItemsPersistenceGrpcTests {
 
     // TODO: This should be BeforeClass
     @Before
-    public void setUpClass() {
+    public void setUp() {
         grpcServerRunnable = new GrpcServerRunnable();
         Thread thread = new Thread(grpcServerRunnable);
         thread.start();
@@ -59,7 +59,15 @@ public class ItemsPersistenceGrpcTests {
 
     // TODO: the server stop should be AfterClass and initialize @After
     @After
-    public void tearDownClass() {
+    public void tearDown() {
+        //TODO
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         grpcServerRunnable.initialize();
         grpcServerRunnable.doStop();
     }
