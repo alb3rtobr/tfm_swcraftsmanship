@@ -21,6 +21,8 @@ import com.craftsmanship.tfm.utils.ConversionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.grpc.Status;
+
 public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceDummyService.class);
 
@@ -65,11 +67,16 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
         LOGGER.info("GET RPC CALLED");
 
         Item item = itemsPersistence.get(request.getId());
-        GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
-        GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        if (item != null) {
+            GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
+            GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } else {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
+        }
     }
 
     @Override
@@ -94,11 +101,16 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
         LOGGER.info("DELETE RPC CALLED");
 
         Item deletedItem = itemsPersistence.delete(request.getId());
-        GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
 
-        DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        if (deletedItem != null) {
+            GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
+            DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } else {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
+        }
     }
 
     @Override

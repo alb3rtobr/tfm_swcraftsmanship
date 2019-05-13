@@ -9,29 +9,21 @@ import java.util.List;
 
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.restapi.grpc.ItemPersistenceGrpcClient;
-import com.craftsmanship.tfm.testing.grpc.ItemPersistenceDummyService;
-import com.craftsmanship.tfm.testing.grpc.ItemPersistenceExampleServer;
 import com.craftsmanship.tfm.testing.grpc.ItemPersistenceInProcessServer;
 import com.craftsmanship.tfm.testing.persistence.ItemsPersistenceStub;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
-import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.testing.GrpcCleanupRule;
-import io.grpc.util.MutableHandlerRegistry;
 
 public class ItemsPersistenceGrpcTests {
 
@@ -40,6 +32,9 @@ public class ItemsPersistenceGrpcTests {
     private ItemsPersistenceGrpc grpcClient;
     private ItemPersistenceServiceBlockingStub blockingStub;
     private ItemPersistenceServiceStub asyncStub;
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
     @Before
     public void setUp() throws IOException, InstantiationException, IllegalAccessException {
@@ -112,15 +107,14 @@ public class ItemsPersistenceGrpcTests {
         assertThat(responseItem, equalTo(itemResponse1));
     }
 
-    // public void test_when_get_is_queried_with_id_that_does_not_exist_then_error() {
-    //     // TODO
-    //     try {
-    //         Thread.sleep(1000);
-    //     } catch (InterruptedException e) {
-    //         // TODO Auto-generated catch block
-    //         e.printStackTrace();
-    //     }
-    // }
+    @Test
+    public void test_when_get_is_queried_with_id_that_does_not_exist_then_exception() {
+        Long id = 1000L;
+        exceptionRule.expect(RuntimeException.class);
+        exceptionRule.expectMessage("Item with id " + id + " does not exist");
+
+        grpcClient.get(id);
+    }
 
     @Test
     public void test_given_item_when_updated_is_queried_then_item_is_updated() {

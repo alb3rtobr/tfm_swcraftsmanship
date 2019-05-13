@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CountItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
@@ -33,13 +36,17 @@ public class ItemPersistenceGrpcClient {
     private final ItemPersistenceServiceBlockingStub blockingStub;
     private final ItemPersistenceServiceStub asyncStub;
 
-    /** Construct client for accessing ItemPersistenceService server at {@code host:port}. */
+    /**
+     * Construct client for accessing ItemPersistenceService server at
+     * {@code host:port}.
+     */
     public ItemPersistenceGrpcClient(String host, int port) {
         this(ManagedChannelBuilder.forAddress(host, port).usePlaintext().build());
     }
 
     /**
-     * Construct client for accessing ItemPersistenceService server using the existing channel.
+     * Construct client for accessing ItemPersistenceService server using the
+     * existing channel.
      */
     public ItemPersistenceGrpcClient(ManagedChannel channel) {
         this.channel = channel;
@@ -74,7 +81,7 @@ public class ItemPersistenceGrpcClient {
         List<GrpcItem> itemsResponse = response.getItemList();
 
         List<Item> result = new ArrayList<>();
-        for (GrpcItem grpcItem: itemsResponse) {
+        for (GrpcItem grpcItem : itemsResponse) {
             result.add(ConversionUtils.getItemFromGrpcItem(grpcItem));
         }
 
@@ -86,18 +93,28 @@ public class ItemPersistenceGrpcClient {
 
         GetItemRequest request = GetItemRequest.newBuilder().setId(id).build();
 
-        GetItemResponse response = blockingStub.get(request);
+        Item item = null;
+        try {
+            GetItemResponse response = blockingStub.get(request);
+            item = ConversionUtils.getItemFromGrpcItem(response.getItem());
+        } catch (StatusRuntimeException e) {
+            logger.error("Exception getting item with id " + id + ": " + e.getMessage());
+            Status status = Status.fromThrowable(e);
+            if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
+            } else {
+                throw new RuntimeException("UNKNOWN ERROR");
+            }
+        }
 
-        return ConversionUtils.getItemFromGrpcItem(response.getItem());
+        return item;
     }
 
     public Item update(Long id, Item item) {
         logger.info("Updating item with id: " + id);
 
-        UpdateItemRequest request = UpdateItemRequest.newBuilder()
-            .setId(id)
-            .setItem(ConversionUtils.getGrpcItemFromItem(item))
-            .build();
+        UpdateItemRequest request = UpdateItemRequest.newBuilder().setId(id)
+                .setItem(ConversionUtils.getGrpcItemFromItem(item)).build();
 
         UpdateItemResponse response = blockingStub.update(request);
 
