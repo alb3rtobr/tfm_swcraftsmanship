@@ -101,11 +101,16 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
         LOGGER.info("DELETE RPC CALLED");
 
         Item deletedItem = itemsPersistence.delete(request.getId());
-        GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
 
-        DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        if (deletedItem != null) {
+            GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
+            DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } else {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
+        }
     }
 
     @Override
