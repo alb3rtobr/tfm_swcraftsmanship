@@ -27,9 +27,11 @@ public class PurchaseOrderClient implements RestClient {
 	@Override
 	public PurchaseOrder sendPurchaseOrder(Item item) {		
 		PurchaseOrder newOrder = new PurchaseOrder(item);
-	    PurchaseOrder result=restTemplate.postForObject( uri, newOrder, PurchaseOrder.class);
-	    LOGGER.info("sendPurchaseOrder returns ["+result.toString()+"]");
-	    return result;
+	    //PurchaseOrder result=restTemplate.postForObject( uri, newOrder, PurchaseOrder.class);
+		// By the moment, only a log is added.
+		// This function could be impacted by the new model.
+	    LOGGER.info("sendPurchaseOrder sent order for item ["+item.toString()+"]");
+	    return newOrder;
 	}
 
 }

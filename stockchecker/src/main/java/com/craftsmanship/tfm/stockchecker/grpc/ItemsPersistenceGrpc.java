@@ -15,7 +15,7 @@ public class ItemsPersistenceGrpc implements ItemsPersistence {
     
     public ItemsPersistenceGrpc(ManagedChannel channel) {
     	grpcClient = new ItemPersistenceGrpcClient(channel);
-	}
+    }
     
     @Override
     //Used in tests
