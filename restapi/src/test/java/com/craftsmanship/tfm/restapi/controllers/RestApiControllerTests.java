@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
-import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
+import com.craftsmanship.tfm.persistence.ItemsPersistence;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

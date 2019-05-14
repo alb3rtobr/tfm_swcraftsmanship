@@ -1,7 +1,7 @@
 package com.craftsmanship.tfm.restapi.persistence.config;
 
-import com.craftsmanship.tfm.restapi.persistence.ItemsPersistence;
-import com.craftsmanship.tfm.restapi.persistence.ItemsPersistenceGrpc;
+import com.craftsmanship.tfm.persistence.ItemsPersistence;
+import com.craftsmanship.tfm.persistence.ItemsPersistenceGrpc;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

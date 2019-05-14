@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.persistence.ItemsPersistence;
 
-public class ItemsPersistenceStub {
+public class ItemsPersistenceStub implements ItemsPersistence {
     private Map<Long, Item> items = new HashMap<Long, Item>();
     private Long currentIndex = 1L;
 
