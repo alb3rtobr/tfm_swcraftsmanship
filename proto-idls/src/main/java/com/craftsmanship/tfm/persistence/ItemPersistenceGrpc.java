@@ -45,7 +45,7 @@ public class ItemPersistenceGrpc implements ItemPersistence {
 
     @Override
     public Item delete(Long id) {
-        return null;
+        return grpcClient.delete(id);
     }
 
     @Override

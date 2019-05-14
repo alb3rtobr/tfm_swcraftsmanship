@@ -128,14 +128,50 @@ public class ItemsPersistenceGrpcTest {
         assertThat(responseItem, equalTo(item2));
     }
 
-    // @Test
-    // public void test_when_updated_is_queried_over_non_existing_id_then_item_is_created() {
-    //     // TODO
-    //     try {
-    //         Thread.sleep(1000);
-    //     } catch (InterruptedException e) {
-    //         // TODO Auto-generated catch block
-    //         e.printStackTrace();
-    //     }
-    // }
+    @Test
+    public void test_when_updated_is_queried_over_non_existing_id_then_exception() {
+        Long id = 1000L;
+        exceptionRule.expect(RuntimeException.class);
+        exceptionRule.expectMessage("Item with id " + id + " does not exist");
+
+        Item newItem = new Item.Builder().withDescription("Shoe").build();
+
+        grpcClient.update(id, newItem);
+    }
+
+    @Test
+    public void test_when_delete_existing_item_then_item_is_deleted() {
+        Item item1 = new Item.Builder().withDescription("Shoe").build();
+        Item itemResponse1 = grpcClient.create(item1);
+        Item item2 = new Item.Builder().withDescription("Car").build();
+        grpcClient.create(item2);
+
+        Item deletedItem = grpcClient.delete(itemResponse1.getId());
+
+        assertThat(deletedItem, equalTo(itemResponse1));
+    }
+
+    @Test
+    public void test_when_delete_non_existing_id_then_exception() {
+        Long id = 1000L;
+        exceptionRule.expect(RuntimeException.class);
+        exceptionRule.expectMessage("Item with id " + id + " does not exist");
+
+        grpcClient.delete(id);
+    }
+
+    @Test
+    public void test_given_no_items_when_count_then_zero() {
+        assertThat(0, equalTo(grpcClient.count()));
+    }
+
+    @Test
+    public void test_given_some_items_when_count_then_number_of_items_returned() {
+        Item item1 = new Item.Builder().withDescription("Shoe").build();
+        grpcClient.create(item1);
+        Item item2 = new Item.Builder().withDescription("Car").build();
+        grpcClient.create(item2);
+
+        assertThat(2, equalTo(grpcClient.count()));
+    }
 }
