@@ -138,4 +138,22 @@ public class ItemsPersistenceGrpcTest {
     //         e.printStackTrace();
     //     }
     // }
+    
+    @Test
+    public void given_anItemWithNoStock_then_countReturnZero() {
+        
+        int count = grpcClient.count();
+        assertThat(count, equalTo(0));
+    }
+    
+    @Test
+    public void given_anItemWithStock_then_countReturnTheStock() {
+        
+        Item item = new Item.Builder().withDescription("MegaDrive").build();
+        grpcClient.create(item);
+        
+        int count = grpcClient.count();
+
+        assertThat(count, equalTo(1));
+    }
 }
