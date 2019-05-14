@@ -19,6 +19,8 @@ import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CountItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemRequest;
+import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.Empty;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemRequest;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemResponse;
@@ -116,9 +118,43 @@ public class ItemPersistenceGrpcClient {
         UpdateItemRequest request = UpdateItemRequest.newBuilder().setId(id)
                 .setItem(ConversionUtils.getGrpcItemFromItem(item)).build();
 
-        UpdateItemResponse response = blockingStub.update(request);
+        Item updatedItem = null;
+        try {
+            UpdateItemResponse response = blockingStub.update(request);
+            updatedItem = ConversionUtils.getItemFromGrpcItem(response.getItem());
+        } catch (StatusRuntimeException e) {
+            logger.error("Exception updating item with id " + id + ": " + e.getMessage());
+            Status status = Status.fromThrowable(e);
+            if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
+            } else {
+                throw new RuntimeException("UNKNOWN ERROR");
+            }
+        }
 
-        return ConversionUtils.getItemFromGrpcItem(response.getItem());
+        return updatedItem;
+    }
+
+    public Item delete(Long id) {
+        logger.info("Deleting item with id: " + id);
+
+        DeleteItemRequest request = DeleteItemRequest.newBuilder().setId(id).build();
+
+        Item item = null;
+        try {
+            DeleteItemResponse response = blockingStub.delete(request);
+            item = ConversionUtils.getItemFromGrpcItem(response.getItem());
+        } catch (StatusRuntimeException e) {
+            logger.error("Exception deleting item with id " + id + ": " + e.getMessage());
+            Status status = Status.fromThrowable(e);
+            if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
+            } else {
+                throw new RuntimeException("UNKNOWN ERROR");
+            }
+        }
+
+        return item;
     }
 
     public int count() {
