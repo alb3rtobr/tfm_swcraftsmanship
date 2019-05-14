@@ -83,17 +83,21 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void update(UpdateItemRequest request, io.grpc.stub.StreamObserver<UpdateItemResponse> responseObserver) {
         LOGGER.info("UPDATE RPC CALLED");
 
-        // TODO: right now, if the id does not exists, the item is creted, Should we
-        // raise an error?
-        Item item = ConversionUtils.getItemFromGrpcItem(request.getItem());
-        Item createdItem = itemPersistence.update(request.getId(), item);
+        if (itemPersistence.get(request.getId()) != null) {
+            Item item = ConversionUtils.getItemFromGrpcItem(request.getItem());
+            Item createdItem = itemPersistence.update(request.getId(), item);
 
-        GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
+            GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
 
-        UpdateItemResponse response = UpdateItemResponse.newBuilder().setItem(grpcItemResponse).build();
-
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+            UpdateItemResponse response = UpdateItemResponse.newBuilder().setItem(grpcItemResponse).build();
+    
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } else {
+            // There is not Item with that id, so exception
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
+        }
     }
 
     @Override

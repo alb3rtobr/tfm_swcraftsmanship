@@ -206,11 +206,11 @@ public class RestApiControllerTests {
         Item item2 = new Item.Builder().withDescription("item2").build();
         Item item3 = new Item.Builder().withDescription("item3").build();
         itemPersistence.create(item1);
-        itemPersistence.create(item2);
+        Item itemToUpdate = itemPersistence.create(item2);
         itemPersistence.create(item3);
 
         // When
-        Long id = 2L;
+        Long id = itemToUpdate.getId();
         Item updatedItem = new Item.Builder().withDescription("updated_item2").build();
         String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
         RestTemplate restTemplate = new RestTemplate();

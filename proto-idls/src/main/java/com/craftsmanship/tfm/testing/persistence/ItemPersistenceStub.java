@@ -28,6 +28,10 @@ public class ItemPersistenceStub implements ItemPersistence {
     }
 
     public Item update(Long id, Item item) {
+        if (items.get(id) == null) {
+            return null;
+        }
+
         item.setId(id);
         items.put(id, item);
         return item;
