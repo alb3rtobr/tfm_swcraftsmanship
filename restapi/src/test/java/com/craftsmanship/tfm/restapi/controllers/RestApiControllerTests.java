@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
-import com.craftsmanship.tfm.persistence.ItemsPersistence;
+import com.craftsmanship.tfm.persistence.ItemPersistence;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -75,7 +75,7 @@ public class RestApiControllerTests {
     private RestApiController restApiController;
 
     @Autowired
-    private ItemsPersistence itemsPersistence;
+    private ItemPersistence itemPersistence;
 
     @Before
     public void setUp() {
@@ -121,8 +121,8 @@ public class RestApiControllerTests {
         container.stop();
 
         // empty persistence
-        for (Item item : itemsPersistence.list()) {
-            itemsPersistence.delete(item.getId());
+        for (Item item : itemPersistence.list()) {
+            itemPersistence.delete(item.getId());
         }
     }
 
@@ -148,7 +148,7 @@ public class RestApiControllerTests {
         assertThat(responseItem, equalTo(item));
 
         // check item was created in persistence
-        Item storedItem = itemsPersistence.get(responseItem.getId());
+        Item storedItem = itemPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
 
         // check that the Kafka message was received
@@ -163,9 +163,9 @@ public class RestApiControllerTests {
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
         Item item3 = new Item.Builder().withDescription("item3").build();
-        itemsPersistence.create(item1);
-        itemsPersistence.create(item2);
-        itemsPersistence.create(item3);
+        itemPersistence.create(item1);
+        itemPersistence.create(item2);
+        itemPersistence.create(item3);
 
         // When
         String url = "http://localhost:" + restPort + "/api/v1/items";
@@ -176,7 +176,7 @@ public class RestApiControllerTests {
         List<Item> items = response.getBody();
 
         // Then
-        assertThat(items, equalTo(itemsPersistence.list()));
+        assertThat(items, equalTo(itemPersistence.list()));
     }
 
     @Test
@@ -185,9 +185,9 @@ public class RestApiControllerTests {
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
         Item item3 = new Item.Builder().withDescription("item3").build();
-        itemsPersistence.create(item1);
-        itemsPersistence.create(item2);
-        itemsPersistence.create(item3);
+        itemPersistence.create(item1);
+        itemPersistence.create(item2);
+        itemPersistence.create(item3);
 
         // When
         Long id = 2L;
@@ -196,7 +196,7 @@ public class RestApiControllerTests {
         Item responseItem = restTemplate.getForObject(url, Item.class);
 
         // Then
-        assertThat(responseItem, equalTo(itemsPersistence.get(id)));
+        assertThat(responseItem, equalTo(itemPersistence.get(id)));
     }
 
     @Test
@@ -205,9 +205,9 @@ public class RestApiControllerTests {
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
         Item item3 = new Item.Builder().withDescription("item3").build();
-        itemsPersistence.create(item1);
-        itemsPersistence.create(item2);
-        itemsPersistence.create(item3);
+        itemPersistence.create(item1);
+        itemPersistence.create(item2);
+        itemPersistence.create(item3);
 
         // When
         Long id = 2L;
@@ -221,7 +221,7 @@ public class RestApiControllerTests {
         // Then
         updatedItem.setId(id);
         assertThat(responseItem, equalTo(updatedItem));
-        assertThat(responseItem, equalTo(itemsPersistence.get(id)));
+        assertThat(responseItem, equalTo(itemPersistence.get(id)));
     }
 
     @Test
@@ -231,9 +231,9 @@ public class RestApiControllerTests {
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
         Item item3 = new Item.Builder().withDescription("item3").build();
-        itemsPersistence.create(item1);
-        itemsPersistence.create(item2);
-        itemsPersistence.create(item3);
+        itemPersistence.create(item1);
+        itemPersistence.create(item2);
+        itemPersistence.create(item3);
 
         // When
         Long id = 2L;
@@ -242,7 +242,7 @@ public class RestApiControllerTests {
         restTemplate.delete(url);
 
         // Then
-        assertThat(2, equalTo(itemsPersistence.list().size()));
+        assertThat(2, equalTo(itemPersistence.list().size()));
         Item responseItem = restTemplate.getForObject(url, Item.class);
         assertThat(responseItem, is(nullValue()));
 

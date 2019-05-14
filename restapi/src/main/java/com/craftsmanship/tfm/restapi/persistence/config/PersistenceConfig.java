@@ -1,7 +1,7 @@
 package com.craftsmanship.tfm.restapi.persistence.config;
 
-import com.craftsmanship.tfm.persistence.ItemsPersistence;
-import com.craftsmanship.tfm.persistence.ItemsPersistenceGrpc;
+import com.craftsmanship.tfm.persistence.ItemPersistence;
+import com.craftsmanship.tfm.persistence.ItemPersistenceGrpc;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ public class PersistenceConfig {
   private int serverPort;
 
   @Bean
-  public ItemsPersistence persistenceHandler() {
-    return new ItemsPersistenceGrpc(serverHost, serverPort);
+  public ItemPersistence persistenceHandler() {
+    return new ItemPersistenceGrpc(serverHost, serverPort);
   }
 }

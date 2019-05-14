@@ -6,7 +6,7 @@ import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
 import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
-import com.craftsmanship.tfm.persistence.ItemsPersistence;
+import com.craftsmanship.tfm.persistence.ItemPersistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +24,13 @@ public class RestApiController {
 
     // Persistence Handler
     @Autowired
-    private ItemsPersistence itemsPersistence;
+    private ItemPersistence itemPersistence;
 
     // Kafka Message Bus Service
     private final ItemOperationService itemOperationService;
 
-    public RestApiController(ItemsPersistence itemsPersistence, ItemOperationService itemOperationService) {
-        this.itemsPersistence = itemsPersistence;
+    public RestApiController(ItemPersistence itemPersistence, ItemOperationService itemOperationService) {
+        this.itemPersistence = itemPersistence;
         this.itemOperationService = itemOperationService;
     }
 
@@ -39,7 +39,7 @@ public class RestApiController {
         LOGGER.debug("Creating item");
 
         // Create item
-        itemsPersistence.create(item);
+        itemPersistence.create(item);
 
         // Send message to Kafka topic
         itemOperationService.sendItemOperation(new ItemOperation(OperationType.CREATED, item));
@@ -49,19 +49,19 @@ public class RestApiController {
     @RequestMapping(value = "/items", method = RequestMethod.GET)
     public List<Item> list() {
         LOGGER.debug("List items");
-        return itemsPersistence.list();
+        return itemPersistence.list();
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.GET)
     public Item get(@PathVariable Long id) {
         LOGGER.debug("Get item with id: " + id);
-        return itemsPersistence.get(id);
+        return itemPersistence.get(id);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.PUT)
     public Item edit(@PathVariable Long id, @RequestBody Item item) {
         LOGGER.debug("Edit item with id: " + id);
-        return itemsPersistence.update(id, item);
+        return itemPersistence.update(id, item);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.DELETE)
@@ -69,9 +69,9 @@ public class RestApiController {
         LOGGER.debug("Delete item with id: " + id);
 
         // Send message to Kafka topic
-        Item item = itemsPersistence.get(id);
+        Item item = itemPersistence.get(id);
         itemOperationService.sendItemOperation(new ItemOperation(OperationType.DELETED, item));
 
-        return itemsPersistence.delete(id);
+        return itemPersistence.delete(id);
     }
 }

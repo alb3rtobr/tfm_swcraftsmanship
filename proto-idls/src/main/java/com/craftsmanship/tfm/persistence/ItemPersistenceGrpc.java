@@ -7,15 +7,15 @@ import com.craftsmanship.tfm.grpc.ItemPersistenceGrpcClient;
 
 import io.grpc.ManagedChannel;
 
-public class ItemsPersistenceGrpc implements ItemsPersistence {
+public class ItemPersistenceGrpc implements ItemPersistence {
 
     private ItemPersistenceGrpcClient grpcClient;
 
-    public ItemsPersistenceGrpc(String serverHost, int serverPort) {
+    public ItemPersistenceGrpc(String serverHost, int serverPort) {
         grpcClient = new ItemPersistenceGrpcClient(serverHost, serverPort);
     }
 
-    public ItemsPersistenceGrpc(ManagedChannel channel) {
+    public ItemPersistenceGrpc(ManagedChannel channel) {
         grpcClient = new ItemPersistenceGrpcClient(channel);
     }
 
