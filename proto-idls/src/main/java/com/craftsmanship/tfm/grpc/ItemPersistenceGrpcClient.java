@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.restapi.grpc;
+package com.craftsmanship.tfm.grpc;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.restapi.persistence;
+package com.craftsmanship.tfm.persistence;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -12,7 +12,7 @@ import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceS
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.testing.grpc.ItemPersistenceInProcessServer;
-import com.craftsmanship.tfm.testing.persistence.ItemsPersistenceStub;
+import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 
-public class ItemsPersistenceGrpcTests {
+public class ItemsPersistenceGrpcTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemsPersistenceGrpcTests.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemsPersistenceGrpcTest.class);
     private ItemPersistenceInProcessServer itemPersistenceGrpcServer;
-    private ItemsPersistenceGrpc grpcClient;
+    private ItemPersistenceGrpc grpcClient;
     private ItemPersistenceServiceBlockingStub blockingStub;
     private ItemPersistenceServiceStub asyncStub;
 
@@ -39,7 +39,7 @@ public class ItemsPersistenceGrpcTests {
     @Before
     public void setUp() throws IOException, InstantiationException, IllegalAccessException {
         // Create the Item Persistence stub
-        ItemsPersistenceStub itemPersistenceStub = new ItemsPersistenceStub(); 
+        ItemPersistenceStub itemPersistenceStub = new ItemPersistenceStub(); 
         itemPersistenceGrpcServer = new ItemPersistenceInProcessServer(itemPersistenceStub);
         itemPersistenceGrpcServer.start();
         ManagedChannel channel = InProcessChannelBuilder
@@ -49,7 +49,7 @@ public class ItemsPersistenceGrpcTests {
             // needing certificates.
             .usePlaintext(true)
             .build();
-        grpcClient = new ItemsPersistenceGrpc(channel);
+        grpcClient = new ItemPersistenceGrpc(channel);
         blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
         asyncStub = ItemPersistenceServiceGrpc.newStub(channel);
     }

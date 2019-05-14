@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
 import com.craftsmanship.tfm.models.Item;
-
+import com.craftsmanship.tfm.persistence.ItemPersistenceGrpc;
 import com.craftsmanship.tfm.testing.grpc.ItemPersistenceInProcessServer;
-import com.craftsmanship.tfm.testing.persistence.ItemsPersistenceStub;
+import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -25,14 +25,14 @@ public class ItemsPersistenceGrpcTests {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ItemsPersistenceGrpcTests.class);
 	
 	private ItemPersistenceInProcessServer itemPersistenceGrpcServer;
-	private ItemsPersistenceGrpc grpcClient;
+	private ItemPersistenceGrpc grpcClient;
 	private ItemPersistenceServiceBlockingStub blockingStub;
 
 	
     @Before
     public void setUp() throws IOException, InstantiationException, IllegalAccessException {
     	// Create the Item Persistence stub
-    	ItemsPersistenceStub itemPersistenceStub = new ItemsPersistenceStub(); 
+    	ItemPersistenceStub itemPersistenceStub = new ItemPersistenceStub(); 
     	itemPersistenceGrpcServer = new ItemPersistenceInProcessServer(itemPersistenceStub);
     	itemPersistenceGrpcServer.start();
     	ManagedChannel channel = InProcessChannelBuilder
@@ -42,7 +42,7 @@ public class ItemsPersistenceGrpcTests {
     			// needing certificates.
     			.usePlaintext(true)
     			.build();
-    	grpcClient = new ItemsPersistenceGrpc(channel);
+    	grpcClient = new ItemPersistenceGrpc(channel);
     	blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
     }
 

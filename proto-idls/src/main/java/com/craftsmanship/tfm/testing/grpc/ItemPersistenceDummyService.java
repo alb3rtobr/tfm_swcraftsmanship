@@ -15,7 +15,7 @@ import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse.Builder;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.testing.persistence.ItemsPersistenceStub;
+import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 import com.craftsmanship.tfm.utils.ConversionUtils;
 
 import org.slf4j.Logger;
@@ -26,10 +26,10 @@ import io.grpc.Status;
 public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceDummyService.class);
 
-    private ItemsPersistenceStub itemsPersistence;
+    private ItemPersistenceStub itemPersistence;
 
-    public ItemPersistenceDummyService(ItemsPersistenceStub itemsPersistenceStub) {
-        this.itemsPersistence = itemsPersistenceStub;
+    public ItemPersistenceDummyService(ItemPersistenceStub itemsPersistenceStub) {
+        this.itemPersistence = itemsPersistenceStub;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
         LOGGER.info("CREATE RPC CALLED");
         GrpcItem grpcItem = request.getItem();
         Item item = new Item.Builder().withDescription(grpcItem.getDescription()).build();
-        Item createdItem = itemsPersistence.create(item);
+        Item createdItem = itemPersistence.create(item);
 
         GrpcItem grpcItemResponse = GrpcItem.newBuilder().setId(createdItem.getId())
                 .setDescription(createdItem.getDescription()).build();
@@ -52,7 +52,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
         LOGGER.info("LIST RPC CALLED");
 
         Builder responseBuilder = ListItemResponse.newBuilder();
-        for (Item item : itemsPersistence.list()) {
+        for (Item item : itemPersistence.list()) {
             GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
             responseBuilder.addItem(grpcItem);
         }
@@ -66,7 +66,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void get(GetItemRequest request, io.grpc.stub.StreamObserver<GetItemResponse> responseObserver) {
         LOGGER.info("GET RPC CALLED");
 
-        Item item = itemsPersistence.get(request.getId());
+        Item item = itemPersistence.get(request.getId());
 
         if (item != null) {
             GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
@@ -86,7 +86,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
         // TODO: right now, if the id does not exists, the item is creted, Should we
         // raise an error?
         Item item = ConversionUtils.getItemFromGrpcItem(request.getItem());
-        Item createdItem = itemsPersistence.update(request.getId(), item);
+        Item createdItem = itemPersistence.update(request.getId(), item);
 
         GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
 
@@ -100,7 +100,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void delete(DeleteItemRequest request, io.grpc.stub.StreamObserver<DeleteItemResponse> responseObserver) {
         LOGGER.info("DELETE RPC CALLED");
 
-        Item deletedItem = itemsPersistence.delete(request.getId());
+        Item deletedItem = itemPersistence.delete(request.getId());
 
         if (deletedItem != null) {
             GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
@@ -117,7 +117,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void count(Empty request, io.grpc.stub.StreamObserver<CountItemResponse> responseObserver) {
         LOGGER.info("DELETE RPC CALLED");
 
-        CountItemResponse response = CountItemResponse.newBuilder().setNumberOfItems(itemsPersistence.count()).build();
+        CountItemResponse response = CountItemResponse.newBuilder().setNumberOfItems(itemPersistence.count()).build();
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
