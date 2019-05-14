@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 
 import com.craftsmanship.tfm.models.ItemOperation;
-import com.craftsmanship.tfm.stockchecker.grpc.ItemsPersistence;
+import com.craftsmanship.tfm.persistence.ItemPersistence;
 import com.craftsmanship.tfm.stockchecker.rest.RestClient;
 
 public class KafkaConsumer {
@@ -17,7 +17,7 @@ public class KafkaConsumer {
 	public String TOPIC_NAME="mytopic";
 	
 	@Autowired
-	private ItemsPersistence itemsPersistence;
+	private ItemPersistence itemsPersistence;
 
 	@Autowired
 	private RestClient restClient;
@@ -34,7 +34,7 @@ public class KafkaConsumer {
 	}
 
 	//TODO: Used in tests with Mockito
-	public ItemsPersistence getItemsPersistence() {
+	public ItemPersistence getItemsPersistence() {
 		return this.itemsPersistence;
 	}
 	
