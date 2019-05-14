@@ -2,3 +2,12 @@ grpc-server:
   host: localhost
   port: 50057
   test: false
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql/mybbdd
+    username: username
+    password: userpass
+  jpa:
+    hibernate.ddl-auto: update
