@@ -1,9 +1,9 @@
-package com.craftsmanship.tfm.restapi.persistence;
+package com.craftsmanship.tfm.persistence;
 
 import java.util.List;
 
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.restapi.grpc.ItemPersistenceGrpcClient;
+import com.craftsmanship.tfm.grpc.ItemPersistenceGrpcClient;
 
 import io.grpc.ManagedChannel;
 
