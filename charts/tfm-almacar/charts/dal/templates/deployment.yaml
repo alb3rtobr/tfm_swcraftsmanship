@@ -1,19 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dal
+  name: {{ include "dal.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "dal.fullname" . }}
+    app.kubernetes.io/component: {{ include "dal.fullname" . }}
+    app.kubernetes.io/part-of: {{ .Values.global.appname }}
+    {{- range .Values.global.labels }}
+    {{ .name }}: {{ .value }}
+    {{- end }}
 spec:
-  selector:
-    matchLabels:
-      app: dal
   strategy:
     type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "dal.fullname" . }}
+      app.kubernetes.io/component: {{ include "dal.fullname" . }}
+      app.kubernetes.io/part-of: {{ .Values.global.appname }}
   replicas: {{ .Values.dal.replicaCount }}
   template:
     metadata:
       labels:
-        app: dal
+        app.kubernetes.io/name: {{ include "dal.fullname" . }}
+        app.kubernetes.io/component: {{ include "dal.fullname" . }}
+        app.kubernetes.io/part-of: {{ .Values.global.appname }}
     spec:
+      initContainers:
+      - name: init-mysql
+        image: busybox:1.28
+        command: ['sh', '-c', "until nslookup {{ .Release.Name }}-mysql; do echo waiting for myservice; sleep 2; done;"]
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.dal.image.repository }}:{{ .Values.dal.image.tag }}"
