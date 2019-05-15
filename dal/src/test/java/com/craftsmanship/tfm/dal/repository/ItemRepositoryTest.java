@@ -9,23 +9,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.test.autoconfigure.OverrideAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-//import com.craftsmanship.tfm.dal.config.H2TestProfileJPAConfig;
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 import com.craftsmanship.tfm.dal.model.Item;
 
 @RunWith(SpringRunner.class)
-//@DataJpaTest(properties = { 
-//		"grpc-server.test=true", 
-//		"spring.main.allow-bean-definition-overriding=true"})
-//@ContextConfiguration(classes=H2TestProfileJPAConfig.class)
-//@ActiveProfiles("test")
 @DataJpaTest
 public class ItemRepositoryTest {
 

@@ -1,18 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: stockchecker
+  name: {{ include "stockchecker.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "stockchecker.fullname" . }}
+    app.kubernetes.io/component: {{ include "stockchecker.fullname" . }}
+    app.kubernetes.io/part-of: {{ .Values.global.appname }}
+    {{- range .Values.global.labels }}
+    {{ .name }}: {{ .value }}
+    {{- end }}
 spec:
-  selector:
-    matchLabels:
-      app: stockchecker
   strategy:
     type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "stockchecker.fullname" . }}
+      app.kubernetes.io/component: {{ include "stockchecker.fullname" . }}
+      app.kubernetes.io/part-of: {{ .Values.global.appname }}
   replicas: {{ .Values.stockchecker.replicaCount }}
   template:
     metadata:
       labels:
-        app: stockchecker
+        app.kubernetes.io/name: {{ include "stockchecker.fullname" . }}
+        app.kubernetes.io/component: {{ include "stockchecker.fullname" . }}
+        app.kubernetes.io/part-of: {{ .Values.global.appname }}
     spec:
       initContainers:
       - name: init-kafka
