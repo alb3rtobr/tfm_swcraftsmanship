@@ -11,6 +11,6 @@ metadata:
     {{- end }}
 spec:
   ports:
-  - port: 3306
+  - port: {{ .Values.mysql.port }}
   selector:
-    app: mysql
+    app.kubernetes.io/component: {{ include "mysql.fullname" . }}

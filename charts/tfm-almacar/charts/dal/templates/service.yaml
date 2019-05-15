@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "dal.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "dal.fullname" . }}-service
+    app.kubernetes.io/name: {{ include "dal.fullname" . }}
     app.kubernetes.io/component: {{ include "dal.fullname" . }}
     app.kubernetes.io/part-of: {{ .Values.global.appname }}
     {{- range .Values.global.labels }}
