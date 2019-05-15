@@ -14,14 +14,14 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "restapi.fullname" . }}-deploy
+      app.kubernetes.io/name: {{ include "restapi.fullname" . }}
       app.kubernetes.io/component: {{ include "restapi.fullname" . }}
       app.kubernetes.io/part-of: {{ .Values.global.appname }}
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "restapi.fullname" . }}-deploy
+        app.kubernetes.io/name: {{ include "restapi.fullname" . }}
         app.kubernetes.io/component: {{ include "restapi.fullname" . }}
         app.kubernetes.io/part-of: {{ .Values.global.appname }}
     spec:
