@@ -30,7 +30,7 @@ function build_docker_image() {
     docker build --tag=almacar_${service}:0.1 --rm=true . || exit $?
 }
 
-function delete_docker_images() {
+function delete_docker_image() {
     service=$1
     echo "---------------------------------------------"
     echo " DELETING DOCKER IMAGE: almacar_${service}"
