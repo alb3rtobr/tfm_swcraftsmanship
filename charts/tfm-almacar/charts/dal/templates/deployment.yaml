@@ -38,4 +38,5 @@ spec:
         env:
         - name: GRPC_SERVER_PORT
           value: "{{ .Values.dal.port }}"
-
+        - name: MYSQL_HOST
+          value: "{{ .Release.Name }}-mysql"
