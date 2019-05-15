@@ -32,11 +32,13 @@ function build_docker_image() {
 
 function delete_docker_image() {
     service=$1
-    echo "---------------------------------------------"
-    echo " DELETING DOCKER IMAGE: almacar_${service}"
-    echo "---------------------------------------------"
     cd ${BASE_DIR}/${service}
-    docker rmi almacar_${service}:0.1 || exit $?
+    if [ `docker image ls | grep almacar_${service}:0.1 | wc -l` -ne 0 ];then
+        echo "---------------------------------------------"
+        echo " DELETING DOCKER IMAGE: almacar_${service}"
+        echo "---------------------------------------------"
+        docker rmi almacar_${service}:0.1 || exit $?
+    fi
 }
 
 build_protos
