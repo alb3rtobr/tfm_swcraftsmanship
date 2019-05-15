@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "restapi.fullname" . }}-service
+  name: {{ include "restapi.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "restapi.fullname" . }}-service
+    app.kubernetes.io/name: {{ include "restapi.fullname" . }}
     app.kubernetes.io/component: {{ include "restapi.fullname" . }}
     app.kubernetes.io/part-of: {{ .Values.global.appname }}
     {{- range .Values.global.labels }}
