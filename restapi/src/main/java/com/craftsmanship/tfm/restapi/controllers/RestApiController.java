@@ -2,6 +2,7 @@ package com.craftsmanship.tfm.restapi.controllers;
 
 import java.util.List;
 
+import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
@@ -35,7 +36,7 @@ public class RestApiController {
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.POST)
-    public Item create(@RequestBody Item item) {
+    public Item create(@RequestBody Item item) throws CustomException {
         LOGGER.debug("Creating item");
 
         // Create item
@@ -47,25 +48,25 @@ public class RestApiController {
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.GET)
-    public List<Item> list() {
+    public List<Item> list() throws CustomException {
         LOGGER.debug("List items");
         return itemPersistence.list();
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.GET)
-    public Item get(@PathVariable Long id) {
+    public Item get(@PathVariable Long id) throws CustomException {
         LOGGER.debug("Get item with id: " + id);
         return itemPersistence.get(id);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.PUT)
-    public Item edit(@PathVariable Long id, @RequestBody Item item) {
+    public Item edit(@PathVariable Long id, @RequestBody Item item) throws CustomException {
         LOGGER.debug("Edit item with id: " + id);
         return itemPersistence.update(id, item);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.DELETE)
-    public Item delete(@PathVariable Long id) {
+    public Item delete(@PathVariable Long id) throws CustomException {
         LOGGER.debug("Delete item with id: " + id);
 
         // Send message to Kafka topic

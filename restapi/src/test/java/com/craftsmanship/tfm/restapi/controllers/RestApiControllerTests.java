@@ -10,6 +10,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
@@ -116,7 +117,7 @@ public class RestApiControllerTests {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws CustomException {
         // stop the container
         container.stop();
 
@@ -132,7 +133,7 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_when_item_is_created_then_item_persisted_and_kafka_message_sent() throws InterruptedException {
+    public void test_when_item_is_created_then_item_persisted_and_kafka_message_sent() throws InterruptedException, CustomException {
         String itemDescription = "Zapato";
         Item item = new Item.Builder().withDescription(itemDescription).build();
 
@@ -158,7 +159,7 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_some_items_when_get_items_mapping_then_items_are_returned() {
+    public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws CustomException {
         // Given
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
@@ -180,7 +181,7 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_some_items_when_get_item_mapping_then_item_is_returned() {
+    public void test_given_some_items_when_get_item_mapping_then_item_is_returned() throws CustomException {
         // Given
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
@@ -200,7 +201,7 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_item_when_edit_mapping_then_edited_item_is_returned() {
+    public void test_given_item_when_edit_mapping_then_edited_item_is_returned() throws CustomException {
         // Given
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
@@ -226,7 +227,7 @@ public class RestApiControllerTests {
 
     @Test
     public void test_given_some_items_when_delete_item_mapping_then_item_is_deleted_and_kafka_message_sent()
-            throws InterruptedException {
+            throws InterruptedException,  CustomException {
         // Given
         Item item1 = new Item.Builder().withDescription("item1").build();
         Item item2 = new Item.Builder().withDescription("item2").build();
