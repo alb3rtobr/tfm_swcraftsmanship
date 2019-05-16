@@ -15,6 +15,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 
+import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CountItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
@@ -56,41 +57,62 @@ public class ItemPersistenceGrpcClient {
         this.asyncStub = ItemPersistenceServiceGrpc.newStub(channel);
     }
 
-    public void shutdown() throws InterruptedException {
+    public void shutdown() throws CustomException, InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Item create(Item item) {
+    public Item create(Item item) throws CustomException {
         logger.info("Creating Item");
 
         GrpcItem grpcItem = GrpcItem.newBuilder().setDescription(item.getDescription()).build();
 
         CreateItemRequest request = CreateItemRequest.newBuilder().setItem(grpcItem).build();
 
-        CreateItemResponse response = blockingStub.create(request);
-        GrpcItem grpcItemResponse = response.getItem();
-        logger.info("Received GrpcItem: " + grpcItem);
+        Item itemReceived = null;
+        try {
+            CreateItemResponse response = blockingStub.create(request);
+            GrpcItem grpcItemResponse = response.getItem();
+            itemReceived = ConversionUtils.getItemFromGrpcItem(grpcItemResponse);
+        } catch (StatusRuntimeException e) {
+            logger.error("Exception creating Item: " + e.getMessage());
+            Status status = Status.fromThrowable(e);
+            if (status.getCode() == Status.Code.INTERNAL) {
+                throw new CustomException(status.getDescription());
+            } else {
+                throw new CustomException("UNKNOWN ERROR");
+            }
+        }
 
-        return ConversionUtils.getItemFromGrpcItem(grpcItemResponse);
+        return itemReceived;
     }
 
-    public List<Item> list() {
+    public List<Item> list() throws CustomException {
         logger.info("List all Items");
 
         Empty request = Empty.newBuilder().build();
 
-        ListItemResponse response = blockingStub.list(request);
-        List<GrpcItem> itemsResponse = response.getItemList();
-
         List<Item> result = new ArrayList<>();
-        for (GrpcItem grpcItem : itemsResponse) {
-            result.add(ConversionUtils.getItemFromGrpcItem(grpcItem));
+        try {
+            ListItemResponse response = blockingStub.list(request);
+            List<GrpcItem> itemsResponse = response.getItemList();
+    
+            for (GrpcItem grpcItem : itemsResponse) {
+                result.add(ConversionUtils.getItemFromGrpcItem(grpcItem));
+            }
+        } catch (StatusRuntimeException e) {
+            logger.error("Exception listing items: " + e.getMessage());
+            Status status = Status.fromThrowable(e);
+            if (status.getCode() == Status.Code.INTERNAL) {
+                throw new CustomException(status.getDescription());
+            } else {
+                throw new CustomException("UNKNOWN ERROR");
+            }
         }
 
         return result;
     }
 
-    public Item get(Long id) {
+    public Item get(Long id) throws CustomException {
         logger.info("Get item with id: " + id);
 
         GetItemRequest request = GetItemRequest.newBuilder().setId(id).build();
@@ -103,16 +125,16 @@ public class ItemPersistenceGrpcClient {
             logger.error("Exception getting item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
             if (status.getCode() == Status.Code.INTERNAL) {
-                throw new RuntimeException(status.getDescription());
+                throw new CustomException(status.getDescription());
             } else {
-                throw new RuntimeException("UNKNOWN ERROR");
+                throw new CustomException("UNKNOWN ERROR");
             }
         }
 
         return item;
     }
 
-    public Item update(Long id, Item item) {
+    public Item update(Long id, Item item) throws CustomException {
         logger.info("Updating item with id: " + id);
 
         UpdateItemRequest request = UpdateItemRequest.newBuilder().setId(id)
@@ -126,16 +148,16 @@ public class ItemPersistenceGrpcClient {
             logger.error("Exception updating item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
             if (status.getCode() == Status.Code.INTERNAL) {
-                throw new RuntimeException(status.getDescription());
+                throw new CustomException(status.getDescription());
             } else {
-                throw new RuntimeException("UNKNOWN ERROR");
+                throw new CustomException("UNKNOWN ERROR");
             }
         }
 
         return updatedItem;
     }
 
-    public Item delete(Long id) {
+    public Item delete(Long id) throws CustomException {
         logger.info("Deleting item with id: " + id);
 
         DeleteItemRequest request = DeleteItemRequest.newBuilder().setId(id).build();
@@ -148,21 +170,33 @@ public class ItemPersistenceGrpcClient {
             logger.error("Exception deleting item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
             if (status.getCode() == Status.Code.INTERNAL) {
-                throw new RuntimeException(status.getDescription());
+                throw new CustomException(status.getDescription());
             } else {
-                throw new RuntimeException("UNKNOWN ERROR");
+                throw new CustomException("UNKNOWN ERROR");
             }
         }
 
         return item;
     }
 
-    public int count() {
+    public int count() throws CustomException {
         logger.info("Count all Items");
 
-        Empty request = Empty.newBuilder().build();
+        int count = 0;
+        try {
+            Empty request = Empty.newBuilder().build();
+            CountItemResponse response = blockingStub.count(request);
+            count = response.getNumberOfItems();
+        } catch (StatusRuntimeException e) {
+            logger.error("Exception count amoung of items: " + e.getMessage());
+            Status status = Status.fromThrowable(e);
+            if (status.getCode() == Status.Code.INTERNAL) {
+                throw new CustomException(status.getDescription());
+            } else {
+                throw new CustomException("UNKNOWN ERROR");
+            }
+        }
 
-        CountItemResponse response = blockingStub.count(request);
-        return response.getNumberOfItems();
+        return count;
     }
 }
