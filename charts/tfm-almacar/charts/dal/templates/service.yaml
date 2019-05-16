@@ -11,6 +11,6 @@ metadata:
     {{- end }}
 spec:
   selector:
-    app: {{ include "dal.fullname" . }}
+    app.kubernetes.io/component: {{ include "dal.fullname" . }}
   ports:
   - port: {{ .Values.dal.port }}
