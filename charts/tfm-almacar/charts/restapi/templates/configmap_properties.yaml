@@ -1,0 +1,18 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "restapi.fullname" . }}
+data:
+  application.yaml: |-
+    server:
+      port: {{ .Values.service.port }}
+
+    kafka:
+      bootstrap-servers: {{ .Values.kafka.host }}:{{ .Values.kafka.port }}
+      topic:
+        receiver: receiver.t
+
+    dal:
+      host: {{ .Values.dal.host }}
+      port: {{ .Values.dal.port }}
+

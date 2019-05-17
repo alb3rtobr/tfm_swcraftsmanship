@@ -35,15 +35,5 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.port }}
-        env:
-        - name: SERVER_PORT
-          value: "{{ .Values.service.port }}"
-        - name: KAFKA_HOST
-          value: {{ .Values.global.kafka.host }}
-        - name: KAFKA_PORT
-          value: "{{ .Values.global.kafka.port }}"
-        - name: DAL_HOST
-          value: {{ .Values.global.dal.host }}
-        - name: DAL_PORT
-          value: "{{ .Values.global.dal.port }}"
+
 
