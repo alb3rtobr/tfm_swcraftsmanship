@@ -14,7 +14,7 @@ import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
-import com.craftsmanship.tfm.persistence.ItemPersistence;
+import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -76,7 +76,7 @@ public class RestApiControllerTests {
     private RestApiController restApiController;
 
     @Autowired
-    private ItemPersistence itemPersistence;
+    private ItemPersistenceStub itemPersistence;
 
     @Before
     public void setUp() {
@@ -121,10 +121,8 @@ public class RestApiControllerTests {
         // stop the container
         container.stop();
 
-        // empty persistence
-        for (Item item : itemPersistence.list()) {
-            itemPersistence.delete(item.getId());
-        }
+        // initialize persistence
+        itemPersistence.initialize();
     }
 
     @Test
@@ -132,15 +130,24 @@ public class RestApiControllerTests {
         assertThat(restApiController, is(notNullValue()));
     }
 
+    private Item postItem(Item item) {
+        String url = "http://localhost:" + restPort + "/api/v1/items";
+        HttpEntity<Item> request = new HttpEntity<>(item);
+        return new RestTemplate().postForObject(url, request, Item.class);
+    }
+
+    private void deleteItem(Long id) {
+        String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
+        new RestTemplate().delete(url);
+    }
+
     @Test
     public void test_when_item_is_created_then_item_persisted_and_kafka_message_sent() throws InterruptedException, CustomException {
-        String itemDescription = "Zapato";
+        String itemDescription = "Wheel";
         Item item = new Item.Builder().withDescription(itemDescription).build();
 
-        String url = "http://localhost:" + restPort + "/api/v1/items";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<Item> request = new HttpEntity<>(item);
-        Item responseItem = restTemplate.postForObject(url, request, Item.class);
+        // post item
+        Item responseItem = postItem(item);
 
         // first, for comparison, we need to set the item id, created in persistence
         item.setId(responseItem.getId());
@@ -151,10 +158,38 @@ public class RestApiControllerTests {
         // check item was created in persistence
         Item storedItem = itemPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
+    }
+
+    @Test
+    public void test_given_item_with_id_when_rest_created_then_returned_item_ignores_id() throws CustomException {
+        String itemDescription = "Wheel";
+        Long expectedId = new Long(itemPersistence.count() + 1);
+        Item item = new Item.Builder().withDescription(itemDescription).withId(1000L).build();
+
+        // post item
+        Item responseItem = postItem(item);
+
+        // check returned item
+        assertThat(responseItem.getId(), equalTo(expectedId));
+        assertThat(responseItem.getDescription(), equalTo(item.getDescription()));
+
+        // check item was created in persistence
+        item.setId(responseItem.getId());
+        Item storedItem = itemPersistence.get(responseItem.getId());
+        assertThat(storedItem, equalTo(item));
+    }
+
+    @Test
+    public void test_when_item_is_created_then_kafka_message() throws InterruptedException {
+        String itemDescription = "Wheel";
+        Item item = new Item.Builder().withDescription(itemDescription).build();
+
+        // post item
+        Item responseItem = postItem(item);
 
         // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
-        ItemOperation expectedOperation = new ItemOperation(OperationType.CREATED, item);
+        ItemOperation expectedOperation = new ItemOperation(OperationType.CREATED, responseItem);
         assertThat(received, hasValue(expectedOperation));
     }
 
@@ -238,18 +273,29 @@ public class RestApiControllerTests {
 
         // When
         Long id = 2L;
-        String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.delete(url);
+        deleteItem(id);
 
         // Then
-        assertThat(2, equalTo(itemPersistence.list().size()));
-        Item responseItem = restTemplate.getForObject(url, Item.class);
-        assertThat(responseItem, is(nullValue()));
+        assertThat(itemPersistence.list().size(), equalTo(2));
+        assertThat(itemPersistence.get(id), is(nullValue()));
+    }
+
+    public void test_when_item_is_deleted_then_kafka_message() throws InterruptedException {
+        // Given
+        Item item1 = new Item.Builder().withDescription("item1").build();
+        Item item2 = new Item.Builder().withDescription("item2").build();
+        Item item3 = new Item.Builder().withDescription("item3").build();
+        itemPersistence.create(item1);
+        Item expectedDeletedItem = itemPersistence.create(item2);
+        itemPersistence.create(item3);
+
+        // When
+        Long id = 2L;
+        deleteItem(id);
 
         // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
-        ItemOperation expectedOperation = new ItemOperation(OperationType.DELETED, item2);
+        ItemOperation expectedOperation = new ItemOperation(OperationType.DELETED, expectedDeletedItem);
         assertThat(received, hasValue(expectedOperation));
     }
 }

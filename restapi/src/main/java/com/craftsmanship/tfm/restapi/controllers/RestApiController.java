@@ -40,11 +40,11 @@ public class RestApiController {
         LOGGER.debug("Creating item");
 
         // Create item
-        itemPersistence.create(item);
+        Item itemResponse = itemPersistence.create(item);
 
         // Send message to Kafka topic
-        itemOperationService.sendItemOperation(new ItemOperation(OperationType.CREATED, item));
-        return item;
+        itemOperationService.sendItemOperation(new ItemOperation(OperationType.CREATED, itemResponse));
+        return itemResponse;
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.GET)
