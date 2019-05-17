@@ -5,6 +5,7 @@
 Our awesome TFM
 
 ## Architecture
+![architecture draft](./images/architecture-draft.png "architecture draft")
 
 ## Installation
 
