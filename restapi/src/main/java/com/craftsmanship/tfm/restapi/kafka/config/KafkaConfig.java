@@ -33,7 +33,7 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return new DefaultKafkaProducerFactory<>(configProps);
     }
- 
+
     @Bean
     public KafkaTemplate<String, ItemOperation> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
