@@ -35,11 +35,3 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.global.dal.port }}
-        env:
-        - name: GRPC_SERVER_PORT
-          value: "{{ .Values.global.dal.port }}"
-        - name: MYSQL_HOST
-          value: "{{ .Values.global.mysql.host }}"
-        - name: MYSQL_PORT
-          value: "{{ .Values.global.mysql.port }}"
- 

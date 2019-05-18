@@ -4,6 +4,9 @@
 global:
   dal:
     port: 50057
+  mysql:
+    host: mysql
+    port: 3306
 
 replicaCount: 1
 
