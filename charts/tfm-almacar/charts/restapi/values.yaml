@@ -2,6 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  kafka:
+    host: kafka
+    port: 9092
+  dal:
+    host: dal
+    port: 50057
+
 replicaCount: 1
 
 image:

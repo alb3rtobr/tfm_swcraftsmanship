@@ -17,7 +17,7 @@ spec:
       app.kubernetes.io/name: {{ include "dal.fullname" . }}
       app.kubernetes.io/component: {{ include "dal.fullname" . }}
       app.kubernetes.io/part-of: {{ .Values.global.appname }}
-  replicas: {{ .Values.dal.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
@@ -31,12 +31,13 @@ spec:
         command: ['sh', '-c', "until nslookup {{ .Release.Name }}-mysql; do echo waiting for myservice; sleep 2; done;"]
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ .Values.dal.image.repository }}:{{ .Values.dal.image.tag }}"
-        imagePullPolicy: {{ .Values.dal.image.pullPolicy }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.dal.port }}
+        - containerPort: {{ .Values.service.port }}
         env:
         - name: GRPC_SERVER_PORT
-          value: "{{ .Values.dal.port }}"
+          value: "{{ .Values.service.port }}"
         - name: MYSQL_HOST
           value: "{{ .Release.Name }}-mysql"
+ 

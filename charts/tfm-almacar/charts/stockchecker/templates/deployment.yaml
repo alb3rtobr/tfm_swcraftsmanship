@@ -17,7 +17,7 @@ spec:
       app.kubernetes.io/name: {{ include "stockchecker.fullname" . }}
       app.kubernetes.io/component: {{ include "stockchecker.fullname" . }}
       app.kubernetes.io/part-of: {{ .Values.global.appname }}
-  replicas: {{ .Values.stockchecker.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
@@ -31,16 +31,16 @@ spec:
         command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-kafka; do echo waiting for myservice; sleep 2; done;']
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ .Values.stockchecker.image.repository }}:{{ .Values.stockchecker.image.tag }}"
-        imagePullPolicy: {{ .Values.stockchecker.image.pullPolicy }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: KAFKA_HOST
-          value: {{ .Release.Name }}-kafka
+          value: {{ .Release.Name }}-{{ .Values.global.kafka.host }}
         - name: KAFKA_PORT
-          value: "9092"
+          value: "{{ .Values.global.kafka.port }}"
         - name: DAL_HOST
-          value: {{ .Release.Name }}-dal
+          value: {{ .Release.Name }}-{{ .Values.global.dal.host }}
         - name: DAL_PORT
-          value: "50057"
+          value: "{{ .Values.global.dal.port }}"
 
 

@@ -1,10 +1,17 @@
 # Default values for stockchecker.
 # Declare variables to be passed into your templates.
 
-stockchecker:
-  replicaCount: 1
+global:
+  kafka:
+    host: kafka
+    port: 9092
+  dal:
+    host: dal
+    port: 50057
 
-  image:
-    repository: almacar_stockchecker
-    tag: 0.1
-    pullPolicy: IfNotPresent
+replicaCount: 1
+
+image:
+  repository: almacar_stockchecker
+  tag: 0.1
+  pullPolicy: IfNotPresent

@@ -2,9 +2,13 @@
 # Declare variables to be passed into your templates.
 
 global:
-  var1: value1
+  kafka:
+    host: kafka
+    port: 9092
+  dal:
+    host: dal
+    port: 50057
 
-# Kafka configuration
 kafka:
   replicas: 1
   configurationOverrides:
@@ -14,3 +18,18 @@ kafka:
     #servicePort: '19092'
   zookeeper:
     replicaCount: 1
+
+restapi:
+  replicaCount: 1
+  service:
+    type: NodePort
+    port: 8787
+
+dal:
+  replicaCount: 1
+  service:
+    port: 50057
+
+stockchecker:
+  replicaCount: 1
+
