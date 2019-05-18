@@ -5,17 +5,18 @@
 Our awesome TFM
 
 ## Architecture
+![architecture draft](./images/architecture-draft.png "architecture draft")
 
 ## Installation
 
 ### Docker image preparations
 
-#### Rest Api application
-
-```bash
-$ cd $GIT_REPO/restapi
-$ docker build --tag=almacar_restapi:0.1 --rm=true .
-```
+`build.sh` script can be used to compile all the services and generate the Docker images.
+When executed, the following steps are performed:
+* Build `proto-idls` project
+* Build `restapi` project & generate Docker image
+* Build `stockchecker` project & generate Docker image
+* Build `dal` project & generate Docker image
 
 ### Helm dependencies
 
@@ -51,6 +52,46 @@ Deleting outdated charts
 ```bash
 $ cd $GIT_REPO/charts
 $ helm install --name=tfm-almacar tfm-almacar
+```
+The deployment is the following:
+
+```
+NAME                                            READY   STATUS    RESTARTS   AGE
+pod/tfm-almacar-dal-84896976db-wc2cp            1/1     Running   2          23h
+pod/tfm-almacar-kafka-0                         1/1     Running   3          23h
+pod/tfm-almacar-mysql-fd97cb567-zbw8w           1/1     Running   0          23h
+pod/tfm-almacar-restapi-bc6cfd455-2qhc8         1/1     Running   0          23h
+pod/tfm-almacar-stockchecker-7ff8d66486-rlz6g   1/1     Running   4          23h
+pod/tfm-almacar-zookeeper-0                     1/1     Running   0          23h
+pod/tfm-almacar-zookeeper-1                     1/1     Running   0          23h
+pod/tfm-almacar-zookeeper-2                     1/1     Running   0          23h
+
+NAME                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+service/kubernetes                       ClusterIP   10.96.0.1        <none>        443/TCP                      64d
+service/tfm-almacar-dal                  ClusterIP   10.105.42.213    <none>        50057/TCP                    23h
+service/tfm-almacar-kafka                ClusterIP   10.102.174.201   <none>        9092/TCP                     23h
+service/tfm-almacar-kafka-headless       ClusterIP   None             <none>        9092/TCP                     23h
+service/tfm-almacar-mysql                ClusterIP   10.101.230.4     <none>        3306/TCP                     23h
+service/tfm-almacar-restapi              NodePort    10.100.175.116   <none>        8787:31034/TCP               23h
+service/tfm-almacar-zookeeper            ClusterIP   10.100.139.119   <none>        2181/TCP                     23h
+service/tfm-almacar-zookeeper-headless   ClusterIP   None             <none>        2181/TCP,3888/TCP,2888/TCP   23h
+
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/tfm-almacar-dal            1/1     1            1           23h
+deployment.apps/tfm-almacar-mysql          1/1     1            1           23h
+deployment.apps/tfm-almacar-restapi        1/1     1            1           23h
+deployment.apps/tfm-almacar-stockchecker   1/1     1            1           23h
+
+NAME                                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/tfm-almacar-dal-84896976db            1         1         1       23h
+replicaset.apps/tfm-almacar-mysql-fd97cb567           1         1         1       23h
+replicaset.apps/tfm-almacar-restapi-bc6cfd455         1         1         1       23h
+replicaset.apps/tfm-almacar-stockchecker-7ff8d66486   1         1         1       23h
+
+NAME                                     READY   AGE
+statefulset.apps/tfm-almacar-kafka       1/1     23h
+statefulset.apps/tfm-almacar-zookeeper   3/3     23h
+
 ```
 
 ### Delete the deployment
