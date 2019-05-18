@@ -8,11 +8,11 @@ data:
       port: {{ .Values.service.port }}
 
     kafka:
-      bootstrap-servers: {{ .Values.kafka.host }}:{{ .Values.kafka.port }}
+      bootstrap-servers: {{ .Values.global.kafka.host }}:{{ .Values.global.kafka.port }}
       topic:
         receiver: receiver.t
 
     dal:
-      host: {{ .Values.dal.host }}
-      port: {{ .Values.dal.port }}
+      host: {{ .Values.global.dal.host }}
+      port: {{ .Values.global.dal.port }}
 
