@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.restapi.persistence.config;
+package com.craftsmanship.tfm.restapi.config;
 
 import com.craftsmanship.tfm.persistence.ItemPersistenceGrpc;
 
