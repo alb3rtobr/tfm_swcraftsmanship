@@ -35,11 +35,11 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: KAFKA_HOST
-          value: {{ .Release.Name }}-{{ .Values.global.kafka.host }}
+          value: {{ .Values.global.kafka.host }}
         - name: KAFKA_PORT
           value: "{{ .Values.global.kafka.port }}"
         - name: DAL_HOST
-          value: {{ .Release.Name }}-{{ .Values.global.dal.host }}
+          value: {{ .Values.global.dal.host }}
         - name: DAL_PORT
           value: "{{ .Values.global.dal.port }}"
 

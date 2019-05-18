@@ -6,7 +6,7 @@ grpc-server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql/mybbdd
+    url: jdbc:mysql://mysql:3306/mybbdd
     username: username
     password: userpass
   jpa:

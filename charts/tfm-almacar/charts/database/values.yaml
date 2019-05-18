@@ -1,8 +1,11 @@
 # Default values for mysql.
 # Declare variables to be passed into your templates.
 
+global:
+  mysql:
+    port: 3306
+
 mysql:
-  port: 3306
   root_pass: r00t
   db_name: mybbdd
   user_name: username

@@ -13,4 +13,4 @@ spec:
   selector:
     app.kubernetes.io/component: {{ include "dal.fullname" . }}
   ports:
-  - port: {{ .Values.service.port }}
+  - port: {{ .Values.global.dal.port }}

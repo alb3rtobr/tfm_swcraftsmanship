@@ -34,10 +34,12 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.service.port }}
+        - containerPort: {{ .Values.global.dal.port }}
         env:
         - name: GRPC_SERVER_PORT
-          value: "{{ .Values.service.port }}"
+          value: "{{ .Values.global.dal.port }}"
         - name: MYSQL_HOST
-          value: "{{ .Release.Name }}-mysql"
+          value: "{{ .Values.global.mysql.host }}"
+        - name: MYSQL_PORT
+          value: "{{ .Values.global.mysql.port }}"
  
