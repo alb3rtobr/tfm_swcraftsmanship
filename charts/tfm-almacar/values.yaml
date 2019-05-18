@@ -3,11 +3,14 @@
 
 global:
   kafka:
-    host: kafka
+    host: tfm-almacar-kafka
     port: 9092
   dal:
-    host: dal
+    host: tfm-almacar-dal
     port: 50057
+  mysql:
+    host: tfm-almacar-mysql
+    port: 3306
 
 kafka:
   replicas: 1
@@ -23,12 +26,10 @@ restapi:
   replicaCount: 1
   service:
     type: NodePort
-    port: 8787
+    port: 8080
 
 dal:
   replicaCount: 1
-  service:
-    port: 50057
 
 stockchecker:
   replicaCount: 1

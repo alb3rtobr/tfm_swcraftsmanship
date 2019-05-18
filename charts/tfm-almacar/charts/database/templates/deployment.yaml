@@ -38,7 +38,7 @@ spec:
         - name: MYSQL_PASSWORD
           value: {{.Values.mysql.user_pass}}
         ports:
-        - containerPort: {{.Values.mysql.port}}
+        - containerPort: {{.Values.global.mysql.port}}
           name: mysql
         volumeMounts:
         - name: mysql-persistent-storage
