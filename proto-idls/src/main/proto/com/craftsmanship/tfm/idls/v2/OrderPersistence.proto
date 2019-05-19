@@ -1,0 +1,59 @@
+syntax = "proto3";
+package com.craftsmanship.tfm.idls.v2;
+
+import "com/craftsmanship/tfm/idls/v2/ItemPersistence.proto";
+
+// Order Persistence Service
+service OrderPersistenceService {
+    rpc create (CreateOrderRequest) returns (CreateOrderResponse);
+    rpc list (Empty) returns (ListOrderResponse);
+    rpc get (GetOrderRequest) returns (GetOrderResponse);
+    rpc update (UpdateOrderRequest) returns (UpdateOrderResponse);
+    rpc delete (DeleteOrderRequest) returns (DeleteOrderResponse);
+}
+
+message ItemPurchase {
+    GrpcItem item = 1;
+    int64 quantity = 2;    
+}
+
+message GrpcOrder {
+    repeated ItemPurchase listOfItemPurchases = 1;
+}
+
+message CreateOrderRequest {
+    GrpcOrder order = 1;
+}
+
+message CreateOrderResponse {
+    GrpcOrder order = 1;
+}
+
+message ListOrderResponse {
+    repeated GrpcOrder listOfOrders = 1;
+}
+
+message GetOrderRequest {
+    int64 id = 1;
+}
+
+message GetOrderResponse {
+    GrpcOrder order = 1;
+}
+
+message UpdateOrderRequest {
+    int64 id = 1;
+    GrpcOrder order = 2;
+}
+
+message UpdateOrderResponse {
+    GrpcOrder order = 1;
+}
+
+message DeleteOrderRequest {
+    int64 id = 1;
+}
+
+message DeleteOrderResponse {
+    GrpcOrder order = 1;
+}
