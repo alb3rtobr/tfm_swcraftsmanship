@@ -1,0 +1,58 @@
+syntax = "proto3";
+package com.craftsmanship.tfm.idls.v2;
+
+// Item Persistence Service
+service ItemPersistenceService {
+    rpc create (CreateItemRequest) returns (CreateItemResponse);
+    rpc list (Empty) returns (ListItemResponse);
+    rpc get (GetItemRequest) returns (GetItemResponse);
+    rpc update (UpdateItemRequest) returns (UpdateItemResponse);
+    rpc delete (DeleteItemRequest) returns (DeleteItemResponse);
+}
+
+message Empty {
+}
+
+message GrpcItem {
+    int64 id = 1;
+    string name = 2;
+    int64 price = 3;
+    int64 quantity = 4;
+}
+
+message CreateItemRequest {
+    GrpcItem item = 1;
+}
+
+message CreateItemResponse {
+    GrpcItem item = 1;
+}
+
+message ListItemResponse {
+    repeated GrpcItem item = 1;
+}
+
+message GetItemRequest {
+    int64 id = 1;
+}
+
+message GetItemResponse {
+    GrpcItem item = 1;
+}
+
+message UpdateItemRequest {
+    int64 id = 1;
+    GrpcItem item = 2;
+}
+
+message UpdateItemResponse {
+    GrpcItem item = 1;
+}
+
+message DeleteItemRequest {
+    int64 id = 1;
+}
+
+message DeleteItemResponse {
+    GrpcItem item = 1;
+}
