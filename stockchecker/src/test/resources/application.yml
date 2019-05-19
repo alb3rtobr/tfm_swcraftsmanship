@@ -16,4 +16,4 @@ dal:
   port: 50051
 
 kafka:
-  bootstrap-servers: localhost
+  bootstrap-servers: ${spring.embedded.kafka.brokers}
