@@ -11,6 +11,12 @@ global:
   mysql:
     host: tfm-almacar-mysql
     port: 3306
+  stockchecker:
+    threshold: 2
+    rest:
+      host: localhost
+      port: 8082
+      endpoint: order
 
 kafka:
   headless:
@@ -35,4 +41,3 @@ dal:
 
 stockchecker:
   replicaCount: 1
-

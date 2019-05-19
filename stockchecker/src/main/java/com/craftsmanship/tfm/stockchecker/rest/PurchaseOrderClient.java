@@ -12,10 +12,13 @@ public class PurchaseOrderClient implements RestClient {
 	
 	private final String uri;
 	
-	public PurchaseOrderClient(String restHost, int restPort, String restEndPoint) {
+	private int stockThreshold;
+	
+	public PurchaseOrderClient(String restHost, int restPort, String restEndPoint, int stockThreshold) {
 		
-		uri = "http://"+restHost+":"+restPort+"/"+restEndPoint;
-		restTemplate = new RestTemplate();
+		this.uri = "http://"+restHost+":"+restPort+"/"+restEndPoint;
+		this.restTemplate = new RestTemplate();
+		this.stockThreshold=stockThreshold;
 	}
 
 	private RestTemplate restTemplate;
@@ -25,13 +28,20 @@ public class PurchaseOrderClient implements RestClient {
 	}
 	
 	@Override
-	public PurchaseOrder sendPurchaseOrder(Item item) {		
-		PurchaseOrder newOrder = new PurchaseOrder(item);
-	    //PurchaseOrder result=restTemplate.postForObject( uri, newOrder, PurchaseOrder.class);
-		// By the moment, only a log is added.
-		// This function could be impacted by the new model.
-	    LOGGER.info("sendPurchaseOrder sent order for item ["+item.toString()+"]");
-	    return newOrder;
+	public PurchaseOrder sendPurchaseOrder(Item item, int currentStock) {
+		if (currentStock<this.stockThreshold) {
+			PurchaseOrder newOrder = new PurchaseOrder(item);
+			LOGGER.info("Items below threshold ( "+currentStock+"<"+this.stockThreshold+" ), contacting REST API.");
+			//PurchaseOrder result=restTemplate.postForObject( uri, newOrder, PurchaseOrder.class);
+			// By the moment, only a log is added.
+			// This function could be impacted by the new model.
+		    LOGGER.info("sendPurchaseOrder sent order for item ["+item.toString()+"]");
+		    return newOrder;
+			
+		}else {
+			LOGGER.info("Items above threshold ( "+currentStock+">="+this.stockThreshold+" ), NOT contacting REST API.");
+			return null;
+		}		
 	}
-
+	
 }
