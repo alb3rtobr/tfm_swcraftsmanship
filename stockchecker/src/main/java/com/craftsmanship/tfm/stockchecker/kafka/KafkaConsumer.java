@@ -4,7 +4,6 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
@@ -14,17 +13,13 @@ import com.craftsmanship.tfm.stockchecker.rest.RestClient;
 
 public class KafkaConsumer {
 
-	@Value("${kafka.topic.json}")
-	public String TOPIC_NAME = "mytopic";
+	private final String TOPIC_NAME = "mytopic";
 
 	@Autowired
 	private ItemPersistence itemsPersistence;
 
 	@Autowired
 	private RestClient restClient;
-
-	@Value("${stockchecker.threshold}")
-	private int MIN_STOCK_THRESHOLD;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumer.class);
 
@@ -49,15 +44,10 @@ public class KafkaConsumer {
 		latch = new CountDownLatch(i);
 	}
 
-	@KafkaListener(topics = "${kafka.topic.json}")
+	@KafkaListener(topics = TOPIC_NAME)
 	public void consume(ItemOperation payload) throws CustomException {
 		LOGGER.info("received payload='{}'", payload.toString());
-		if (itemsPersistence.count()<MIN_STOCK_THRESHOLD) {
-			LOGGER.info("Items below threshold ( "+itemsPersistence.count()+"<"+MIN_STOCK_THRESHOLD+" ), contacting REST API.");
-			restClient.sendPurchaseOrder(payload.getItem());
-			latch.countDown();
-		}else {
-			LOGGER.info("Items above threshold ( "+itemsPersistence.count()+">="+MIN_STOCK_THRESHOLD+" ), NOT contacting REST API.");
-		}		
+		restClient.sendPurchaseOrder(payload.getItem(),itemsPersistence.count());
+		latch.countDown();				
 	}
 }

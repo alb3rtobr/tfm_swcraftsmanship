@@ -1,0 +1,24 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "stockchecker.fullname" . }}
+data:
+  application.yaml: |-
+    server:
+      port: {{ .Values.service.port }}
+
+    kafka:
+      bootstrap-servers: {{ .Values.global.kafka.host }}:{{ .Values.global.kafka.port }}
+      topic:
+        receiver: receiver.t
+
+    dal:
+      host: {{ .Values.global.dal.host }}
+      port: {{ .Values.global.dal.port }}
+
+    stockchecker:
+      threshold: {{ .Values.global.stockchecker.threshold }}
+      rest:
+        host: {{ .Values.global.stockchecker.rest.host }}
+        port: {{ .Values.global.stockchecker.rest.port }}
+        endpoint: {{ .Values.global.stockchecker.rest.endpoint }}

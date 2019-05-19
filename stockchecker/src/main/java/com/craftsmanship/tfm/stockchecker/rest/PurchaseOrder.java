@@ -10,9 +10,14 @@ public class PurchaseOrder {
 		this.item=item;
 	}
 	
+	public Item getItem() {
+		return item;
+	}
+	
 	@Override
 	public String toString() {
 		String result="Purchase item ["+this.item.toString()+"]";
 		return result;
 	}
+		
 }

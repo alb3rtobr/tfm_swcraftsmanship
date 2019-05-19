@@ -33,14 +33,3 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        env:
-        - name: KAFKA_HOST
-          value: {{ .Values.global.kafka.host }}
-        - name: KAFKA_PORT
-          value: "{{ .Values.global.kafka.port }}"
-        - name: DAL_HOST
-          value: {{ .Values.global.dal.host }}
-        - name: DAL_PORT
-          value: "{{ .Values.global.dal.port }}"
-
-

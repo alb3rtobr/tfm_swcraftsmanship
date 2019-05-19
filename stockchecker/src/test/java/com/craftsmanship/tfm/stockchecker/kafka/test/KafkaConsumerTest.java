@@ -1,8 +1,6 @@
-package com.craftsmanship.tfm.stockchecker.test;
+package com.craftsmanship.tfm.stockchecker.kafka.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -13,13 +11,12 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -37,17 +34,15 @@ import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
 
 import com.craftsmanship.tfm.stockchecker.kafka.KafkaConsumer;
-import com.craftsmanship.tfm.stockchecker.rest.RestClientStub;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class KafkaConsumerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerTest.class);
 
-	@Value("${kafka.topic.json}")
-	private static String RECEIVER_TOPIC = "mytopic";
+	private final static String RECEIVER_TOPIC = "mytopic";
 
 	@Autowired
 	private KafkaConsumer consumer;
@@ -88,7 +83,7 @@ public class KafkaConsumerTest {
 	}
 
 	@Test
-	public void whenItemsAreBelowThreshold_thenRestApiIsCalledWithExpectedItem() throws Exception {
+	public void whenAnItemOperationIsReceived_thenKafkaConsumerReceivesIt() throws Exception {
 
 		Item item= new Item.Builder().withDescription("PlayStation4").build();
 		consumer.resetLatch(1);
@@ -98,10 +93,6 @@ public class KafkaConsumerTest {
 
 		ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
 
-		ArgumentCaptor<Item> argument = ArgumentCaptor.forClass(Item.class);
-		RestClientStub mockRestClient = Mockito.mock(RestClientStub.class);
-		consumer.setRestClient(mockRestClient);
-
 		template.sendDefault(itemOp);
 
 		LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
@@ -110,29 +101,5 @@ public class KafkaConsumerTest {
 		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
 		// check that the message was received, so the latch is 0
 		assertThat(consumer.getLatch().getCount()).isEqualTo(0);
-
-		//check that sendPurchaseOrder was called with 'item'
-		verify(mockRestClient).sendPurchaseOrder(argument.capture());
-		assertEquals("{ id='0', description='PlayStation4'}",argument.getValue().toString());
-	}
-
-	@Test
-	public void whenItemsAreAboveThreshold_thenRestApiIsNotCalled() throws Exception {
-		consumer.resetLatch(1);
-
-		//DB is mocked
-		Mockito.when(consumer.getItemsPersistence().count()).thenReturn(3);
-
-		LOGGER.info("count(): "+consumer.getLatch().getCount());
-		Item item= new Item.Builder().withDescription("PlayStation4").build();
-		ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
-		template.sendDefault(itemOp);
-
-		LOGGER.debug("test-sender sent message='{}'", itemOp.toString());
-
-		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
-
-		// check that the latch was not decreased, so the latch is 1
-		assertThat(consumer.getLatch().getCount()).isEqualTo(1);
 	}
 }
