@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.testing.grpc.ItemPersistenceInProcessServer;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
@@ -33,6 +33,7 @@ public class ItemsPersistenceGrpcTest {
     private ItemPersistenceGrpc grpcClient;
     private ItemPersistenceServiceBlockingStub blockingStub;
     private ItemPersistenceServiceStub asyncStub;
+    private ItemPersistenceStub itemPersistenceStub;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -40,7 +41,7 @@ public class ItemsPersistenceGrpcTest {
     @Before
     public void setUp() throws IOException, InstantiationException, IllegalAccessException {
         // Create the Item Persistence stub
-        ItemPersistenceStub itemPersistenceStub = new ItemPersistenceStub();
+        itemPersistenceStub = new ItemPersistenceStub();
         itemPersistenceGrpcServer = new ItemPersistenceInProcessServer(itemPersistenceStub);
         itemPersistenceGrpcServer.start();
         ManagedChannel channel = InProcessChannelBuilder.forName("test").directExecutor()
@@ -61,14 +62,13 @@ public class ItemsPersistenceGrpcTest {
 
     @Test
     public void test_when_item_is_created() throws InterruptedException, CustomException {
-        Item item = new Item.Builder().withDescription("Shoe").build();
+        Item item = new Item.Builder().withName("Shoe").build();
 
         Item createdItem = grpcClient.create(item);
-        int count = grpcClient.count();
 
         item.setId(1L);
         assertThat(createdItem, equalTo(item));
-        assertThat(count, equalTo(1));
+        assertThat(itemPersistenceStub.count(), equalTo(1));
     }
 
     @Test
@@ -80,9 +80,9 @@ public class ItemsPersistenceGrpcTest {
 
     @Test
     public void test_given_some_items_when_list_is_queried_then_items_received() throws CustomException {
-        Item item1 = new Item.Builder().withDescription("Shoe").build();
+        Item item1 = new Item.Builder().withName("Shoe").build();
         Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withDescription("Car").build();
+        Item item2 = new Item.Builder().withName("Car").build();
         Item itemResponse2 = grpcClient.create(item2);
 
         List<Item> items = grpcClient.list();
@@ -96,9 +96,9 @@ public class ItemsPersistenceGrpcTest {
 
     @Test
     public void test_given_some_items_when_get_is_queried_then_item_received() throws CustomException {
-        Item item1 = new Item.Builder().withDescription("Shoe").build();
+        Item item1 = new Item.Builder().withName("Shoe").build();
         Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withDescription("Car").build();
+        Item item2 = new Item.Builder().withName("Car").build();
         grpcClient.create(item2);
 
         Item responseItem = grpcClient.get(1L);
@@ -117,9 +117,9 @@ public class ItemsPersistenceGrpcTest {
 
     @Test
     public void test_given_item_when_updated_is_queried_then_item_is_updated() throws CustomException {
-        Item item1 = new Item.Builder().withDescription("Shoe").build();
+        Item item1 = new Item.Builder().withName("Shoe").build();
         Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withDescription("Car").build();
+        Item item2 = new Item.Builder().withName("Car").build();
 
         Item responseItem = grpcClient.update(itemResponse1.getId(), item2);
 
@@ -133,16 +133,16 @@ public class ItemsPersistenceGrpcTest {
         exceptionRule.expect(CustomException.class);
         exceptionRule.expectMessage("Item with id " + id + " does not exist");
 
-        Item newItem = new Item.Builder().withDescription("Shoe").build();
+        Item newItem = new Item.Builder().withName("Shoe").build();
 
         grpcClient.update(id, newItem);
     }
 
     @Test
     public void test_when_delete_existing_item_then_item_is_deleted() throws CustomException {
-        Item item1 = new Item.Builder().withDescription("Shoe").build();
+        Item item1 = new Item.Builder().withName("Shoe").build();
         Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withDescription("Car").build();
+        Item item2 = new Item.Builder().withName("Car").build();
         grpcClient.create(item2);
 
         Item deletedItem = grpcClient.delete(itemResponse1.getId());
@@ -161,34 +161,30 @@ public class ItemsPersistenceGrpcTest {
 
     @Test
     public void test_given_no_items_when_count_then_zero() throws CustomException {
-        assertThat(0, equalTo(grpcClient.count()));
+        assertThat(itemPersistenceStub.count(), equalTo(0));
     }
 
     @Test
     public void test_given_some_items_when_count_then_number_of_items_returned() throws CustomException {
-        Item item1 = new Item.Builder().withDescription("Shoe").build();
+        Item item1 = new Item.Builder().withName("Shoe").build();
         grpcClient.create(item1);
-        Item item2 = new Item.Builder().withDescription("Car").build();
+        Item item2 = new Item.Builder().withName("Car").build();
         grpcClient.create(item2);
 
-        assertThat(2, equalTo(grpcClient.count()));
+        assertThat(itemPersistenceStub.count(), equalTo(2));
     }
 
     @Test
     public void given_anItemWithNoStock_then_countReturnZero() throws CustomException {
-
-        int count = grpcClient.count();
-        assertThat(count, equalTo(0));
+        assertThat(itemPersistenceStub.count(), equalTo(0));
     }
 
     @Test
     public void given_anItemWithStock_then_countReturnTheStock() throws CustomException {
 
-        Item item = new Item.Builder().withDescription("MegaDrive").build();
+        Item item = new Item.Builder().withName("MegaDrive").build();
         grpcClient.create(item);
 
-        int count = grpcClient.count();
-
-        assertThat(count, equalTo(1));
+        assertThat(itemPersistenceStub.count(), equalTo(1));
     }
 }

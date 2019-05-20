@@ -4,14 +4,18 @@ import java.util.Objects;
 
 public class Item {
     private Long id;
-    private String description;
+    private String name;
+    private Long price;
+    private Long quantity;
 
     private Item() {
     }
 
-    private Item(String description) {
+    private Item(String name, Long price, Long quantity) {
         this.id = 0L;
-        this.description = description;
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
     }
 
     public Long getId() {
@@ -22,12 +26,28 @@ public class Item {
         this.id = id;
     }
 
-    public String getDescription() {
-        return this.description;
+    public String getName() {
+        return this.name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getPrice() {
+        return this.price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public Long getQuantity() {
+        return this.quantity;
+    }
+
+    public void setQuantity(Long quantity) {
+        this.quantity = quantity;
     }
 
     @Override
@@ -38,45 +58,59 @@ public class Item {
             return false;
         }
         Item item = (Item) o;
-        return id == item.id && Objects.equals(description, item.description);
+        return id == item.id && Objects.equals(name, item.name) && price == item.price && quantity == item.quantity;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, description);
+        return Objects.hash(id, name);
     }
 
     @Override
     public String toString() {
-        return "{" +
-            " id='" + this.id + "'" +
-            ", description='" + this.description + "'" +
-            "}";
+        return "{" + " id='" + this.id + "'" + ", name='" + this.name + "'" + ", price='" + this.price + "'"
+                + ", quantity='" + this.quantity + "'" + "}";
     }
 
     public static class Builder {
 
         private Long id;
-        private String description;
+        private String name;
+        private Long price;
+        private Long quantity;
 
         public Builder() {
             this.id = 0L;
+            this.price = 0L;
+            this.quantity = 0L;
         }
 
         public Builder withId(Long id) {
             this.id = id;
             return this;
         }
-        
-        public Builder withDescription(String description) {
-            this.description = description;
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withPrice(Long price) {
+            this.price = price;
+            return this;
+        }
+
+        public Builder withQuantity(Long quantity) {
+            this.quantity = quantity;
             return this;
         }
 
         public Item build() {
             Item item = new Item();
             item.id = this.id;
-            item.description = this.description;
+            item.name = this.name;
+            item.price = this.price;
+            item.quantity = this.quantity;
 
             return item;
         }

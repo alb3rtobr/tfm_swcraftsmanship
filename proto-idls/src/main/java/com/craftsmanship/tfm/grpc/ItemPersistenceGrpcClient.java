@@ -16,21 +16,20 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CountItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.Empty;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 
 public class ItemPersistenceGrpcClient {
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceGrpcClient.class);
@@ -64,7 +63,7 @@ public class ItemPersistenceGrpcClient {
     public Item create(Item item) throws CustomException {
         logger.info("Creating Item");
 
-        GrpcItem grpcItem = GrpcItem.newBuilder().setDescription(item.getDescription()).build();
+        GrpcItem grpcItem = GrpcItem.newBuilder().setName(item.getName()).build();
 
         CreateItemRequest request = CreateItemRequest.newBuilder().setItem(grpcItem).build();
 
@@ -177,26 +176,5 @@ public class ItemPersistenceGrpcClient {
         }
 
         return item;
-    }
-
-    public int count() throws CustomException {
-        logger.info("Count all Items");
-
-        int count = 0;
-        try {
-            Empty request = Empty.newBuilder().build();
-            CountItemResponse response = blockingStub.count(request);
-            count = response.getNumberOfItems();
-        } catch (StatusRuntimeException e) {
-            logger.error("Exception count amoung of items: " + e.getMessage());
-            Status status = Status.fromThrowable(e);
-            if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
-            } else {
-                throw new CustomException("UNKNOWN ERROR");
-            }
-        }
-
-        return count;
     }
 }

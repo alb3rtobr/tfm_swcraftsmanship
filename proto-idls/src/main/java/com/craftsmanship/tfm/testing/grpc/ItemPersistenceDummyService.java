@@ -1,19 +1,18 @@
 package com.craftsmanship.tfm.testing.grpc;
 
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CountItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.Empty;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse.Builder;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse.Builder;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 import com.craftsmanship.tfm.utils.ConversionUtils;
@@ -36,11 +35,11 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
         GrpcItem grpcItem = request.getItem();
-        Item item = new Item.Builder().withDescription(grpcItem.getDescription()).build();
+        Item item = new Item.Builder().withName(grpcItem.getName()).build();
         Item createdItem = itemPersistence.create(item);
 
         GrpcItem grpcItemResponse = GrpcItem.newBuilder().setId(createdItem.getId())
-                .setDescription(createdItem.getDescription()).build();
+                .setName(createdItem.getName()).build();
         CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
 
         responseObserver.onNext(response);
@@ -115,15 +114,5 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
         }
-    }
-
-    @Override
-    public void count(Empty request, io.grpc.stub.StreamObserver<CountItemResponse> responseObserver) {
-        LOGGER.info("DELETE RPC CALLED");
-
-        CountItemResponse response = CountItemResponse.newBuilder().setNumberOfItems(itemPersistence.count()).build();
-
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 }
