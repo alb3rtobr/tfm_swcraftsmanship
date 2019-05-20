@@ -47,7 +47,8 @@ public class KafkaConsumer {
 	@KafkaListener(topics = TOPIC_NAME)
 	public void consume(ItemOperation payload) throws CustomException {
 		LOGGER.info("received payload='{}'", payload.toString());
-		restClient.sendPurchaseOrder(payload.getItem(),itemsPersistence.count());
-		latch.countDown();				
+		Long count = itemsPersistence.get(payload.getItem().getId()).getQuantity();
+		restClient.sendPurchaseOrder(payload.getItem(), count);
+		latch.countDown();
 	}
 }

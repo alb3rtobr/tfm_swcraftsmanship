@@ -144,7 +144,7 @@ public class RestApiControllerTests {
     @Test
     public void test_when_item_is_created_then_item_persisted_and_kafka_message_sent() throws InterruptedException, CustomException {
         String itemDescription = "Wheel";
-        Item item = new Item.Builder().withDescription(itemDescription).build();
+        Item item = new Item.Builder().withName(itemDescription).build();
 
         // post item
         Item responseItem = postItem(item);
@@ -164,14 +164,14 @@ public class RestApiControllerTests {
     public void test_given_item_with_id_when_rest_created_then_returned_item_ignores_id() throws CustomException {
         String itemDescription = "Wheel";
         Long expectedId = new Long(itemPersistence.count() + 1);
-        Item item = new Item.Builder().withDescription(itemDescription).withId(1000L).build();
+        Item item = new Item.Builder().withName(itemDescription).withId(1000L).build();
 
         // post item
         Item responseItem = postItem(item);
 
         // check returned item
         assertThat(responseItem.getId(), equalTo(expectedId));
-        assertThat(responseItem.getDescription(), equalTo(item.getDescription()));
+        assertThat(responseItem.getName(), equalTo(item.getName()));
 
         // check item was created in persistence
         item.setId(responseItem.getId());
@@ -182,7 +182,7 @@ public class RestApiControllerTests {
     @Test
     public void test_when_item_is_created_then_kafka_message() throws InterruptedException {
         String itemDescription = "Wheel";
-        Item item = new Item.Builder().withDescription(itemDescription).build();
+        Item item = new Item.Builder().withName(itemDescription).build();
 
         // post item
         Item responseItem = postItem(item);
@@ -196,9 +196,9 @@ public class RestApiControllerTests {
     @Test
     public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws CustomException {
         // Given
-        Item item1 = new Item.Builder().withDescription("item1").build();
-        Item item2 = new Item.Builder().withDescription("item2").build();
-        Item item3 = new Item.Builder().withDescription("item3").build();
+        Item item1 = new Item.Builder().withName("item1").build();
+        Item item2 = new Item.Builder().withName("item2").build();
+        Item item3 = new Item.Builder().withName("item3").build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -218,9 +218,9 @@ public class RestApiControllerTests {
     @Test
     public void test_given_some_items_when_get_item_mapping_then_item_is_returned() throws CustomException {
         // Given
-        Item item1 = new Item.Builder().withDescription("item1").build();
-        Item item2 = new Item.Builder().withDescription("item2").build();
-        Item item3 = new Item.Builder().withDescription("item3").build();
+        Item item1 = new Item.Builder().withName("item1").build();
+        Item item2 = new Item.Builder().withName("item2").build();
+        Item item3 = new Item.Builder().withName("item3").build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -238,16 +238,16 @@ public class RestApiControllerTests {
     @Test
     public void test_given_item_when_edit_mapping_then_edited_item_is_returned() throws CustomException {
         // Given
-        Item item1 = new Item.Builder().withDescription("item1").build();
-        Item item2 = new Item.Builder().withDescription("item2").build();
-        Item item3 = new Item.Builder().withDescription("item3").build();
+        Item item1 = new Item.Builder().withName("item1").build();
+        Item item2 = new Item.Builder().withName("item2").build();
+        Item item3 = new Item.Builder().withName("item3").build();
         itemPersistence.create(item1);
         Item itemToUpdate = itemPersistence.create(item2);
         itemPersistence.create(item3);
 
         // When
         Long id = itemToUpdate.getId();
-        Item updatedItem = new Item.Builder().withDescription("updated_item2").build();
+        Item updatedItem = new Item.Builder().withName("updated_item2").build();
         String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<Item> request = new HttpEntity<>(updatedItem);
@@ -264,9 +264,9 @@ public class RestApiControllerTests {
     public void test_given_some_items_when_delete_item_mapping_then_item_is_deleted_and_kafka_message_sent()
             throws InterruptedException,  CustomException {
         // Given
-        Item item1 = new Item.Builder().withDescription("item1").build();
-        Item item2 = new Item.Builder().withDescription("item2").build();
-        Item item3 = new Item.Builder().withDescription("item3").build();
+        Item item1 = new Item.Builder().withName("item1").build();
+        Item item2 = new Item.Builder().withName("item2").build();
+        Item item3 = new Item.Builder().withName("item3").build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -282,9 +282,9 @@ public class RestApiControllerTests {
 
     public void test_when_item_is_deleted_then_kafka_message() throws InterruptedException {
         // Given
-        Item item1 = new Item.Builder().withDescription("item1").build();
-        Item item2 = new Item.Builder().withDescription("item2").build();
-        Item item3 = new Item.Builder().withDescription("item3").build();
+        Item item1 = new Item.Builder().withName("item1").build();
+        Item item2 = new Item.Builder().withName("item2").build();
+        Item item3 = new Item.Builder().withName("item3").build();
         itemPersistence.create(item1);
         Item expectedDeletedItem = itemPersistence.create(item2);
         itemPersistence.create(item3);

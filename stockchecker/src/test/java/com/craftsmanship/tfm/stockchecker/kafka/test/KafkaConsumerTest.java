@@ -85,13 +85,14 @@ public class KafkaConsumerTest {
 	@Test
 	public void whenAnItemOperationIsReceived_thenKafkaConsumerReceivesIt() throws Exception {
 
-		Item item= new Item.Builder().withDescription("PlayStation4").build();
+		Long itemId = 1L;
+		Item item = new Item.Builder().withName("PlayStation4").withId(itemId).withQuantity(5L).build();
 		consumer.resetLatch(1);
 		
 		//DB is mocked
-		Mockito.when(consumer.getItemsPersistence().count()).thenReturn(0);
+		Mockito.when(consumer.getItemsPersistence().get(itemId)).thenReturn(item);
 
-		ItemOperation itemOp = new ItemOperation(OperationType.CREATED,item);
+		ItemOperation itemOp = new ItemOperation(OperationType.CREATED, item);
 
 		template.sendDefault(itemOp);
 

@@ -44,7 +44,7 @@ public class ItemPersistenceExampleClient {
     public Item createItem(Item item) {
         logger.info("Creating Item");
 
-        GrpcItem grpcItem = GrpcItem.newBuilder().setDescription(item.getDescription()).build();
+        GrpcItem grpcItem = GrpcItem.newBuilder().setDescription(item.getName()).build();
 
         CreateItemRequest request = CreateItemRequest.newBuilder().setItem(grpcItem).build();
 
@@ -52,7 +52,7 @@ public class ItemPersistenceExampleClient {
         GrpcItem itemResponse = response.getItem();
         logger.info("Received GrpcItem: " + grpcItem);
 
-        Item result = new Item.Builder().withId(grpcItem.getId()).withDescription(grpcItem.getDescription()).build();
+        Item result = new Item.Builder().withId(grpcItem.getId()).withName(grpcItem.getDescription()).build();
 
         return result;
     }
@@ -64,7 +64,7 @@ public class ItemPersistenceExampleClient {
         ItemPersistenceExampleClient client = new ItemPersistenceExampleClient("localhost", 50051);
 
         try {
-            Item item = new Item.Builder().withDescription("Zapato").build();
+            Item item = new Item.Builder().withName("Zapato").build();
 
             // Looking for a valid feature
             Item receivedItem = client.createItem(item);

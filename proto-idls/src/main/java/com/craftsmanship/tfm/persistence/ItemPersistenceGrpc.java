@@ -56,9 +56,4 @@ public class ItemPersistenceGrpc implements ItemPersistence {
         return grpcClient.delete(id);
     }
 
-    @Override
-    public int count() throws CustomException {
-        return grpcClient.count();
-    }
-
 }

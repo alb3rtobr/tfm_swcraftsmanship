@@ -13,20 +13,19 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 import com.craftsmanship.tfm.dal.DataAccess;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CountItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.DeleteItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.Empty;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GetItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemRequest;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.UpdateItemResponse;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence.ListItemResponse.Builder;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemRequest;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse.Builder;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 
 @Component
 public class GrpcServer {
@@ -87,7 +86,7 @@ public class GrpcServer {
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
       logger.info("CREATE RPC CALLED");
       GrpcItem grpcItem = request.getItem();
-      Item item = new Item(grpcItem.getDescription());
+      Item item = new Item(grpcItem.getName());
       Item createdItem = dataAccess.create(item);
 
       GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
@@ -154,22 +153,13 @@ public class GrpcServer {
       responseObserver.onCompleted();
     }
 
-    @Override
-    public void count(Empty request, io.grpc.stub.StreamObserver<CountItemResponse> responseObserver) {
-      logger.info("DELETE RPC CALLED");
-
-      CountItemResponse response = CountItemResponse.newBuilder().setNumberOfItems(dataAccess.count()).build();
-
-      responseObserver.onNext(response);
-      responseObserver.onCompleted();
-    }
 	private GrpcItem getGrpcItemFromItem(Item item) {
 		return GrpcItem.newBuilder()
         		                  .setId(item.getId())
-        		                  .setDescription(item.getDescription()).build();
+        		                  .setName(item.getDescription()).build();
 	}
 	private Item getItemFromGrpcItem(GrpcItem grpcItem) {
-        return new Item(grpcItem.getId(),grpcItem.getDescription());
+        return new Item(grpcItem.getId(),grpcItem.getName());
     }
   }
 
