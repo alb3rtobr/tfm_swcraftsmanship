@@ -1,6 +1,9 @@
 package com.craftsmanship.tfm.stockchecker.kafka.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +38,7 @@ import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
 
 import com.craftsmanship.tfm.stockchecker.kafka.KafkaConsumer;
+import com.craftsmanship.tfm.stockchecker.rest.RestClient;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -88,7 +93,8 @@ public class KafkaConsumerTest {
 		Long itemId = 1L;
 		Item item = new Item.Builder().withName("PlayStation4").withId(itemId).withQuantity(5L).build();
 		consumer.resetLatch(1);
-		
+		RestClient mockRestClient= Mockito.mock(RestClient.class);
+		consumer.setRestClient(mockRestClient);
 		//DB is mocked
 		Mockito.when(consumer.getItemsPersistence().get(itemId)).thenReturn(item);
 
@@ -100,6 +106,13 @@ public class KafkaConsumerTest {
 
 		//Wait for the message to be received
 		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
+		
+		ArgumentCaptor<Item> itemArg = ArgumentCaptor.forClass(Item.class);
+		ArgumentCaptor<Long> longArg = ArgumentCaptor.forClass(long.class);
+		
+		verify(mockRestClient).sendPurchaseOrder(itemArg.capture(),longArg.capture());
+		assertEquals(item, itemArg.getValue());
+		
 		// check that the message was received, so the latch is 0
 		assertThat(consumer.getLatch().getCount()).isEqualTo(0);
 	}
