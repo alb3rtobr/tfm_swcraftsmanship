@@ -41,7 +41,7 @@ public class ItemRepositoryTest {
 	@Test
 	public void givenItemRepository_whenSaveItem_thenReturnItem() {
 		Item savedItem = itemRepository.save(item);
-		assertThat(savedItem.getDescription()).isEqualTo("Item for repository description");
+		assertThat(savedItem.getName()).isEqualTo("Item for repository description");
 	}
 
 	@Test

@@ -156,7 +156,7 @@ public class GrpcServer {
 	private GrpcItem getGrpcItemFromItem(Item item) {
 		return GrpcItem.newBuilder()
         		                  .setId(item.getId())
-        		                  .setName(item.getDescription()).build();
+        		                  .setName(item.getName()).build();
 	}
 	private Item getItemFromGrpcItem(GrpcItem grpcItem) {
         return new Item(grpcItem.getId(),grpcItem.getName());

@@ -12,18 +12,18 @@ public class Item {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 		
-	private String description;
+	private String name;
 	
 	protected Item() {
 
 	}
 
-	public Item(String description) {
-		this.description = description;
+	public Item(String name) {
+		this.name = name;
 	}
 	
-	public Item(long id, String description) {
-		this(description);
+	public Item(long id, String name) {
+		this(name);
 		this.id = id;
 	}
 	
@@ -31,16 +31,16 @@ public class Item {
 		return id;
 	}
 	
-	public String getDescription() {
-		return description;
+	public String getName() {
+		return name;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	@Override
 	public String toString() {
-		return "Item [description=" + description  + "]";
+		return "Item [name=" + name  + "]";
 	}
 }

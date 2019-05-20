@@ -45,13 +45,13 @@ public class ItemEntityTest {
 	@Test
 	public void whenSaveItem_thenReturnItem() {
 		Item savedItem = this.entityManager.persistAndFlush(item);
-		assertThat(savedItem.getDescription()).isEqualTo("Item description");
+		assertThat(savedItem.getName()).isEqualTo("Item description");
 	}
 	
 	@Test
 	public void givenSavedItem_whenFindById_thenReturnItem() {
 		Item savedItem = this.entityManager.persistAndFlush(item);
 		Item foundItem = this.entityManager.find(Item.class, savedItem.getId());
-		assertThat(savedItem.getDescription()).isEqualTo(foundItem.getDescription());
+		assertThat(savedItem.getName()).isEqualTo(foundItem.getName());
 	}
 }
