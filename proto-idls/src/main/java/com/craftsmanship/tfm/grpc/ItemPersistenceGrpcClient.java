@@ -63,15 +63,14 @@ public class ItemPersistenceGrpcClient {
     public Item create(Item item) throws CustomException {
         logger.info("Creating Item");
 
-        GrpcItem grpcItem = GrpcItem.newBuilder().setName(item.getName()).build();
+        GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
 
         CreateItemRequest request = CreateItemRequest.newBuilder().setItem(grpcItem).build();
 
         Item itemReceived = null;
         try {
             CreateItemResponse response = blockingStub.create(request);
-            GrpcItem grpcItemResponse = response.getItem();
-            itemReceived = ConversionUtils.getItemFromGrpcItem(grpcItemResponse);
+            itemReceived = ConversionUtils.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception creating Item: " + e.getMessage());
             Status status = Status.fromThrowable(e);

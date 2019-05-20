@@ -35,11 +35,10 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
         GrpcItem grpcItem = request.getItem();
-        Item item = new Item.Builder().withName(grpcItem.getName()).build();
+        Item item = ConversionUtils.getItemFromGrpcItem(grpcItem);
         Item createdItem = itemPersistence.create(item);
 
-        GrpcItem grpcItemResponse = GrpcItem.newBuilder().setId(createdItem.getId())
-                .setName(createdItem.getName()).build();
+        GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
         CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
 
         responseObserver.onNext(response);
