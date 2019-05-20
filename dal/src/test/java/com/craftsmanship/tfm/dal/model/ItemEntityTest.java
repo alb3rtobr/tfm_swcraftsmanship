@@ -34,7 +34,7 @@ public class ItemEntityTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		item = new Item("Item description");
+		item = new Item("Item description", 199, 25);
 	}
 
 	@After

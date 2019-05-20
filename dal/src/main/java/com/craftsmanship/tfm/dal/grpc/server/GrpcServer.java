@@ -86,7 +86,7 @@ public class GrpcServer {
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
       logger.info("CREATE RPC CALLED");
       GrpcItem grpcItem = request.getItem();
-      Item item = new Item(grpcItem.getName());
+      Item item = new Item(grpcItem.getName(), grpcItem.getPrice(), grpcItem.getQuantity());
       Item createdItem = dataAccess.create(item);
 
       GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
@@ -159,7 +159,7 @@ public class GrpcServer {
         		                  .setName(item.getName()).build();
 	}
 	private Item getItemFromGrpcItem(GrpcItem grpcItem) {
-        return new Item(grpcItem.getId(),grpcItem.getName());
+        return new Item(grpcItem.getId(), grpcItem.getName(), grpcItem.getPrice(), grpcItem.getQuantity());
     }
   }
 
