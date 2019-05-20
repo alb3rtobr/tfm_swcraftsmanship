@@ -19,39 +19,43 @@ import com.craftsmanship.tfm.dal.model.Item;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class ItemEntityTest {
-	
-	@Autowired
-	private TestEntityManager entityManager;
-	
-	//Needed to be able to stop server when running all unit tests in a row
-	@Autowired
-	private GrpcServer grpcServer;
-	
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-	
-	private Item item;
-	
-	@Before
-	public void setUp() throws Exception {
-		item = new Item("Item description", 199, 25);
-	}
 
-	@After
-	public void tearDown() throws Exception {
-		grpcServer.stop();
-	}
-	
-	@Test
-	public void whenSaveItem_thenReturnItem() {
-		Item savedItem = this.entityManager.persistAndFlush(item);
-		assertThat(savedItem.getName()).isEqualTo("Item description");
-	}
-	
-	@Test
-	public void givenSavedItem_whenFindById_thenReturnItem() {
-		Item savedItem = this.entityManager.persistAndFlush(item);
-		Item foundItem = this.entityManager.find(Item.class, savedItem.getId());
-		assertThat(savedItem.getName()).isEqualTo(foundItem.getName());
-	}
+    @Autowired
+    private TestEntityManager entityManager;
+
+    //Needed to be able to stop server when running all unit tests in a row
+    @Autowired
+    private GrpcServer grpcServer;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Item item;
+
+    @Before
+    public void setUp() throws Exception {
+        item = new Item("Item description", 199, 25);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        grpcServer.stop();
+    }
+
+    @Test
+    public void whenSaveItem_thenReturnItem() {
+        Item savedItem = this.entityManager.persistAndFlush(item);
+        assertThat(savedItem.getName()).isEqualTo("Item description");
+        assertThat(savedItem.getPrice()).isEqualTo(199);
+        assertThat(savedItem.getQuantity()).isEqualTo(25);
+    }
+
+    @Test
+    public void givenSavedItem_whenFindById_thenReturnItem() {
+        Item savedItem = this.entityManager.persistAndFlush(item);
+        Item foundItem = this.entityManager.find(Item.class, savedItem.getId());
+        assertThat(savedItem.getName()).isEqualTo(foundItem.getName());
+        assertThat(savedItem.getPrice()).isEqualTo(199);
+        assertThat(savedItem.getQuantity()).isEqualTo(25);
+    }
 }

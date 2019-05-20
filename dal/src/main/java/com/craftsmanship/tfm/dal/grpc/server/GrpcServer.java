@@ -29,144 +29,144 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceS
 
 @Component
 public class GrpcServer {
-  private static final Logger logger = LoggerFactory.getLogger(GrpcServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(GrpcServer.class);
 
-  private int port;
-  private Server server;
-  
-  @Autowired 
-  private ItemPersistenceServiceImpl itemPersistenceServiceImpl;
+    private int port;
+    private Server server;
 
-  public void start() throws IOException {
-	  
-    server = ServerBuilder.forPort(this.port).addService(itemPersistenceServiceImpl).build().start();
-    logger.info("Server started, listening on " + port);
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        // Use stderr here since the logger may have been reset by its JVM shutdown
-        // hook.
-        System.err.println("*** shutting down gRPC server since JVM is shutting down");
-        GrpcServer.this.stop();
-        System.err.println("*** server shut down");
-      }
-    });
-  }
+    @Autowired 
+    private ItemPersistenceServiceImpl itemPersistenceServiceImpl;
 
-  public void stop() {
-    if (server != null) {
-      server.shutdown();
-    }
-  }
+    public void start() throws IOException {
 
-  /**
-   * Await termination on the main thread since the grpc library uses daemon
-   * threads.
-   */
-  public void blockUntilShutdown() throws InterruptedException {
-    if (server != null) {
-      server.awaitTermination();
-    }
-  }
-
-  public void initialize() {
-  }
-
-  @Component
-  class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
-
-	@Autowired
-    private DataAccess dataAccess;
-
-    public ItemPersistenceServiceImpl(DataAccess dataAccess) {
-      this.dataAccess = dataAccess;
+        server = ServerBuilder.forPort(this.port).addService(itemPersistenceServiceImpl).build().start();
+        logger.info("Server started, listening on " + port);
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                // Use stderr here since the logger may have been reset by its JVM shutdown
+                // hook.
+                System.err.println("*** shutting down gRPC server since JVM is shutting down");
+                GrpcServer.this.stop();
+                System.err.println("*** server shut down");
+            }
+        });
     }
 
-    @Override
-    public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
-      logger.info("CREATE RPC CALLED");
-      GrpcItem grpcItem = request.getItem();
-      Item item = getItemFromGrpcItem(grpcItem);
-      Item createdItem = dataAccess.create(item);
-
-      GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
-      CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
-
-      responseObserver.onNext(response);
-      responseObserver.onCompleted();
+    public void stop() {
+        if (server != null) {
+            server.shutdown();
+        }
     }
 
-    @Override
-    public void list(Empty request, io.grpc.stub.StreamObserver<ListItemResponse> responseObserver) {
-      logger.info("LIST RPC CALLED");
-
-      Builder responseBuilder = ListItemResponse.newBuilder();
-      for (Item item : dataAccess.list()) {
-          GrpcItem grpcItem = getGrpcItemFromItem(item);
-        responseBuilder.addItem(grpcItem);
-      }
-      ListItemResponse response = responseBuilder.build();
-
-      responseObserver.onNext(response);
-      responseObserver.onCompleted();
+    /**
+     * Await termination on the main thread since the grpc library uses daemon
+     * threads.
+     */
+    public void blockUntilShutdown() throws InterruptedException {
+        if (server != null) {
+            server.awaitTermination();
+        }
     }
 
-    @Override
-    public void get(GetItemRequest request, io.grpc.stub.StreamObserver<GetItemResponse> responseObserver) {
-      logger.info("GET RPC CALLED");
-
-      Item item = dataAccess.get(request.getId());
-      GrpcItem grpcItem = getGrpcItemFromItem(item);
-    		                		  
-      GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
-
-      responseObserver.onNext(response);
-      responseObserver.onCompleted();
+    public void initialize() {
     }
 
-    @Override
-    public void update(UpdateItemRequest request, io.grpc.stub.StreamObserver<UpdateItemResponse> responseObserver) {
-      logger.info("UPDATE RPC CALLED");
+    @Component
+    class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
 
-      // TODO: right now, if the id does not exists, the item is creted, Should we
-      // raise an error?
-      Item item = getItemFromGrpcItem(request.getItem());
-      Item createdItem = dataAccess.update(request.getId(), item);
+        @Autowired
+        private DataAccess dataAccess;
 
-      GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
+        public ItemPersistenceServiceImpl(DataAccess dataAccess) {
+            this.dataAccess = dataAccess;
+        }
 
-      UpdateItemResponse response = UpdateItemResponse.newBuilder().setItem(grpcItemResponse).build();
+        @Override
+        public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
+            logger.info("CREATE RPC CALLED");
+            GrpcItem grpcItem = request.getItem();
+            Item item = getItemFromGrpcItem(grpcItem);
+            Item createdItem = dataAccess.create(item);
 
-      responseObserver.onNext(response);
-      responseObserver.onCompleted();
+            GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
+            CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void list(Empty request, io.grpc.stub.StreamObserver<ListItemResponse> responseObserver) {
+            logger.info("LIST RPC CALLED");
+
+            Builder responseBuilder = ListItemResponse.newBuilder();
+            for (Item item : dataAccess.list()) {
+                GrpcItem grpcItem = getGrpcItemFromItem(item);
+                responseBuilder.addItem(grpcItem);
+            }
+            ListItemResponse response = responseBuilder.build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void get(GetItemRequest request, io.grpc.stub.StreamObserver<GetItemResponse> responseObserver) {
+            logger.info("GET RPC CALLED");
+
+            Item item = dataAccess.get(request.getId());
+            GrpcItem grpcItem = getGrpcItemFromItem(item);
+
+            GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void update(UpdateItemRequest request, io.grpc.stub.StreamObserver<UpdateItemResponse> responseObserver) {
+            logger.info("UPDATE RPC CALLED");
+
+            // TODO: right now, if the id does not exists, the item is creted, Should we
+            // raise an error?
+            Item item = getItemFromGrpcItem(request.getItem());
+            Item createdItem = dataAccess.update(request.getId(), item);
+
+            GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
+
+            UpdateItemResponse response = UpdateItemResponse.newBuilder().setItem(grpcItemResponse).build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void delete(DeleteItemRequest request, io.grpc.stub.StreamObserver<DeleteItemResponse> responseObserver) {
+            logger.info("DELETE RPC CALLED");
+
+            Item deletedItem = dataAccess.delete(request.getId());
+            GrpcItem grpcItemResponse = getGrpcItemFromItem(deletedItem);
+
+            DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+
+        private GrpcItem getGrpcItemFromItem(Item item) {
+            return GrpcItem.newBuilder()
+                    .setId(item.getId())
+                    .setName(item.getName())
+                    .setPrice(item.getPrice())
+                    .setQuantity(item.getQuantity()).build();
+        }
+        private Item getItemFromGrpcItem(GrpcItem grpcItem) {
+            return new Item(grpcItem.getId(), grpcItem.getName(), grpcItem.getPrice(), grpcItem.getQuantity());
+        }
     }
 
-    @Override
-    public void delete(DeleteItemRequest request, io.grpc.stub.StreamObserver<DeleteItemResponse> responseObserver) {
-      logger.info("DELETE RPC CALLED");
+    public void setPort(int port) {
+        this.port = port;
 
-      Item deletedItem = dataAccess.delete(request.getId());
-      GrpcItem grpcItemResponse = getGrpcItemFromItem(deletedItem);
-
-      DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
-      responseObserver.onNext(response);
-      responseObserver.onCompleted();
     }
-
-	private GrpcItem getGrpcItemFromItem(Item item) {
-		return GrpcItem.newBuilder()
-        		                  .setId(item.getId())
-        		                  .setName(item.getName())
-        		                  .setPrice(item.getPrice())
-        		                  .setQuantity(item.getQuantity()).build();
-	}
-	private Item getItemFromGrpcItem(GrpcItem grpcItem) {
-        return new Item(grpcItem.getId(), grpcItem.getName(), grpcItem.getPrice(), grpcItem.getQuantity());
-    }
-  }
-
-  public void setPort(int port) {
-	  this.port = port;
-
-  }
 }
