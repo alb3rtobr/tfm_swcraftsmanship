@@ -12,18 +12,22 @@ public class Item {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 		
-	private String description;
-	
+	private String name;
+    private long price;
+    private long quantity;
+    
 	protected Item() {
 
 	}
 
-	public Item(String description) {
-		this.description = description;
+	public Item(String name, long price, long quantity) {
+		this.name = name;
+		this.price = price;
+		this.quantity = quantity;
 	}
 	
-	public Item(long id, String description) {
-		this(description);
+	public Item(long id, String name, long price, long quantity) {
+		this(name, price, quantity);
 		this.id = id;
 	}
 	
@@ -31,16 +35,34 @@ public class Item {
 		return id;
 	}
 	
-	public String getDescription() {
-		return description;
+	public String getName() {
+		return name;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setName(String name) {
+		this.name = name;
 	}
 	
+	public long getPrice() {
+		return price;
+	}
+
+	public void setPrice(long price) {
+		this.price = price;
+	}
+
+	public long getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(long quantity) {
+		this.quantity = quantity;
+	}
+
 	@Override
 	public String toString() {
-		return "Item [description=" + description  + "]";
+		return "Item [name=" + name  + 
+				", price=" + price +
+				", quantity=" + quantity + "]";
 	}
 }

@@ -30,7 +30,7 @@ public class ItemRepositoryTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		item = new Item("Item for repository description");
+		item = new Item("Item for repository description", 299, 73);
 	}
 
 	@After
@@ -41,7 +41,7 @@ public class ItemRepositoryTest {
 	@Test
 	public void givenItemRepository_whenSaveItem_thenReturnItem() {
 		Item savedItem = itemRepository.save(item);
-		assertThat(savedItem.getDescription()).isEqualTo("Item for repository description");
+		assertThat(savedItem.getName()).isEqualTo("Item for repository description");
 	}
 
 	@Test
