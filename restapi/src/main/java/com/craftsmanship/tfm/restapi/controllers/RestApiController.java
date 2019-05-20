@@ -42,6 +42,8 @@ public class RestApiController {
         // Create item
         Item itemResponse = itemPersistence.create(item);
 
+        LOGGER.info("REST API itemResponse = " + itemResponse);
+
         // Send message to Kafka topic
         itemOperationService.sendItemOperation(new ItemOperation(OperationType.CREATED, itemResponse));
         return itemResponse;

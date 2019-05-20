@@ -104,7 +104,8 @@ public class RestApiControllerTests {
         container.setupMessageListener(new MessageListener<String, ItemOperation>() {
             @Override
             public void onMessage(ConsumerRecord<String, ItemOperation> record) {
-                LOGGER.debug("test-listener received message='{}'", record.toString());
+                LOGGER.info("test-listener received message='{}'", record.toString());
+                LOGGER.info("we have " + records.size() + " records.", record.toString());
                 records.add(record);
             }
         });
@@ -123,6 +124,9 @@ public class RestApiControllerTests {
 
         // initialize persistence
         itemPersistence.initialize();
+
+        // clean received messages
+        records.clear();
     }
 
     @Test
@@ -142,9 +146,9 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_when_item_is_created_then_item_persisted_and_kafka_message_sent() throws InterruptedException, CustomException {
-        String itemDescription = "Wheel";
-        Item item = new Item.Builder().withName(itemDescription).build();
+    public void test_when_item_is_created_then_item_persisted_and_kafka_message_generated() throws InterruptedException, CustomException {
+        String itemName = "Wheel";
+        Item item = new Item.Builder().withName(itemName).withPrice(10L).withQuantity(1L).build();
 
         // post item
         Item responseItem = postItem(item);
@@ -158,13 +162,18 @@ public class RestApiControllerTests {
         // check item was created in persistence
         Item storedItem = itemPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
+
+        // check that the Kafka message was received
+        ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
+        ItemOperation expectedOperation = new ItemOperation(OperationType.CREATED, responseItem);
+        assertThat(received, hasValue(expectedOperation));
     }
 
     @Test
-    public void test_given_item_with_id_when_rest_created_then_returned_item_ignores_id() throws CustomException {
-        String itemDescription = "Wheel";
+    public void test_given_item_with_id_when_rest_created_then_returned_item_ignores_id() throws CustomException, InterruptedException {
+        String itemName = "Wheel";
         Long expectedId = new Long(itemPersistence.count() + 1);
-        Item item = new Item.Builder().withName(itemDescription).withId(1000L).build();
+        Item item = new Item.Builder().withName(itemName).withId(1000L).withPrice(17L).build();
 
         // post item
         Item responseItem = postItem(item);
@@ -177,15 +186,6 @@ public class RestApiControllerTests {
         item.setId(responseItem.getId());
         Item storedItem = itemPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
-    }
-
-    @Test
-    public void test_when_item_is_created_then_kafka_message() throws InterruptedException {
-        String itemDescription = "Wheel";
-        Item item = new Item.Builder().withName(itemDescription).build();
-
-        // post item
-        Item responseItem = postItem(item);
 
         // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
@@ -196,9 +196,9 @@ public class RestApiControllerTests {
     @Test
     public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws CustomException {
         // Given
-        Item item1 = new Item.Builder().withName("item1").build();
-        Item item2 = new Item.Builder().withName("item2").build();
-        Item item3 = new Item.Builder().withName("item3").build();
+        Item item1 = new Item.Builder().withName("item1").withPrice(10L).withQuantity(1L).build();
+        Item item2 = new Item.Builder().withName("item2").withPrice(11L).withQuantity(2L).build();
+        Item item3 = new Item.Builder().withName("item3").withPrice(12L).withQuantity(3L).build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -218,9 +218,9 @@ public class RestApiControllerTests {
     @Test
     public void test_given_some_items_when_get_item_mapping_then_item_is_returned() throws CustomException {
         // Given
-        Item item1 = new Item.Builder().withName("item1").build();
-        Item item2 = new Item.Builder().withName("item2").build();
-        Item item3 = new Item.Builder().withName("item3").build();
+        Item item1 = new Item.Builder().withName("item1").withPrice(6L).withQuantity(1L).build();
+        Item item2 = new Item.Builder().withName("item2").withPrice(60L).withQuantity(10L).build();
+        Item item3 = new Item.Builder().withName("item3").withPrice(90L).withQuantity(100L).build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -261,26 +261,8 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_some_items_when_delete_item_mapping_then_item_is_deleted_and_kafka_message_sent()
+    public void test_given_some_items_when_delete_item_mapping_then_item_is_deleted_and_kafka_message()
             throws InterruptedException,  CustomException {
-        // Given
-        Item item1 = new Item.Builder().withName("item1").build();
-        Item item2 = new Item.Builder().withName("item2").build();
-        Item item3 = new Item.Builder().withName("item3").build();
-        itemPersistence.create(item1);
-        itemPersistence.create(item2);
-        itemPersistence.create(item3);
-
-        // When
-        Long id = 2L;
-        deleteItem(id);
-
-        // Then
-        assertThat(itemPersistence.list().size(), equalTo(2));
-        assertThat(itemPersistence.get(id), is(nullValue()));
-    }
-
-    public void test_when_item_is_deleted_then_kafka_message() throws InterruptedException {
         // Given
         Item item1 = new Item.Builder().withName("item1").build();
         Item item2 = new Item.Builder().withName("item2").build();
@@ -290,8 +272,11 @@ public class RestApiControllerTests {
         itemPersistence.create(item3);
 
         // When
-        Long id = 2L;
-        deleteItem(id);
+        deleteItem(expectedDeletedItem.getId());
+
+        // Then
+        assertThat(itemPersistence.list().size(), equalTo(2));
+        assertThat(itemPersistence.get(expectedDeletedItem.getId()), is(nullValue()));
 
         // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
