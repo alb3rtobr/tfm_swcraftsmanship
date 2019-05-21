@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 
-public class ItemsPersistenceGrpcTest {
+public class ItemPersistenceGrpcTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemsPersistenceGrpcTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceGrpcTest.class);
     private ItemPersistenceInProcessServer itemPersistenceGrpcServer;
     private ItemPersistenceGrpc grpcClient;
     private ItemPersistenceServiceBlockingStub blockingStub;
