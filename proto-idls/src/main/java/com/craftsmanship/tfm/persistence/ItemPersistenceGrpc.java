@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.grpc.ItemPersistenceGrpcClient;
 
@@ -28,32 +29,32 @@ public class ItemPersistenceGrpc implements ItemPersistence {
         grpcClient = new ItemPersistenceGrpcClient(channel);
     }
 
-    public void close() throws CustomException, InterruptedException {
+    public void close() throws InterruptedException {
         grpcClient.shutdown();
     }
 
     @Override
-    public Item create(Item item) throws CustomException {
+    public Item create(Item item) throws ItemAlreadyExists {
         return grpcClient.create(item);
     }
 
     @Override
-    public List<Item> list() throws CustomException {
+    public List<Item> list() {
         return grpcClient.list();
     }
 
     @Override
-    public Item get(Long id) throws ItemDoesNotExist, CustomException {
+    public Item get(Long id) throws ItemDoesNotExist {
         return grpcClient.get(id);
     }
 
     @Override
-    public Item update(Long id, Item item) throws ItemDoesNotExist, CustomException {
+    public Item update(Long id, Item item) throws ItemDoesNotExist {
         return grpcClient.update(id, item);
     }
 
     @Override
-    public Item delete(Long id) throws ItemDoesNotExist, CustomException {
+    public Item delete(Long id) throws ItemDoesNotExist {
         return grpcClient.delete(id);
     }
 

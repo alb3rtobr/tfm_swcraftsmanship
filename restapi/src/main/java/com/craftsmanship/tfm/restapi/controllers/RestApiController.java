@@ -2,7 +2,7 @@ package com.craftsmanship.tfm.restapi.controllers;
 
 import java.util.List;
 
-import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
@@ -37,8 +37,8 @@ public class RestApiController {
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.POST)
-    public Item create(@RequestBody Item item) throws CustomException {
-        LOGGER.debug("Creating item");
+    public Item create(@RequestBody Item item) throws ItemAlreadyExists {
+        LOGGER.info("Creating item");
 
         // Create item
         Item itemResponse = itemPersistence.create(item);
@@ -51,31 +51,33 @@ public class RestApiController {
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.GET)
-    public List<Item> list() throws CustomException {
-        LOGGER.debug("List items");
+    public List<Item> list() {
+        LOGGER.info("List items");
         return itemPersistence.list();
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.GET)
-    public Item get(@PathVariable Long id) throws CustomException, ItemDoesNotExist {
-        LOGGER.debug("Get item with id: " + id);
+    public Item get(@PathVariable Long id) throws ItemDoesNotExist {
+        LOGGER.info("Get item with id: " + id);
         return itemPersistence.get(id);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.PUT)
-    public Item edit(@PathVariable Long id, @RequestBody Item item) throws CustomException, ItemDoesNotExist {
-        LOGGER.debug("Edit item with id: " + id);
+    public Item edit(@PathVariable Long id, @RequestBody Item item) throws ItemDoesNotExist {
+        LOGGER.info("Edit item with id: " + id);
         return itemPersistence.update(id, item);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.DELETE)
-    public Item delete(@PathVariable Long id) throws CustomException, ItemDoesNotExist {
-        LOGGER.debug("Delete item with id: " + id);
+    public Item delete(@PathVariable Long id) throws ItemDoesNotExist {
+        LOGGER.info("Delete item with id: " + id);
+
+        // delete de item
+        Item deletedItem = itemPersistence.delete(id);
 
         // Send message to Kafka topic
-        Item item = itemPersistence.get(id);
-        itemOperationService.sendItemOperation(new ItemOperation(OperationType.DELETED, item));
+        itemOperationService.sendItemOperation(new ItemOperation(OperationType.DELETED, deletedItem));
 
-        return itemPersistence.delete(id);
+        return deletedItem;
     }
 }
