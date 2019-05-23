@@ -3,6 +3,7 @@ package com.craftsmanship.tfm.restapi.controllers;
 import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
@@ -56,19 +57,19 @@ public class RestApiController {
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.GET)
-    public Item get(@PathVariable Long id) throws CustomException {
+    public Item get(@PathVariable Long id) throws CustomException, ItemDoesNotExist {
         LOGGER.debug("Get item with id: " + id);
         return itemPersistence.get(id);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.PUT)
-    public Item edit(@PathVariable Long id, @RequestBody Item item) throws CustomException {
+    public Item edit(@PathVariable Long id, @RequestBody Item item) throws CustomException, ItemDoesNotExist {
         LOGGER.debug("Edit item with id: " + id);
         return itemPersistence.update(id, item);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.DELETE)
-    public Item delete(@PathVariable Long id) throws CustomException {
+    public Item delete(@PathVariable Long id) throws CustomException, ItemDoesNotExist {
         LOGGER.debug("Delete item with id: " + id);
 
         // Send message to Kafka topic

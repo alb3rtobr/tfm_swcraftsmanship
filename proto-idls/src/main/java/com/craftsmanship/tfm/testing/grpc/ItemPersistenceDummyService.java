@@ -72,7 +72,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
-            responseObserver.onError(Status.INTERNAL
+            responseObserver.onError(Status.NOT_FOUND
                     .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
         }
     }
@@ -88,12 +88,12 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
             GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
 
             UpdateItemResponse response = UpdateItemResponse.newBuilder().setItem(grpcItemResponse).build();
-    
+
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
             // There is not Item with that id, so exception
-            responseObserver.onError(Status.INTERNAL
+            responseObserver.onError(Status.NOT_FOUND
                     .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
         }
     }
@@ -110,7 +110,7 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
-            responseObserver.onError(Status.INTERNAL
+            responseObserver.onError(Status.NOT_FOUND
                     .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
         }
     }
