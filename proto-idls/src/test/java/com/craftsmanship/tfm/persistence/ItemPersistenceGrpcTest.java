@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
@@ -95,7 +96,7 @@ public class ItemPersistenceGrpcTest {
     }
 
     @Test
-    public void test_given_some_items_when_get_is_queried_then_item_received() throws CustomException {
+    public void test_given_some_items_when_get_is_queried_then_item_received() throws ItemDoesNotExist, CustomException {
         Item item1 = new Item.Builder().withName("Shoe").withQuantity(100L).withPrice(2L).build();
         Item itemResponse1 = grpcClient.create(item1);
         Item item2 = new Item.Builder().withName("Car").withPrice(10L).build();
@@ -107,16 +108,16 @@ public class ItemPersistenceGrpcTest {
     }
 
     @Test
-    public void test_when_get_is_queried_with_id_that_does_not_exist_then_exception() throws CustomException {
+    public void test_when_get_is_queried_with_id_that_does_not_exist_then_exception() throws ItemDoesNotExist, CustomException {
         Long id = 1000L;
-        exceptionRule.expect(CustomException.class);
+        exceptionRule.expect(ItemDoesNotExist.class);
         exceptionRule.expectMessage("Item with id " + id + " does not exist");
 
         grpcClient.get(id);
     }
 
     @Test
-    public void test_given_item_when_updated_is_queried_then_item_is_updated() throws CustomException {
+    public void test_given_item_when_updated_is_queried_then_item_is_updated() throws ItemDoesNotExist, CustomException {
         Item item1 = new Item.Builder().withName("Shoe").withPrice(8L).build();
         Item itemResponse1 = grpcClient.create(item1);
         Item item2 = new Item.Builder().withName("Car").build();
@@ -128,9 +129,9 @@ public class ItemPersistenceGrpcTest {
     }
 
     @Test
-    public void test_when_updated_is_queried_over_non_existing_id_then_exception() throws CustomException {
+    public void test_when_updated_is_queried_over_non_existing_id_then_exception() throws ItemDoesNotExist, CustomException {
         Long id = 1000L;
-        exceptionRule.expect(CustomException.class);
+        exceptionRule.expect(ItemDoesNotExist.class);
         exceptionRule.expectMessage("Item with id " + id + " does not exist");
 
         Item newItem = new Item.Builder().withName("Shoe").build();
@@ -139,7 +140,7 @@ public class ItemPersistenceGrpcTest {
     }
 
     @Test
-    public void test_when_delete_existing_item_then_item_is_deleted() throws CustomException {
+    public void test_when_delete_existing_item_then_item_is_deleted() throws ItemDoesNotExist, CustomException {
         Item item1 = new Item.Builder().withName("Shoe").build();
         Item itemResponse1 = grpcClient.create(item1);
         Item item2 = new Item.Builder().withName("Car").build();
@@ -151,9 +152,9 @@ public class ItemPersistenceGrpcTest {
     }
 
     @Test
-    public void test_when_delete_non_existing_id_then_exception() throws CustomException {
+    public void test_when_delete_non_existing_id_then_exception() throws ItemDoesNotExist, CustomException {
         Long id = 1000L;
-        exceptionRule.expect(CustomException.class);
+        exceptionRule.expect(ItemDoesNotExist.class);
         exceptionRule.expectMessage("Item with id " + id + " does not exist");
 
         grpcClient.delete(id);

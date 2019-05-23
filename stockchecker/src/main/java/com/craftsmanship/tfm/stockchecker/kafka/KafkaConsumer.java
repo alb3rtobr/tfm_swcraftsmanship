@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
 import com.craftsmanship.tfm.stockchecker.rest.RestClient;
@@ -45,7 +46,7 @@ public class KafkaConsumer {
 	}
 
 	@KafkaListener(topics = TOPIC_NAME)
-	public void consume(ItemOperation payload) throws CustomException {
+	public void consume(ItemOperation payload) throws CustomException, ItemDoesNotExist {
 		LOGGER.info("received payload='{}'", payload.toString());
 		Long count = itemsPersistence.get(payload.getItem().getId()).getQuantity();
 		restClient.sendPurchaseOrder(payload.getItem(), count);
