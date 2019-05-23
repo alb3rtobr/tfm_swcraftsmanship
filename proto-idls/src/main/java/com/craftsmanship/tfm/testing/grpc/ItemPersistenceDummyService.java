@@ -1,5 +1,7 @@
 package com.craftsmanship.tfm.testing.grpc;
 
+import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
+import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemRequest;
@@ -14,7 +16,7 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
+import com.craftsmanship.tfm.persistence.ItemPersistence;
 import com.craftsmanship.tfm.utils.ConversionUtils;
 
 import org.slf4j.Logger;
@@ -25,10 +27,10 @@ import io.grpc.Status;
 public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceDummyService.class);
 
-    private ItemPersistenceStub itemPersistence;
+    private ItemPersistence itemPersistence;
 
-    public ItemPersistenceDummyService(ItemPersistenceStub itemsPersistenceStub) {
-        this.itemPersistence = itemsPersistenceStub;
+    public ItemPersistenceDummyService(ItemPersistence itemsPersistence) {
+        this.itemPersistence = itemsPersistence;
     }
 
     @Override
@@ -36,13 +38,20 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
         LOGGER.info("CREATE RPC CALLED");
         GrpcItem grpcItem = request.getItem();
         Item item = ConversionUtils.getItemFromGrpcItem(grpcItem);
-        Item createdItem = itemPersistence.create(item);
 
-        GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
-        CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
+        try {
+            Item createdItem = itemPersistence.create(item);
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+            GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
+            CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (ItemAlreadyExists e) {
+            responseObserver.onError(Status.ALREADY_EXISTS
+                    .withDescription("Item with id " + item.getId() + " or name " + item.getName() + " already exists")
+                    .asRuntimeException());
+        }
     }
 
     @Override
@@ -64,14 +73,13 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void get(GetItemRequest request, io.grpc.stub.StreamObserver<GetItemResponse> responseObserver) {
         LOGGER.info("GET RPC CALLED");
 
-        Item item = itemPersistence.get(request.getId());
-
-        if (item != null) {
+        try {
+            Item item = itemPersistence.get(request.getId());
             GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
             GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
-        } else {
+        } catch (ItemDoesNotExist e) {
             responseObserver.onError(Status.NOT_FOUND
                     .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
         }
@@ -81,18 +89,20 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void update(UpdateItemRequest request, io.grpc.stub.StreamObserver<UpdateItemResponse> responseObserver) {
         LOGGER.info("UPDATE RPC CALLED");
 
-        if (itemPersistence.get(request.getId()) != null) {
+        try {
+            // first check if the item does not exist
+            itemPersistence.get(request.getId());
+
             Item item = ConversionUtils.getItemFromGrpcItem(request.getItem());
             Item createdItem = itemPersistence.update(request.getId(), item);
-
+    
             GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
-
+    
             UpdateItemResponse response = UpdateItemResponse.newBuilder().setItem(grpcItemResponse).build();
-
+    
             responseObserver.onNext(response);
             responseObserver.onCompleted();
-        } else {
-            // There is not Item with that id, so exception
+        } catch (ItemDoesNotExist e) {
             responseObserver.onError(Status.NOT_FOUND
                     .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
         }
@@ -102,14 +112,14 @@ public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase 
     public void delete(DeleteItemRequest request, io.grpc.stub.StreamObserver<DeleteItemResponse> responseObserver) {
         LOGGER.info("DELETE RPC CALLED");
 
-        Item deletedItem = itemPersistence.delete(request.getId());
+        try {
+            Item deletedItem = itemPersistence.delete(request.getId());
 
-        if (deletedItem != null) {
             GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
             DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
-        } else {
+        } catch (ItemDoesNotExist e) {
             responseObserver.onError(Status.NOT_FOUND
                     .withDescription("Item with id " + request.getId() + " does not exist").asRuntimeException());
         }

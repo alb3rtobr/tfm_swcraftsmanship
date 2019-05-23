@@ -14,3 +14,7 @@ dal:
   host: localhost
   port: 50051
 
+logging:
+  level:
+    org.springframework: DEBUG
+    com.craftsmanship.tfm: DEBUG

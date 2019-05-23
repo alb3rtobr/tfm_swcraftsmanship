@@ -15,7 +15,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 
-import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemRequest;
@@ -57,11 +57,11 @@ public class ItemPersistenceGrpcClient {
         this.asyncStub = ItemPersistenceServiceGrpc.newStub(channel);
     }
 
-    public void shutdown() throws CustomException, InterruptedException {
+    public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Item create(Item item) throws CustomException {
+    public Item create(Item item) throws ItemAlreadyExists {
         logger.info("Creating Item");
 
         GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
@@ -75,17 +75,19 @@ public class ItemPersistenceGrpcClient {
         } catch (StatusRuntimeException e) {
             logger.error("Exception creating Item: " + e.getMessage());
             Status status = Status.fromThrowable(e);
-            if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+            if (status.getCode() == Status.Code.ALREADY_EXISTS) {
+                throw new ItemAlreadyExists(item.getName());
+            } else if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return itemReceived;
     }
 
-    public List<Item> list() throws CustomException {
+    public List<Item> list() {
         logger.info("List all Items");
 
         Empty request = Empty.newBuilder().build();
@@ -102,16 +104,16 @@ public class ItemPersistenceGrpcClient {
             logger.error("Exception listing items: " + e.getMessage());
             Status status = Status.fromThrowable(e);
             if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return result;
     }
 
-    public Item get(Long id) throws ItemDoesNotExist, CustomException {
+    public Item get(Long id) throws ItemDoesNotExist {
         logger.info("Get item with id: " + id);
 
         GetItemRequest request = GetItemRequest.newBuilder().setId(id).build();
@@ -126,16 +128,16 @@ public class ItemPersistenceGrpcClient {
             if (status.getCode() == Status.Code.NOT_FOUND) {
                 throw new ItemDoesNotExist(id);
             } else if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return item;
     }
 
-    public Item update(Long id, Item item) throws ItemDoesNotExist, CustomException {
+    public Item update(Long id, Item item) throws ItemDoesNotExist {
         logger.info("Updating item with id: " + id);
 
         UpdateItemRequest request = UpdateItemRequest.newBuilder().setId(id)
@@ -151,16 +153,16 @@ public class ItemPersistenceGrpcClient {
             if (status.getCode() == Status.Code.NOT_FOUND) {
                 throw new ItemDoesNotExist(id);
             } else if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return updatedItem;
     }
 
-    public Item delete(Long id) throws ItemDoesNotExist, CustomException {
+    public Item delete(Long id) throws ItemDoesNotExist {
         logger.info("Deleting item with id: " + id);
 
         DeleteItemRequest request = DeleteItemRequest.newBuilder().setId(id).build();
@@ -175,9 +177,9 @@ public class ItemPersistenceGrpcClient {
             if (status.getCode() == Status.Code.NOT_FOUND) {
                 throw new ItemDoesNotExist(id);
             } else if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 

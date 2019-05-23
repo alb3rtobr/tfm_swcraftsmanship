@@ -11,6 +11,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
+import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
@@ -146,7 +148,8 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_when_item_is_created_then_item_persisted_and_kafka_message_generated() throws InterruptedException, CustomException {
+    public void test_when_item_is_created_then_item_persisted_and_kafka_message_generated()
+            throws InterruptedException, ItemDoesNotExist {
         String itemName = "Wheel";
         Item item = new Item.Builder().withName(itemName).withPrice(10L).withQuantity(1L).build();
 
@@ -170,7 +173,8 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_item_with_id_when_rest_created_then_returned_item_ignores_id() throws CustomException, InterruptedException {
+    public void test_given_item_with_id_when_rest_created_then_returned_item_ignores_id()
+            throws InterruptedException, ItemDoesNotExist {
         String itemName = "Wheel";
         Long expectedId = new Long(itemPersistence.count() + 1);
         Item item = new Item.Builder().withName(itemName).withId(1000L).withPrice(17L).build();
@@ -194,7 +198,7 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws CustomException {
+    public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws ItemAlreadyExists {
         // Given
         Item item1 = new Item.Builder().withName("item1").withPrice(10L).withQuantity(1L).build();
         Item item2 = new Item.Builder().withName("item2").withPrice(11L).withQuantity(2L).build();
@@ -216,7 +220,7 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_some_items_when_get_item_mapping_then_item_is_returned() throws CustomException {
+    public void test_given_some_items_when_get_item_mapping_then_item_is_returned() throws ItemAlreadyExists, ItemDoesNotExist {
         // Given
         Item item1 = new Item.Builder().withName("item1").withPrice(6L).withQuantity(1L).build();
         Item item2 = new Item.Builder().withName("item2").withPrice(60L).withQuantity(10L).build();
@@ -236,7 +240,7 @@ public class RestApiControllerTests {
     }
 
     @Test
-    public void test_given_item_when_edit_mapping_then_edited_item_is_returned() throws CustomException {
+    public void test_given_item_when_edit_mapping_then_edited_item_is_returned() throws ItemAlreadyExists, ItemDoesNotExist {
         // Given
         Item item1 = new Item.Builder().withName("item1").build();
         Item item2 = new Item.Builder().withName("item2").build();
@@ -262,7 +266,7 @@ public class RestApiControllerTests {
 
     @Test
     public void test_given_some_items_when_delete_item_mapping_then_item_is_deleted_and_kafka_message()
-            throws InterruptedException,  CustomException {
+            throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist {
         // Given
         Item item1 = new Item.Builder().withName("item1").build();
         Item item2 = new Item.Builder().withName("item2").build();
@@ -271,12 +275,13 @@ public class RestApiControllerTests {
         Item expectedDeletedItem = itemPersistence.create(item2);
         itemPersistence.create(item3);
 
+        LOGGER.info("ITEMS: " + itemPersistence.list());
+
         // When
         deleteItem(expectedDeletedItem.getId());
 
         // Then
         assertThat(itemPersistence.list().size(), equalTo(2));
-        assertThat(itemPersistence.get(expectedDeletedItem.getId()), is(nullValue()));
 
         // check that the Kafka message was received
         ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
