@@ -29,7 +29,7 @@ public class KafkaConsumerConfig {
 
   @Value("${kafka.bootstrap-servers}")
   private String bootstrapServers;
-
+  
   @Bean
   public Map<String, Object> consumerConfigs() {
     Map<String, Object> props = new HashMap<>();

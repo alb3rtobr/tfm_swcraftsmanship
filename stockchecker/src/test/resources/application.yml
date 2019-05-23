@@ -17,3 +17,4 @@ dal:
 
 kafka:
   bootstrap-servers: ${spring.embedded.kafka.brokers}
+  topic: message_bus

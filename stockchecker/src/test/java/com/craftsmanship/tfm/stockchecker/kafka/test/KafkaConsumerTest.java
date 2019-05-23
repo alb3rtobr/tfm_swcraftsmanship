@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
@@ -36,7 +37,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
-
 import com.craftsmanship.tfm.stockchecker.kafka.KafkaConsumer;
 import com.craftsmanship.tfm.stockchecker.rest.RestClient;
 
@@ -47,7 +47,8 @@ public class KafkaConsumerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerTest.class);
 
-	private final static String RECEIVER_TOPIC = "mytopic";
+    @Value(value="${kafka.topic}")
+	private static String RECEIVER_TOPIC="mytopic";
 
 	@Autowired
 	private KafkaConsumer consumer;
@@ -62,9 +63,12 @@ public class KafkaConsumerTest {
 
 	@BeforeClass
 	public static void setup() {
-		System.setProperty("kafka.bootstrap-servers", embeddedKafka.getEmbeddedKafka().getBrokersAsString());
+	    
+	    System.setProperty("kafka.bootstrap-servers", embeddedKafka.getEmbeddedKafka().getBrokersAsString());
 	}
 
+	
+	
 	@Before
 	public void setUp() throws Exception {
 		// set up the Kafka producer properties
