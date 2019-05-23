@@ -19,6 +19,7 @@ global:
       endpoint: order
 
 kafka:
+  topic: message_bus
   headless:
     port: 9092
   replicas: 1

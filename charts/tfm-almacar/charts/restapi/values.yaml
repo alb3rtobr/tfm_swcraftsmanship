@@ -6,6 +6,7 @@ global:
   kafka:
     host: kafka
     port: 9092
+    topic: message_bus
   dal:
     host: dal
     port: 50057
@@ -20,4 +21,3 @@ image:
 service:
   type: NodePort
   port: 8080
-
