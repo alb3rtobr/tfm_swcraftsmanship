@@ -64,11 +64,25 @@ This is the base architecture we decided to develop:
 
 ![architecture draft](./images/architecture-draft.png "architecture draft")
 
+We decided to have the following components/services:
+* `Gateway` : handling cluster access.
+* `Application server` : main logic of the application.
+* `Monitor` : in charge of monitor the server activity, and send a notification to an external end point if a given condition is fulfilled.
+* `Message bus` : communication mechanism used by the server to publish events, and used by the monitor to consume those events.
+* `DAL` : data abstraction layer to isolate the business model from the persistence of the model itself.
+* `Data base` : the persistence of the model.
+
 ### Design
 
-After prioritize which technologies we were interested on:
+After prioritize which technologies we were interested on, the architecture draft was completed to look as follows:
 
 ![architecture draft extended](./images/architecture-draft-extended.png "architecture draft")
+
+The application is composed of the following services:
+* `API gateway` : we used Kubernetes Ingress functionality as first approach.
+* `restapi` : in charge of offering our application functionality via REST API.
+* `dal` : using gRPC to access the model
+* `stockchecker` : whenever an item is solved, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
 
 ### Implementation and tests
 
