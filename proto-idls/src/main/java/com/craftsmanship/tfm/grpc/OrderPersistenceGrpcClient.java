@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.craftsmanship.tfm.exceptions.CustomException;
+import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
+import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.idls.v2.OrderPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.CreateOrderRequest;
@@ -52,11 +54,11 @@ public class OrderPersistenceGrpcClient {
         this.blockingStub = OrderPersistenceServiceGrpc.newBlockingStub(channel);
     }
 
-    public void shutdown() throws CustomException, InterruptedException {
+    public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Order create(Order order) throws CustomException {
+    public Order create(Order order) throws ItemDoesNotExist {
         logger.info("Creating Order");
 
         GrpcOrder grpcOrder = ConversionUtils.getGrpcOrderFromOrder(order);
@@ -70,17 +72,20 @@ public class OrderPersistenceGrpcClient {
         } catch (StatusRuntimeException e) {
             logger.error("Exception creating Order: " + e.getMessage());
             Status status = Status.fromThrowable(e);
-            if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+            if (status.getCode() == Status.Code.ALREADY_EXISTS) {
+                // TODO: how to get the item id from the error?
+                throw new ItemDoesNotExist(0L);
+            } else if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return orderReceived;
     }
 
-    public List<Order> list() throws CustomException {
+    public List<Order> list() {
         logger.info("List all Orders");
 
         Empty request = Empty.newBuilder().build();
@@ -97,16 +102,16 @@ public class OrderPersistenceGrpcClient {
             logger.error("Exception listing orders: " + e.getMessage());
             Status status = Status.fromThrowable(e);
             if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return result;
     }
 
-    public Order get(Long id) throws CustomException {
+    public Order get(Long id) throws OrderDoesNotExist {
         logger.info("Get order with id: " + id);
 
         GetOrderRequest request = GetOrderRequest.newBuilder().setId(id).build();
@@ -118,17 +123,19 @@ public class OrderPersistenceGrpcClient {
         } catch (StatusRuntimeException e) {
             logger.error("Exception getting order with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
-            if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+            if (status.getCode() == Status.Code.NOT_FOUND) {
+                throw new OrderDoesNotExist(id);
+            } else if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return order;
     }
 
-    public Order update(Long id, Order order) throws CustomException {
+    public Order update(Long id, Order order) throws OrderDoesNotExist {
         logger.info("Updating order with id: " + id);
 
         UpdateOrderRequest request = UpdateOrderRequest.newBuilder().setId(id)
@@ -141,17 +148,19 @@ public class OrderPersistenceGrpcClient {
         } catch (StatusRuntimeException e) {
             logger.error("Exception updating order with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
-            if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+            if (status.getCode() == Status.Code.NOT_FOUND) {
+                throw new OrderDoesNotExist(id);
+            } else if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
         return updatedOrder;
     }
 
-    public Order delete(Long id) throws CustomException {
+    public Order delete(Long id) throws OrderDoesNotExist {
         logger.info("Deleting order with id: " + id);
 
         DeleteOrderRequest request = DeleteOrderRequest.newBuilder().setId(id).build();
@@ -163,10 +172,12 @@ public class OrderPersistenceGrpcClient {
         } catch (StatusRuntimeException e) {
             logger.error("Exception deleting order with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
-            if (status.getCode() == Status.Code.INTERNAL) {
-                throw new CustomException(status.getDescription());
+            if (status.getCode() == Status.Code.NOT_FOUND) {
+                throw new OrderDoesNotExist(id);
+            } else if (status.getCode() == Status.Code.INTERNAL) {
+                throw new RuntimeException(status.getDescription());
             } else {
-                throw new CustomException("UNKNOWN ERROR");
+                throw new RuntimeException("UNKNOWN ERROR");
             }
         }
 
