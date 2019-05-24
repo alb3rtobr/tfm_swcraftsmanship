@@ -72,7 +72,7 @@ public class OrderPersistenceGrpcClient {
         } catch (StatusRuntimeException e) {
             logger.error("Exception creating Order: " + e.getMessage());
             Status status = Status.fromThrowable(e);
-            if (status.getCode() == Status.Code.ALREADY_EXISTS) {
+            if (status.getCode() == Status.Code.NOT_FOUND) {
                 // TODO: how to get the item id from the error?
                 throw new ItemDoesNotExist(0L);
             } else if (status.getCode() == Status.Code.INTERNAL) {
@@ -135,7 +135,7 @@ public class OrderPersistenceGrpcClient {
         return order;
     }
 
-    public Order update(Long id, Order order) throws OrderDoesNotExist {
+    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
         logger.info("Updating order with id: " + id);
 
         UpdateOrderRequest request = UpdateOrderRequest.newBuilder().setId(id)
@@ -149,7 +149,11 @@ public class OrderPersistenceGrpcClient {
             logger.error("Exception updating order with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
             if (status.getCode() == Status.Code.NOT_FOUND) {
-                throw new OrderDoesNotExist(id);
+                if (status.getDescription().contains("Item")) {
+                    throw new ItemDoesNotExist(e.getMessage());
+                } else {
+                    throw new OrderDoesNotExist(id);
+                }
             } else if (status.getCode() == Status.Code.INTERNAL) {
                 throw new RuntimeException(status.getDescription());
             } else {

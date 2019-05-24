@@ -23,10 +23,12 @@ public class ItemPersistenceStub implements ItemPersistence {
             throw new ItemAlreadyExists(item.getName());
         }
 
-        item.setId(currentIndex);
-        items.put(currentIndex, item);
+        Item newItem = new Item(item);
+
+        newItem.setId(currentIndex);
+        items.put(currentIndex, newItem);
         currentIndex++;
-        return item;
+        return newItem;
     }
 
     public List<Item> list() {
@@ -54,7 +56,6 @@ public class ItemPersistenceStub implements ItemPersistence {
     }
 
     public Item delete(Long id) throws ItemDoesNotExist {
-        LOGGER.info("PERSISTENCE ITEMS: " + items);
         if (items.get(id) == null) {
             throw new ItemDoesNotExist(id);
         }

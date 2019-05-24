@@ -27,7 +27,7 @@ public class ItemPurchase {
             return false;
         }
         ItemPurchase itemPurchase = (ItemPurchase) o;
-        return Objects.equals(item, itemPurchase.item) && quantity == itemPurchase.quantity;
+        return Objects.equals(item, itemPurchase.item) && Objects.equals(quantity, itemPurchase.quantity);
     }
 
     @Override

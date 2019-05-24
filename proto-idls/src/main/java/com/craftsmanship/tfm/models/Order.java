@@ -9,6 +9,7 @@ public class Order {
     private List<ItemPurchase> itemPurchases;
 
     public Order() {
+        this.id = -1L;
         this.itemPurchases = new ArrayList<ItemPurchase>();
     }
 
@@ -41,7 +42,7 @@ public class Order {
             return false;
         }
         Order order = (Order) o;
-        return id == order.id && Objects.equals(itemPurchases, order.itemPurchases);
+        return Objects.equals(id, order.id) && Objects.equals(itemPurchases, order.itemPurchases);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class Order {
         private List<ItemPurchase> itemPurchases;
 
         public Builder() {
-            this.id = 0L;
+            this.id = -1L;
             this.itemPurchases = new ArrayList<ItemPurchase>();
         }
 

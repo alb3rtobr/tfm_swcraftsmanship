@@ -15,22 +15,23 @@ public class PersistenceInProcessGrpcServer {
 
     private static final Logger logger = LoggerFactory.getLogger(PersistenceInProcessGrpcServer.class);
 
-    private static final String GRPC_SERVER_NAME = "PersistenceGrpcServer";
-
+    private String serverName;
     private List<BindableService> services;
     private Server server;
 
-    public PersistenceInProcessGrpcServer(List<BindableService> services) {
+    public PersistenceInProcessGrpcServer(String serverName, List<BindableService> services) {
+        this.serverName = serverName;
         this.services = new ArrayList<BindableService>(services);
     }
 
-    public PersistenceInProcessGrpcServer(BindableService service) {
+    public PersistenceInProcessGrpcServer(String serverName, BindableService service) {
+        this.serverName = serverName;
         this.services = new ArrayList<BindableService>();
         this.services.add(service);
     }
 
     public void start() throws IOException, InstantiationException, IllegalAccessException {
-        InProcessServerBuilder builder = InProcessServerBuilder.forName(GRPC_SERVER_NAME).directExecutor();
+        InProcessServerBuilder builder = InProcessServerBuilder.forName(this.serverName).directExecutor();
 
         for (BindableService service : services) {
             builder.addService(service);

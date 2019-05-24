@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
-import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
@@ -25,6 +24,9 @@ public class OrderPersistenceStub implements OrderPersistence {
     @Override
     public Order create(Order order) throws ItemDoesNotExist {
         checkItemsExists(order);
+
+        // TODO: Order should be a COPY
+
         order.setId(currentIndex);
         orders.put(currentIndex, order);
         currentIndex++;
@@ -38,14 +40,19 @@ public class OrderPersistenceStub implements OrderPersistence {
 
     @Override
     public Order get(Long id) throws OrderDoesNotExist {
+        if (orders.get(id) == null) {
+            throw new OrderDoesNotExist(id);
+        }
         return orders.get(id);
     }
 
     @Override
     public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
         if (orders.get(id) == null) {
-            return null;
+            throw new OrderDoesNotExist(id);
         }
+
+        checkItemsExists(order);
 
         order.setId(id);
         orders.put(id, order);
@@ -54,6 +61,10 @@ public class OrderPersistenceStub implements OrderPersistence {
 
     @Override
     public Order delete(Long id) throws OrderDoesNotExist {
+        if (orders.get(id) == null) {
+            throw new OrderDoesNotExist(id);
+        }
+
         return orders.remove(id);
     }
 
@@ -68,11 +79,6 @@ public class OrderPersistenceStub implements OrderPersistence {
 
     private void checkItemsExists(Order order) throws ItemDoesNotExist {
         for (ItemPurchase itemPurchase : order.getItemPurchases()) {
-            Item item = itemPurchase.getItem();
-
-            if (item.getId() == null)
-                throw new RuntimeException("Item " + item + " needs an id");
-
             itemPersistence.get(itemPurchase.getItem().getId());
         }
     }

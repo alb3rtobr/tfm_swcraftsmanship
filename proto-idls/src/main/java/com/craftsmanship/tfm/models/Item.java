@@ -12,10 +12,17 @@ public class Item {
     }
 
     private Item(String name, Long price, Long quantity) {
-        this.id = 0L;
+        this.id = -1L;
         this.name = name;
         this.price = price;
         this.quantity = quantity;
+    }
+
+    public Item(Item another) {
+        this.id = another.id;
+        this.name = another.name;
+        this.price = another.price.longValue();
+        this.quantity = another.quantity.longValue();
     }
 
     public Long getId() {
@@ -58,7 +65,8 @@ public class Item {
             return false;
         }
         Item item = (Item) o;
-        return id == item.id && Objects.equals(name, item.name) && price == item.price && quantity == item.quantity;
+        return Objects.equals(id, item.id) && Objects.equals(name, item.name) && Objects.equals(price, item.price)
+                && Objects.equals(quantity, item.quantity);
     }
 
     @Override
@@ -80,7 +88,8 @@ public class Item {
         private Long quantity;
 
         public Builder() {
-            this.id = 0L;
+            this.id = -1L;
+            this.name = null;
             this.price = 0L;
             this.quantity = 0L;
         }
@@ -100,8 +109,18 @@ public class Item {
             return this;
         }
 
+        public Builder withPrice(Integer price) {
+            this.price = new Long(price);
+            return this;
+        }
+
         public Builder withQuantity(Long quantity) {
             this.quantity = quantity;
+            return this;
+        }
+
+        public Builder withQuantity(Integer quantity) {
+            this.quantity = new Long(quantity);
             return this;
         }
 
