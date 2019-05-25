@@ -158,10 +158,10 @@ public class GrpcServer {
                     .setId(item.getId())
                     .setName(item.getName())
                     .setPrice(item.getPrice())
-                    .setQuantity(item.getQuantity()).build();
+                    .setStock(item.getStock()).build();
         }
         private Item getItemFromGrpcItem(GrpcItem grpcItem) {
-            return new Item(grpcItem.getId(), grpcItem.getName(), grpcItem.getPrice(), grpcItem.getQuantity());
+            return new Item(grpcItem.getId(), grpcItem.getName(), grpcItem.getPrice(), grpcItem.getStock());
         }
     }
 

@@ -38,7 +38,7 @@ public class OrderItem {
         this.key = key;
     }
 
-    public long getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
