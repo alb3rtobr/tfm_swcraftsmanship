@@ -7,7 +7,7 @@ import com.craftsmanship.tfm.models.Item;
 
 public interface RestClient {
 
-	public PurchaseOrder sendPurchaseOrder(Item item, Long currentStock);
+	public PurchaseOrder sendPurchaseOrder(Item item, Integer currentStock);
 
 	public RestTemplate getRestTemplate();
 }

@@ -91,7 +91,7 @@ public class KafkaConsumerTest {
 	public void whenAnItemOperationIsReceived_thenKafkaConsumerReceivesIt() throws Exception {
 
 		Long itemId = 1L;
-		Item item = new Item.Builder().withName("PlayStation4").withId(itemId).withQuantity(5L).build();
+		Item item = new Item.Builder().withName("PlayStation4").withId(itemId).withStock(5).build();
 		consumer.resetLatch(1);
 		RestClient mockRestClient= Mockito.mock(RestClient.class);
 		consumer.setRestClient(mockRestClient);
@@ -108,9 +108,9 @@ public class KafkaConsumerTest {
 		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
 		
 		ArgumentCaptor<Item> itemArg = ArgumentCaptor.forClass(Item.class);
-		ArgumentCaptor<Long> longArg = ArgumentCaptor.forClass(long.class);
+		ArgumentCaptor<Integer> intArg = ArgumentCaptor.forClass(Integer.class);
 		
-		verify(mockRestClient).sendPurchaseOrder(itemArg.capture(),longArg.capture());
+		verify(mockRestClient).sendPurchaseOrder(itemArg.capture(),intArg.capture());
 		assertEquals(item, itemArg.getValue());
 		
 		// check that the message was received, so the latch is 0

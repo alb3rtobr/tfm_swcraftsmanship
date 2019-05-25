@@ -56,14 +56,14 @@ public class PurchaseOrderClientTest {
 	public void whenItemsAreBelowThreshold_thenRestApiIsCalledWithExpectedItem() throws Exception {
 
 		Item item = new Item.Builder().withName("PlayStation4").build();
-		PurchaseOrder nullOrder = client.sendPurchaseOrder(item, 3L);
+		PurchaseOrder nullOrder = client.sendPurchaseOrder(item, 3);
 		assertNull(nullOrder);
 	}
 
 	@Test
 	public void whenItemsAreAboveThreshold_thenRestApiIsNotCalled() {
 		Item item = new Item.Builder().withName("MegaDrive").build();
-		PurchaseOrder order = client.sendPurchaseOrder(item, 0L);
+		PurchaseOrder order = client.sendPurchaseOrder(item, 0);
 		PurchaseOrder expected = new PurchaseOrder(item);
 		assertNotNull(order);
 		assertEquals("PurchaseOrder generated is not the expected.", order.getItem().getName(),

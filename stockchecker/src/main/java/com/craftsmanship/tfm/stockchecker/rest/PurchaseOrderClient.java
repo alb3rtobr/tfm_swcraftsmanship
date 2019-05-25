@@ -28,7 +28,7 @@ public class PurchaseOrderClient implements RestClient {
 	}
 	
 	@Override
-	public PurchaseOrder sendPurchaseOrder(Item item, Long currentStock) {
+	public PurchaseOrder sendPurchaseOrder(Item item, Integer currentStock) {
 		if (currentStock<this.stockThreshold) {
 			PurchaseOrder newOrder = new PurchaseOrder(item);
 			LOGGER.info("Items below threshold ( "+currentStock+"<"+this.stockThreshold+" ), contacting REST API.");
