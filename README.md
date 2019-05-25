@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship.svg?branch=master)](https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship)
 
-# Microservice app development with Spring Cloud Kubernetes
+# Master Thesis: Microservice app development with Spring Cloud Kubernetes
 
 1. [Introduction](#introduction)
 	1. [Project description](#project-description)
@@ -11,13 +11,15 @@
 	2. [Analysis](#analysis)
 	3. [Design](#design)
 	4. [Implementation & tests](#implementation-and-tests)
+	5. [Deployment](#deployment)
 		1. Installation
 		2. Docker image preparation
 		3. Helm dependencies
-		4. Deployment
+		4. Application deployment
 		5. Delete the deployment
-3. Conclusions and future work
-4. References
+3. Results
+4. Conclusions and future work
+5. References
 
 
 ## Introduction
@@ -31,10 +33,13 @@ We have implemented a simple application with the following requirements:
 
 
 ### Goals
-
+* Implement a cloud native application from scratch, offering a REST API.
+* Allow communication between microservices using a message bus service.
+* Implement a service offering its functionality via gRPC.
+* Develop our application in an incremental way, having functional versions after each iteration.
 
 ### Motivation
-
+From the different topics we have covered during the Master, we found that Kubernetes and cloud applications was quite interesting. We also started working on cloud-related issues in our jobs, so we decided it would be very appropiate to explore this topic in our Master Thesis and take advantage of the learning opportunities we could find.
 
 ## Project development
 
@@ -85,6 +90,24 @@ The application is composed of the following services:
 * `stockchecker` : whenever an item is solved, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
 
 ### Implementation and tests
+
+We have implemented our application on a incremental way.
+
+#### Version 0.1
+
+* Basic functionality of all the components
+* Helm charts
+* ConfigMaps
+* Automatic test execution for every commit
+
+#### Version 0.2
+
+* Model extension to include more than one relation
+* Ingress configuration
+
+#### Version 0.3
+
+### Deployment
 
 #### Installation
 
@@ -182,7 +205,10 @@ $ helm del --purge tfm-almacar
 ## References
 
 Reference sites:
+* Kubernetes(https://kubernetes.io/)
+* Spring Cloud (https://spring.io/projects/spring-cloud)
 * [gRPC](https://grpc.io/)
+* [Apache Kafka](https://kafka.apache.org/)
 
 Articles:
 * [1]: https://www.businessinsider.com/where-did-slack-get-its-name-2016-9
