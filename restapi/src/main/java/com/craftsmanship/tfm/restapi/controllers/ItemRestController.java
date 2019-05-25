@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/")
-public class RestApiController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestApiController.class);
+public class ItemRestController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemRestController.class);
 
     // Persistence Handler
     @Autowired
@@ -31,7 +31,7 @@ public class RestApiController {
     // Kafka Message Bus Service
     private final ItemOperationService itemOperationService;
 
-    public RestApiController(ItemPersistence itemPersistence, ItemOperationService itemOperationService) {
+    public ItemRestController(ItemPersistence itemPersistence, ItemOperationService itemOperationService) {
         this.itemPersistence = itemPersistence;
         this.itemOperationService = itemOperationService;
     }

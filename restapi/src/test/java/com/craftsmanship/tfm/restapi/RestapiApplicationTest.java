@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DirtiesContext
 @ActiveProfiles("dev")
 @TestPropertySource(properties = { "kafka.bootstrap-servers=localhost" })
-public class RestapiApplicationTests {
+public class RestapiApplicationTest {
 
 	@Test
 	public void contextLoads() {

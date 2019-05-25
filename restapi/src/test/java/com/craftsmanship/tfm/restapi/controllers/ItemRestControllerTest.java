@@ -54,8 +54,8 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 @ActiveProfiles("dev")
-public class RestApiControllerTests {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestApiControllerTests.class);
+public class ItemRestControllerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemRestControllerTest.class);
 
     private static String SENDER_TOPIC = "mytopic";
 
@@ -75,7 +75,7 @@ public class RestApiControllerTests {
     private int restPort;
 
     @Autowired
-    private RestApiController restApiController;
+    private ItemRestController itemRestController;
 
     @Autowired
     private ItemPersistenceStub itemPersistence;
@@ -133,7 +133,7 @@ public class RestApiControllerTests {
 
     @Test
     public void contexLoads() throws Exception {
-        assertThat(restApiController, is(notNullValue()));
+        assertThat(itemRestController, is(notNullValue()));
     }
 
     private Item postItem(Item item) {
