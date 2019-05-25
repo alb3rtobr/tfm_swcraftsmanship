@@ -17,7 +17,7 @@ message GrpcItem {
     int64 id = 1;
     string name = 2;
     int64 price = 3;
-    int64 quantity = 4;
+    int32 stock = 4;
 }
 
 message CreateItemRequest {
