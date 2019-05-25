@@ -7,4 +7,8 @@ public class ItemDoesNotExist extends Exception {
     public ItemDoesNotExist(Long id) {
         super("Item with id " + id + " does not exist");
     }
+
+    public ItemDoesNotExist(String message) {
+        super(message);
+    }
 }

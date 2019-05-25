@@ -31,7 +31,7 @@ public class ConversionUtils {
     }
 
     public static Order getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
-        Order order = new Order();
+        Order order = new Order.Builder().withId(grpcOrder.getId()).build();
         for (GrpcItemPurchase purchase : grpcOrder.getListOfItemPurchasesList()) {
             order.add(ConversionUtils.getItemPurchaseFromGrpcItemPurchase(purchase));
         }
@@ -46,6 +46,6 @@ public class ConversionUtils {
                     .getGrpcItemPurchaseFromItemPurchase(order.getItemPurchases().get(i));
             grpcOrderBuilder.addListOfItemPurchases(i, grpcItemPurchase);
         }
-        return grpcOrderBuilder.build();
+        return grpcOrderBuilder.setId(order.getId()).build();
     }
 }
