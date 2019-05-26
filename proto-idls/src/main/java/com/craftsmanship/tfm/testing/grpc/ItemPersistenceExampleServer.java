@@ -2,6 +2,7 @@ package com.craftsmanship.tfm.testing.grpc;
 
 import java.io.IOException;
 
+import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class ItemPersistenceExampleServer {
     // create the items persistence stub
     itemPersistenceStub = new ItemPersistenceStub();
 
-    server = ServerBuilder.forPort(this.port).addService(new ItemPersistenceDummyService(itemPersistenceStub)).build().start();
+    server = ServerBuilder.forPort(this.port).addService(new ItemPersistenceService(itemPersistenceStub)).build().start();
     logger.info("Server started, listening on " + port);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override

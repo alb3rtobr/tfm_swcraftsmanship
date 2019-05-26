@@ -2,6 +2,7 @@ package com.craftsmanship.tfm.testing.grpc;
 
 import java.io.IOException;
 
+import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 
 import org.slf4j.Logger;
@@ -14,11 +15,11 @@ public class ItemPersistenceInProcessServer {
 
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceInProcessServer.class);
 
-    private ItemPersistenceDummyService service;
+    private ItemPersistenceService service;
     private Server server;
 
     public ItemPersistenceInProcessServer(ItemPersistenceStub itemPersistenceStub) {
-        this.service = new ItemPersistenceDummyService(itemPersistenceStub);
+        this.service = new ItemPersistenceService(itemPersistenceStub);
     }
 
     public void start() throws IOException, InstantiationException, IllegalAccessException {
