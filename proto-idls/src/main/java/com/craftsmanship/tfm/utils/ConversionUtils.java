@@ -12,12 +12,12 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcItemPurchase;
 public class ConversionUtils {
     public static Item getItemFromGrpcItem(GrpcItem grpcItem) {
         return new Item.Builder().withId(grpcItem.getId()).withName(grpcItem.getName()).withPrice(grpcItem.getPrice())
-                .withQuantity(grpcItem.getQuantity()).build();
+                .withStock(grpcItem.getStock()).build();
     }
 
     public static GrpcItem getGrpcItemFromItem(Item item) {
         return GrpcItem.newBuilder().setId(item.getId()).setName(item.getName()).setPrice(item.getPrice())
-                .setQuantity(item.getQuantity()).build();
+                .setStock(item.getStock()).build();
     }
 
     public static ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {

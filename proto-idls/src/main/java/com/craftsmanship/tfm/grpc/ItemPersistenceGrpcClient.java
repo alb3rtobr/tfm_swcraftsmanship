@@ -30,14 +30,12 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 
 public class ItemPersistenceGrpcClient {
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceGrpcClient.class);
 
     private final ManagedChannel channel;
     private final ItemPersistenceServiceBlockingStub blockingStub;
-    private final ItemPersistenceServiceStub asyncStub;
 
     /**
      * Construct client for accessing ItemPersistenceService server at
@@ -54,7 +52,6 @@ public class ItemPersistenceGrpcClient {
     public ItemPersistenceGrpcClient(ManagedChannel channel) {
         this.channel = channel;
         this.blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
-        this.asyncStub = ItemPersistenceServiceGrpc.newStub(channel);
     }
 
     public void shutdown() throws InterruptedException {

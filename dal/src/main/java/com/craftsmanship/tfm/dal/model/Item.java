@@ -14,20 +14,20 @@ public class Item {
 
     private String name;
     private long price;
-    private long quantity;
+    private int stock;
 
     protected Item() {
 
     }
 
-    public Item(String name, long price, long quantity) {
+    public Item(String name, long price, int stock) {
         this.name = name;
         this.price = price;
-        this.quantity = quantity;
+        this.stock = stock;
     }
 
-    public Item(long id, String name, long price, long quantity) {
-        this(name, price, quantity);
+    public Item(long id, String name, long price, int stock) {
+        this(name, price, stock);
         this.id = id;
     }
 
@@ -51,18 +51,18 @@ public class Item {
         this.price = price;
     }
 
-    public long getQuantity() {
-        return quantity;
+    public int getStock() {
+        return stock;
     }
 
-    public void setQuantity(long quantity) {
-        this.quantity = quantity;
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
     @Override
     public String toString() {
         return "Item [name=" + name  + 
                 ", price=" + price +
-                ", quantity=" + quantity + "]";
+                ", stock=" + stock + "]";
     }
 }

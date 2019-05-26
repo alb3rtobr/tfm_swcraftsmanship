@@ -7,12 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
-import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc;
-import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.testing.grpc.ItemPersistenceInProcessServer;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
@@ -60,7 +56,7 @@ public class ItemPersistenceGrpcTest {
 
     @Test
     public void test_when_item_is_created() throws InterruptedException, ItemAlreadyExists {
-        Item item = new Item.Builder().withName("Shoe").withPrice(2L).withQuantity(100L).build();
+        Item item = new Item.Builder().withName("Shoe").withPrice(2L).withStock(100).build();
 
         Item createdItem = grpcClient.create(item);
 
@@ -80,7 +76,7 @@ public class ItemPersistenceGrpcTest {
     public void test_given_some_items_when_list_is_queried_then_items_received() throws ItemAlreadyExists {
         Item item1 = new Item.Builder().withName("Shoe").withPrice(2L).build();
         Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withName("Car").withQuantity(100L).build();
+        Item item2 = new Item.Builder().withName("Car").withStock(100).build();
         Item itemResponse2 = grpcClient.create(item2);
 
         List<Item> items = grpcClient.list();
@@ -94,7 +90,7 @@ public class ItemPersistenceGrpcTest {
 
     @Test
     public void test_given_some_items_when_get_is_queried_then_item_received() throws ItemDoesNotExist, ItemAlreadyExists {
-        Item item1 = new Item.Builder().withName("Shoe").withQuantity(100L).withPrice(2L).build();
+        Item item1 = new Item.Builder().withName("Shoe").withStock(100).withPrice(2L).build();
         Item itemResponse1 = grpcClient.create(item1);
         Item item2 = new Item.Builder().withName("Car").withPrice(10L).build();
         grpcClient.create(item2);

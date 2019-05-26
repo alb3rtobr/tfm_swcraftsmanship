@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class ItemPurchase {
     private Item item;
-    private Long quantity;
+    private int quantity;
 
-    public ItemPurchase(Item item, Long quantity) {
+    public ItemPurchase(Item item, int quantity) {
         this.item = item;
         this.quantity = quantity;
     }
@@ -15,7 +15,7 @@ public class ItemPurchase {
         return this.item;
     }
 
-    public Long getQuantity() {
+    public int getQuantity() {
         return this.quantity;
     }
 

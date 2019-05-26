@@ -6,23 +6,23 @@ public class Item {
     private Long id;
     private String name;
     private Long price;
-    private Long quantity;
+    private int stock;
 
     private Item() {
     }
 
-    private Item(String name, Long price, Long quantity) {
+    private Item(String name, Long price, int stock) {
         this.id = -1L;
         this.name = name;
         this.price = price;
-        this.quantity = quantity;
+        this.stock = stock;
     }
 
     public Item(Item another) {
         this.id = another.id;
         this.name = another.name;
-        this.price = another.price.longValue();
-        this.quantity = another.quantity.longValue();
+        this.price = another.price;
+        this.stock = another.stock;
     }
 
     public Long getId() {
@@ -49,12 +49,12 @@ public class Item {
         this.price = price;
     }
 
-    public Long getQuantity() {
-        return this.quantity;
+    public int getStock() {
+        return this.stock;
     }
 
-    public void setQuantity(Long quantity) {
-        this.quantity = quantity;
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class Item {
         }
         Item item = (Item) o;
         return Objects.equals(id, item.id) && Objects.equals(name, item.name) && Objects.equals(price, item.price)
-                && Objects.equals(quantity, item.quantity);
+                && Objects.equals(stock, item.stock);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class Item {
     @Override
     public String toString() {
         return "{" + " id='" + this.id + "'" + ", name='" + this.name + "'" + ", price='" + this.price + "'"
-                + ", quantity='" + this.quantity + "'" + "}";
+                + ", stock='" + this.stock + "'" + "}";
     }
 
     public static class Builder {
@@ -85,13 +85,13 @@ public class Item {
         private Long id;
         private String name;
         private Long price;
-        private Long quantity;
+        private int stock;
 
         public Builder() {
             this.id = -1L;
             this.name = null;
             this.price = 0L;
-            this.quantity = 0L;
+            this.stock = 0;
         }
 
         public Builder withId(Long id) {
@@ -114,13 +114,8 @@ public class Item {
             return this;
         }
 
-        public Builder withQuantity(Long quantity) {
-            this.quantity = quantity;
-            return this;
-        }
-
-        public Builder withQuantity(Integer quantity) {
-            this.quantity = new Long(quantity);
+        public Builder withStock(int stock) {
+            this.stock = stock;
             return this;
         }
 
@@ -128,8 +123,8 @@ public class Item {
             Item item = new Item();
             item.id = this.id;
             item.name = this.name;
-            item.price = this.price;
-            item.quantity = this.quantity;
+            item.price = this.price.longValue();
+            item.stock = this.stock;
 
             return item;
         }

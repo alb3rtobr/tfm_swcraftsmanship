@@ -47,7 +47,7 @@ public class ItemEntityTest {
         Item savedItem = this.entityManager.persistAndFlush(item);
         assertThat(savedItem.getName()).isEqualTo("Item description");
         assertThat(savedItem.getPrice()).isEqualTo(199);
-        assertThat(savedItem.getQuantity()).isEqualTo(25);
+        assertThat(savedItem.getStock()).isEqualTo(25);
     }
 
     @Test
@@ -56,6 +56,6 @@ public class ItemEntityTest {
         Item foundItem = this.entityManager.find(Item.class, savedItem.getId());
         assertThat(savedItem.getName()).isEqualTo(foundItem.getName());
         assertThat(savedItem.getPrice()).isEqualTo(199);
-        assertThat(savedItem.getQuantity()).isEqualTo(25);
+        assertThat(savedItem.getStock()).isEqualTo(25);
     }
 }

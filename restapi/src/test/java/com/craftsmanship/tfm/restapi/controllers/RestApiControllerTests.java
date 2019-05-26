@@ -151,7 +151,7 @@ public class RestApiControllerTests {
     public void test_when_item_is_created_then_item_persisted_and_kafka_message_generated()
             throws InterruptedException, ItemDoesNotExist {
         String itemName = "Wheel";
-        Item item = new Item.Builder().withName(itemName).withPrice(10L).withQuantity(1L).build();
+        Item item = new Item.Builder().withName(itemName).withPrice(10L).withStock(1).build();
 
         // post item
         Item responseItem = postItem(item);
@@ -200,9 +200,9 @@ public class RestApiControllerTests {
     @Test
     public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws ItemAlreadyExists {
         // Given
-        Item item1 = new Item.Builder().withName("item1").withPrice(10L).withQuantity(1L).build();
-        Item item2 = new Item.Builder().withName("item2").withPrice(11L).withQuantity(2L).build();
-        Item item3 = new Item.Builder().withName("item3").withPrice(12L).withQuantity(3L).build();
+        Item item1 = new Item.Builder().withName("item1").withPrice(10L).withStock(1).build();
+        Item item2 = new Item.Builder().withName("item2").withPrice(11L).withStock(2).build();
+        Item item3 = new Item.Builder().withName("item3").withPrice(12L).withStock(3).build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -222,9 +222,9 @@ public class RestApiControllerTests {
     @Test
     public void test_given_some_items_when_get_item_mapping_then_item_is_returned() throws ItemAlreadyExists, ItemDoesNotExist {
         // Given
-        Item item1 = new Item.Builder().withName("item1").withPrice(6L).withQuantity(1L).build();
-        Item item2 = new Item.Builder().withName("item2").withPrice(60L).withQuantity(10L).build();
-        Item item3 = new Item.Builder().withName("item3").withPrice(90L).withQuantity(100L).build();
+        Item item1 = new Item.Builder().withName("item1").withPrice(6L).withStock(1).build();
+        Item item2 = new Item.Builder().withName("item2").withPrice(60L).withStock(10).build();
+        Item item3 = new Item.Builder().withName("item3").withPrice(90L).withStock(100).build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);

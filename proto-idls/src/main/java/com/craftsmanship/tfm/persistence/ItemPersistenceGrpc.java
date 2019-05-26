@@ -7,7 +7,6 @@ import com.craftsmanship.tfm.models.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.grpc.ItemPersistenceGrpcClient;

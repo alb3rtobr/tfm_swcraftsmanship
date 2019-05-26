@@ -14,7 +14,7 @@ service OrderPersistenceService {
 
 message GrpcItemPurchase {
     GrpcItem item = 1;
-    int64 quantity = 2;    
+    int32 quantity = 2;    
 }
 
 message GrpcOrder {

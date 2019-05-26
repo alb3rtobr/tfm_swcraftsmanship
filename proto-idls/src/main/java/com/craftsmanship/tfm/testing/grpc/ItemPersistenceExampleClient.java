@@ -14,14 +14,12 @@ import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
-import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceStub;
 
 public class ItemPersistenceExampleClient {
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceExampleClient.class);
 
     private final ManagedChannel channel;
     private final ItemPersistenceServiceBlockingStub blockingStub;
-    private final ItemPersistenceServiceStub asyncStub;
 
     /** Construct client for accessing RouteGuide server at {@code host:port}. */
     public ItemPersistenceExampleClient(String host, int port) {
@@ -34,7 +32,6 @@ public class ItemPersistenceExampleClient {
     public ItemPersistenceExampleClient(ManagedChannelBuilder<?> channelBuilder) {
         channel = channelBuilder.build();
         blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
-        asyncStub = ItemPersistenceServiceGrpc.newStub(channel);
     }
 
     public void shutdown() throws InterruptedException {
@@ -50,9 +47,9 @@ public class ItemPersistenceExampleClient {
 
         CreateItemResponse response = blockingStub.create(request);
         GrpcItem itemResponse = response.getItem();
-        logger.info("Received GrpcItem: " + grpcItem);
+        logger.info("Received GrpcItem: " + itemResponse);
 
-        Item result = new Item.Builder().withId(grpcItem.getId()).withName(grpcItem.getDescription()).build();
+        Item result = new Item.Builder().withId(itemResponse.getId()).withName(itemResponse.getDescription()).build();
 
         return result;
     }

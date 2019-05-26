@@ -13,12 +13,12 @@ public class OrderItem {
     @JsonIgnore
     private OrderItemKey key;
 
-    private Integer quantity;
+    private int quantity;
     
     protected OrderItem() {
     }
 
-    public OrderItem(Order order, Item item, Integer quantity) {
+    public OrderItem(Order order, Item item, int quantity) {
         key = new OrderItemKey();
         key.setOrder(order);
         key.setItem(item);
@@ -38,11 +38,11 @@ public class OrderItem {
         this.key = key;
     }
 
-    public long getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 

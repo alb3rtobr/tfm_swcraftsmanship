@@ -70,13 +70,9 @@ public class Order {
             return this;
         }
 
-        public Builder addItem(Item item, Long quantity) {
-            itemPurchases.add(new ItemPurchase(item, quantity));
+        public Builder addItem(Item item, int stock) {
+            itemPurchases.add(new ItemPurchase(item, stock));
             return this;
-        }
-
-        public Builder addItem(Item item, Integer quantity) {
-            return this.addItem(item, new Long(quantity));
         }
 
         public Order build() {
