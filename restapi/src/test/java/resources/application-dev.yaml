@@ -16,5 +16,6 @@ dal:
 
 logging:
   level:
-    org.springframework: DEBUG
     com.craftsmanship.tfm: DEBUG
+    org.springframework: DEBUG
+    org.apache.zookeeper: INFO
