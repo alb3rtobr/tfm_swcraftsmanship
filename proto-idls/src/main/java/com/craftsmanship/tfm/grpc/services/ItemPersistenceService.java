@@ -1,4 +1,4 @@
-package com.craftsmanship.tfm.testing.grpc;
+package com.craftsmanship.tfm.grpc.services;
 
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import io.grpc.Status;
 
-public class ItemPersistenceDummyService extends ItemPersistenceServiceImplBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceDummyService.class);
+public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceService.class);
 
     private ItemPersistence itemPersistence;
 
-    public ItemPersistenceDummyService(ItemPersistence itemsPersistence) {
+    public ItemPersistenceService(ItemPersistence itemsPersistence) {
         this.itemPersistence = itemsPersistence;
     }
 

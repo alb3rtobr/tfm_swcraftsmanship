@@ -9,8 +9,9 @@ import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
+import com.craftsmanship.tfm.grpc.servers.PersistenceInProcessGrpcServer;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.testing.grpc.ItemPersistenceInProcessServer;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 
 import org.junit.After;
@@ -27,9 +28,12 @@ import io.grpc.inprocess.InProcessChannelBuilder;
 public class ItemPersistenceGrpcTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceGrpcTest.class);
-    private ItemPersistenceInProcessServer itemPersistenceGrpcServer;
+    private static final String GRPC_SERVER_NAME = "test";
+
+    private PersistenceInProcessGrpcServer itemPersistenceGrpcServer;
     private ItemPersistenceGrpc grpcClient;
     private ItemPersistenceStub itemPersistenceStub;
+    private ItemPersistenceService itemPersistenceService;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -38,13 +42,17 @@ public class ItemPersistenceGrpcTest {
     public void setUp() throws IOException, InstantiationException, IllegalAccessException {
         // Create the Item Persistence stub
         itemPersistenceStub = new ItemPersistenceStub();
-        itemPersistenceGrpcServer = new ItemPersistenceInProcessServer(itemPersistenceStub);
+
+        // create the Item Grpc service
+        itemPersistenceService = new ItemPersistenceService(itemPersistenceStub);
+
+        itemPersistenceGrpcServer = new PersistenceInProcessGrpcServer(GRPC_SERVER_NAME, itemPersistenceService);
         itemPersistenceGrpcServer.start();
-        ManagedChannel channel = InProcessChannelBuilder.forName("test").directExecutor()
+        ManagedChannel channel = InProcessChannelBuilder.forName(GRPC_SERVER_NAME).directExecutor()
                 // Channels are secure by default (via SSL/TLS). For the example we disable TLS
                 // to avoid
                 // needing certificates.
-                .usePlaintext(true).build();
+                .usePlaintext().build();
         grpcClient = new ItemPersistenceGrpc(channel);
     }
 
