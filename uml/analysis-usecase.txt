@@ -1,0 +1,14 @@
+@startuml
+Gateway -> Server: operation
+Server -> DAL : operation
+DAL -> DB : db transaction
+DB -> DAL : response
+DAL -> Server : response
+Server -> Bus : publish notification
+Bus -> Monitor : monitor receives notification
+Monitor -> DAL : perform check
+DAL -> DB : db transaction
+DB -> DAL : response
+DAL -> Monitor : response
+Monitor -> EndPoint : send notification (if condition fulfilled)
+@enduml

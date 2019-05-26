@@ -33,10 +33,25 @@ We have implemented a simple application with the following requirements:
 
 
 ### Goals
-* Implement a cloud native application from scratch, offering a REST API.
-* Allow communication between microservices using a message bus service.
-* Implement a service offering its functionality via gRPC.
-* Develop our application in an incremental way, having functional versions after each iteration.
+* **Implement a cloud native application from scratch, offering a REST API.**
+
+* **Allow communication between microservices using a message bus service.**
+
+We decided to use Apache Kafka, an open source distributed streaming platform. Kafka allows to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices.
+
+* **Implement a service offering its functionality via gRPC.**
+
+gRPC is an open source remote procedure call protocol developed by Google. It allows a client to call methods on a server application located on a different host transparently, as it is was a local object in the same machine. After defining the interface of the service to be implemented, the implementation of that interface has to be stored in a host which will handle external client calls using a gRPC server.
+The clients then can use a stub which provides the same interface, and it will be in charge to communicate with the gRPC server.
+Server and client applications could be written in different languages, but they will communicate thanks to sharing the same interface.
+
+![](https://grpc.io/img/landing-2.svg)
+
+*gRPC server and clients. (gRPC official site)*
+
+* **Develop our application in an incremental way, having functional versions after each iteration.**
+
+Cloud technologies evolve so fast, and there are so alternatives available, that when we were defining the scope of our Master Thesis we come back a huge list of "nice-to-have" features. Developing our application in an incremental way will allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we force us not to start to many issues at the same time, and focus on finishing the open ones.
 
 ### Motivation
 From the different topics we have covered during the Master, we found that Kubernetes and cloud applications was quite interesting. We also started working on cloud-related issues in our jobs, so we decided it would be very appropiate to explore this topic in our Master Thesis and take advantage of the learning opportunities we could find.
@@ -76,6 +91,9 @@ We decided to have the following components/services:
 * `Message bus` : communication mechanism used by the server to publish events, and used by the monitor to consume those events.
 * `DAL` : data abstraction layer to isolate the business model from the persistence of the model itself.
 * `Data base` : the persistence of the model.
+
+At this phase, we draft our main use case as follows:
+![base use case](./uml/analysis-usecase.png "analysis base use case")
 
 ### Design
 
@@ -205,8 +223,8 @@ $ helm del --purge tfm-almacar
 ## References
 
 Reference sites:
-* Kubernetes(https://kubernetes.io/)
-* Spring Cloud (https://spring.io/projects/spring-cloud)
+* [Kubernetes](https://kubernetes.io/)
+* [Spring Cloud](https://spring.io/projects/spring-cloud)
 * [gRPC](https://grpc.io/)
 * [Apache Kafka](https://kafka.apache.org/)
 
