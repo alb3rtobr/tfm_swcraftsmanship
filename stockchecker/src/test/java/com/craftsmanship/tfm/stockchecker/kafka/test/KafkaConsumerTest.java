@@ -108,7 +108,7 @@ public class KafkaConsumerTest {
 		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
 		
 		ArgumentCaptor<Item> itemArg = ArgumentCaptor.forClass(Item.class);
-		ArgumentCaptor<Integer> intArg = ArgumentCaptor.forClass(Integer.class);
+		ArgumentCaptor<Integer> intArg = ArgumentCaptor.forClass(int.class);
 		
 		verify(mockRestClient).sendPurchaseOrder(itemArg.capture(),intArg.capture());
 		assertEquals(item, itemArg.getValue());

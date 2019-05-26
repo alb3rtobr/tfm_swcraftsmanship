@@ -6,12 +6,12 @@ public class Item {
     private Long id;
     private String name;
     private Long price;
-    private Integer stock;
+    private int stock;
 
     private Item() {
     }
 
-    private Item(String name, Long price, Integer stock) {
+    private Item(String name, Long price, int stock) {
         this.id = -1L;
         this.name = name;
         this.price = price;
@@ -49,11 +49,11 @@ public class Item {
         this.price = price;
     }
 
-    public Integer getStock() {
+    public int getStock() {
         return this.stock;
     }
 
-    public void setStock(Integer stock) {
+    public void setStock(int stock) {
         this.stock = stock;
     }
 
@@ -85,7 +85,7 @@ public class Item {
         private Long id;
         private String name;
         private Long price;
-        private Integer stock;
+        private int stock;
 
         public Builder() {
             this.id = -1L;
@@ -114,7 +114,7 @@ public class Item {
             return this;
         }
 
-        public Builder withStock(Integer stock) {
+        public Builder withStock(int stock) {
             this.stock = stock;
             return this;
         }
@@ -123,7 +123,7 @@ public class Item {
             Item item = new Item();
             item.id = this.id;
             item.name = this.name;
-            item.price = this.price;
+            item.price = this.price.longValue();
             item.stock = this.stock;
 
             return item;
