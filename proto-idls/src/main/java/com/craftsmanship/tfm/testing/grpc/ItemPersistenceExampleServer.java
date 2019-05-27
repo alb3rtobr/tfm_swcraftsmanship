@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
+import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ public class ItemPersistenceExampleServer {
   private int port;
   private Server server;
   private ItemPersistenceStub itemPersistenceStub;
+  private DomainConversion domainConversion;
 
   public ItemPersistenceExampleServer(int port) {
     this.port = port;
@@ -24,8 +26,11 @@ public class ItemPersistenceExampleServer {
   public void start() throws IOException {
     // create the items persistence stub
     itemPersistenceStub = new ItemPersistenceStub();
+    domainConversion = new DomainConversion();
 
-    server = ServerBuilder.forPort(this.port).addService(new ItemPersistenceService(itemPersistenceStub)).build().start();
+    server = ServerBuilder.forPort(this.port)
+            .addService(new ItemPersistenceService(itemPersistenceStub, domainConversion))
+            .build().start();
     logger.info("Server started, listening on " + port);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override

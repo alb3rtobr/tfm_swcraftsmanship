@@ -13,30 +13,32 @@ import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 @ComponentScan("com.craftsmanship.tfm.dal")
 public class GrpcServerApplication implements CommandLineRunner{
 
-	@Autowired 
-	private GrpcServer grpcServer;
-	
-	@Value(value = "${grpc-server.port}")
-	private int grpcServerPort;
-	
-	@Value(value = "${grpc-server.test}")
-	private boolean test;
+    @Autowired
+    private GrpcServer grpcServer;
 
-	public static void main(String[] args) {
-		SpringApplication app = new SpringApplication(GrpcServerApplication.class);
-		for (String arg:args) {
-			System.out.println(arg + ":" + arg);
-		}
+    @Value(value = "${grpc-server.port}")
+    private int grpcServerPort;
+
+    @Value(value = "${grpc-server.test}")
+    private boolean test;
+
+
+    public static void main(String[] args) {
+        SpringApplication app = new SpringApplication(GrpcServerApplication.class);
+        for (String arg:args) {
+            System.out.println(arg + ":" + arg);
+        }
         app.run(args);
-	}
+    }
 
-	@Override
-	public void run(String... args) throws Exception {
-		System.out.println("grpcServerPort: " + grpcServerPort);
-		grpcServer.setPort(grpcServerPort);
-		grpcServer.start();
-		
-		if (!test)
-			grpcServer.blockUntilShutdown();
-	}
+    @Override
+    public void run(String... args) throws Exception {
+
+        System.out.println("grpcServerPort: " + grpcServerPort);
+        grpcServer.setPort(grpcServerPort);
+        grpcServer.start();
+
+        if (!test)
+            grpcServer.blockUntilShutdown();
+    }
 }

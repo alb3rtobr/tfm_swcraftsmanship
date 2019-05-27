@@ -1,16 +1,16 @@
 package com.craftsmanship.tfm.stockchecker.rest;
 
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 
 public class PurchaseOrder {
 
-	private Item item;
+	private DomainItem item;
 	
-	public PurchaseOrder(Item item) {
+	public PurchaseOrder(DomainItem item) {
 		this.item=item;
 	}
 	
-	public Item getItem() {
+	public DomainItem getItem() {
 		return item;
 	}
 	

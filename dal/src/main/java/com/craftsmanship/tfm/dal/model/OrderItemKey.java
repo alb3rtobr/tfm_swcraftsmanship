@@ -19,7 +19,7 @@ public class OrderItemKey implements Serializable{
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-    private Item item;
+    private EntityItem item;
 
     public Order getOrder() {
         return order;
@@ -29,11 +29,11 @@ public class OrderItemKey implements Serializable{
         this.order = order;
     }
 
-    public Item getItem() {
+    public EntityItem getItem() {
         return item;
     }
 
-    public void setItem(Item item) {
+    public void setItem(EntityItem item) {
         this.item = item;
     }    
     

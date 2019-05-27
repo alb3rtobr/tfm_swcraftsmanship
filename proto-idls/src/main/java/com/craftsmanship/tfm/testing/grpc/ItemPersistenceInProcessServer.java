@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
+import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,11 @@ public class ItemPersistenceInProcessServer {
 
     private ItemPersistenceService service;
     private Server server;
+    private DomainConversion domainConversion;
 
     public ItemPersistenceInProcessServer(ItemPersistenceStub itemPersistenceStub) {
-        this.service = new ItemPersistenceService(itemPersistenceStub);
+        this.domainConversion = new DomainConversion();
+        this.service = new ItemPersistenceService(itemPersistenceStub, domainConversion);
     }
 
     public void start() throws IOException, InstantiationException, IllegalAccessException {

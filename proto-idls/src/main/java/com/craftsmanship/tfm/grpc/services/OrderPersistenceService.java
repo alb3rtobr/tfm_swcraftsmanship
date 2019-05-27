@@ -17,7 +17,7 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.ListOrderResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistenceServiceGrpc.OrderPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
-import com.craftsmanship.tfm.utils.ConversionUtils;
+import com.craftsmanship.tfm.utils.ConversionLogic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,21 +28,23 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderPersistenceService.class);
 
     private OrderPersistence orderPersistence;
+    private ConversionLogic conversionLogic;
 
-    public OrderPersistenceService(OrderPersistence orderPersistenceStub) {
+    public OrderPersistenceService(OrderPersistence orderPersistenceStub, ConversionLogic conversionLogic) {
         this.orderPersistence = orderPersistenceStub;
+        this.conversionLogic = conversionLogic;
     }
 
     @Override
     public void create(CreateOrderRequest request, io.grpc.stub.StreamObserver<CreateOrderResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
         GrpcOrder grpcOrder = request.getOrder();
-        Order order = ConversionUtils.getOrderFromGrpcOrder(grpcOrder);
+        Order order = conversionLogic.getOrderFromGrpcOrder(grpcOrder);
 
         try {
             Order createdOrder = orderPersistence.create(order);
 
-            GrpcOrder grpcOrderResponse = ConversionUtils.getGrpcOrderFromOrder(createdOrder);
+            GrpcOrder grpcOrderResponse = conversionLogic.getGrpcOrderFromOrder(createdOrder);
             CreateOrderResponse response = CreateOrderResponse.newBuilder().setOrder(grpcOrderResponse).build();
 
             responseObserver.onNext(response);
@@ -58,7 +60,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
 
         Builder responseBuilder = ListOrderResponse.newBuilder();
         for (Order order : orderPersistence.list()) {
-            GrpcOrder grpcOrder = ConversionUtils.getGrpcOrderFromOrder(order);
+            GrpcOrder grpcOrder = conversionLogic.getGrpcOrderFromOrder(order);
             responseBuilder.addListOfOrders(grpcOrder);
         }
         ListOrderResponse response = responseBuilder.build();
@@ -73,7 +75,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
 
         try {
             Order order = orderPersistence.get(request.getId());
-            GrpcOrder grpcOrder = ConversionUtils.getGrpcOrderFromOrder(order);
+            GrpcOrder grpcOrder = conversionLogic.getGrpcOrderFromOrder(order);
             GetOrderResponse response = GetOrderResponse.newBuilder().setOrder(grpcOrder).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -90,10 +92,10 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
         try {
             orderPersistence.get(request.getId());
 
-            Order order = ConversionUtils.getOrderFromGrpcOrder(request.getOrder());
+            Order order = conversionLogic.getOrderFromGrpcOrder(request.getOrder());
             Order updatedOrder = orderPersistence.update(request.getId(), order);
 
-            GrpcOrder grpcOrderResponse = ConversionUtils.getGrpcOrderFromOrder(updatedOrder);
+            GrpcOrder grpcOrderResponse = conversionLogic.getGrpcOrderFromOrder(updatedOrder);
 
             UpdateOrderResponse response = UpdateOrderResponse.newBuilder().setOrder(grpcOrderResponse).build();
     
@@ -116,7 +118,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
         try {
             Order deletedOrder = orderPersistence.delete(request.getId());
 
-            GrpcOrder grpcOrderResponse = ConversionUtils.getGrpcOrderFromOrder(deletedOrder);
+            GrpcOrder grpcOrderResponse = conversionLogic.getGrpcOrderFromOrder(deletedOrder);
             DeleteOrderResponse response = DeleteOrderResponse.newBuilder().setOrder(grpcOrderResponse).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();

@@ -14,7 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
-import com.craftsmanship.tfm.dal.model.Item;
+import com.craftsmanship.tfm.dal.model.EntityItem;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -30,11 +30,11 @@ public class ItemEntityTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private Item item;
+    private EntityItem item;
 
     @Before
     public void setUp() throws Exception {
-        item = new Item("Item description", 199, 25);
+        item = new EntityItem("Item description", 199, 25);
     }
 
     @After
@@ -44,7 +44,7 @@ public class ItemEntityTest {
 
     @Test
     public void whenSaveItem_thenReturnItem() {
-        Item savedItem = this.entityManager.persistAndFlush(item);
+        EntityItem savedItem = this.entityManager.persistAndFlush(item);
         assertThat(savedItem.getName()).isEqualTo("Item description");
         assertThat(savedItem.getPrice()).isEqualTo(199);
         assertThat(savedItem.getStock()).isEqualTo(25);
@@ -52,8 +52,8 @@ public class ItemEntityTest {
 
     @Test
     public void givenSavedItem_whenFindById_thenReturnItem() {
-        Item savedItem = this.entityManager.persistAndFlush(item);
-        Item foundItem = this.entityManager.find(Item.class, savedItem.getId());
+        EntityItem savedItem = this.entityManager.persistAndFlush(item);
+        EntityItem foundItem = this.entityManager.find(EntityItem.class, savedItem.getId());
         assertThat(savedItem.getName()).isEqualTo(foundItem.getName());
         assertThat(savedItem.getPrice()).isEqualTo(199);
         assertThat(savedItem.getStock()).isEqualTo(25);

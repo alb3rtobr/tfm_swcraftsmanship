@@ -70,7 +70,7 @@ public class Order {
             return this;
         }
 
-        public Builder addItem(Item item, int stock) {
+        public Builder addItem(DomainItem item, int stock) {
             itemPurchases.add(new ItemPurchase(item, stock));
             return this;
         }

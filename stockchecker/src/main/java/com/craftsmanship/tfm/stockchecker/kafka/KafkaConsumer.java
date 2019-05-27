@@ -8,6 +8,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
 import com.craftsmanship.tfm.stockchecker.rest.RestClient;
@@ -49,7 +50,7 @@ public class KafkaConsumer {
 	public void consume(ItemOperation payload) throws CustomException, ItemDoesNotExist {
 		LOGGER.info("received payload='{}'", payload.toString());
 		int count = itemsPersistence.get(payload.getItem().getId()).getStock();
-		restClient.sendPurchaseOrder(payload.getItem(), count);
+		restClient.sendPurchaseOrder((DomainItem) payload.getItem(), count);
 		latch.countDown();
 	}
 }

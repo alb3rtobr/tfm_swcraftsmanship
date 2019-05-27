@@ -18,7 +18,7 @@ public class OrderItem {
     protected OrderItem() {
     }
 
-    public OrderItem(Order order, Item item, int quantity) {
+    public OrderItem(Order order, EntityItem item, int quantity) {
         key = new OrderItemKey();
         key.setOrder(order);
         key.setItem(item);
@@ -26,7 +26,7 @@ public class OrderItem {
     }
 
     @Transient
-    public Item getItem() {
+    public EntityItem getItem() {
         return this.key.getItem();
     }
 

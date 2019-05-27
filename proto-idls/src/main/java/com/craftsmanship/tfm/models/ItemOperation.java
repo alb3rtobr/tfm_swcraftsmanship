@@ -10,16 +10,16 @@ public class ItemOperation {
     public ItemOperation() {
     }
 
-    public ItemOperation(OperationType type, Item item) {
+    public ItemOperation(OperationType type, Item itemResponse) {
         this.type = type;
-        this.item = item;
+        this.item = itemResponse;
     }
 
     public Item getItem() {
         return this.item;
     }
 
-    public void setItem(Item item) {
+    public void setItem(DomainItem item) {
         this.item = item;
     }
 

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.utils.ConversionUtils;
+import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class ItemPersistenceGrpcClient {
 
     private final ManagedChannel channel;
     private final ItemPersistenceServiceBlockingStub blockingStub;
+    private DomainConversion domainConversion;
 
     /**
      * Construct client for accessing ItemPersistenceService server at
@@ -52,23 +54,24 @@ public class ItemPersistenceGrpcClient {
     public ItemPersistenceGrpcClient(ManagedChannel channel) {
         this.channel = channel;
         this.blockingStub = ItemPersistenceServiceGrpc.newBlockingStub(channel);
+        this.domainConversion = new DomainConversion();
     }
 
     public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Item create(Item item) throws ItemAlreadyExists {
+    public DomainItem create(Item item) throws ItemAlreadyExists {
         logger.info("Creating Item");
 
-        GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
+        GrpcItem grpcItem = domainConversion.getGrpcItemFromItem(item);
 
         CreateItemRequest request = CreateItemRequest.newBuilder().setItem(grpcItem).build();
 
-        Item itemReceived = null;
+        DomainItem itemReceived = null;
         try {
             CreateItemResponse response = blockingStub.create(request);
-            itemReceived = ConversionUtils.getItemFromGrpcItem(response.getItem());
+            itemReceived = domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception creating Item: " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -95,7 +98,7 @@ public class ItemPersistenceGrpcClient {
             List<GrpcItem> itemsResponse = response.getItemList();
     
             for (GrpcItem grpcItem : itemsResponse) {
-                result.add(ConversionUtils.getItemFromGrpcItem(grpcItem));
+                result.add(domainConversion.getItemFromGrpcItem(grpcItem));
             }
         } catch (StatusRuntimeException e) {
             logger.error("Exception listing items: " + e.getMessage());
@@ -110,15 +113,15 @@ public class ItemPersistenceGrpcClient {
         return result;
     }
 
-    public Item get(Long id) throws ItemDoesNotExist {
+    public DomainItem get(Long id) throws ItemDoesNotExist {
         logger.info("Get item with id: " + id);
 
         GetItemRequest request = GetItemRequest.newBuilder().setId(id).build();
 
-        Item item = null;
+        DomainItem item = null;
         try {
             GetItemResponse response = blockingStub.get(request);
-            item = ConversionUtils.getItemFromGrpcItem(response.getItem());
+            item = domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception getting item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -134,16 +137,16 @@ public class ItemPersistenceGrpcClient {
         return item;
     }
 
-    public Item update(Long id, Item item) throws ItemDoesNotExist {
+    public DomainItem update(Long id, Item item) throws ItemDoesNotExist {
         logger.info("Updating item with id: " + id);
 
         UpdateItemRequest request = UpdateItemRequest.newBuilder().setId(id)
-                .setItem(ConversionUtils.getGrpcItemFromItem(item)).build();
+                .setItem(domainConversion.getGrpcItemFromItem(item)).build();
 
-        Item updatedItem = null;
+        DomainItem updatedItem = null;
         try {
             UpdateItemResponse response = blockingStub.update(request);
-            updatedItem = ConversionUtils.getItemFromGrpcItem(response.getItem());
+            updatedItem = domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception updating item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -159,15 +162,15 @@ public class ItemPersistenceGrpcClient {
         return updatedItem;
     }
 
-    public Item delete(Long id) throws ItemDoesNotExist {
+    public DomainItem delete(Long id) throws ItemDoesNotExist {
         logger.info("Deleting item with id: " + id);
 
         DeleteItemRequest request = DeleteItemRequest.newBuilder().setId(id).build();
 
-        Item item = null;
+        DomainItem item = null;
         try {
             DeleteItemResponse response = blockingStub.delete(request);
-            item = ConversionUtils.getItemFromGrpcItem(response.getItem());
+            item = domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception deleting item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
