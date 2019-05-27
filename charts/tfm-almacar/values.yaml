@@ -23,6 +23,8 @@ global:
     port: 3306
   stockchecker:
     threshold: 2
+    host: tfm-almacar-stockchecker
+    port: 8080
     rest:
       host: localhost
       port: 8082
@@ -86,6 +88,11 @@ prometheus-operator:
           metrics_path: '/actuator/prometheus'
           static_configs:
             - targets: ['tfm-almacar-restapi:8080']
+        - job_name: 'stockchecker-service'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['tfm-almacar-stockchecker:8080']
         - job_name: 'grafana'
           scrape_interval: 1m
           metrics_path: '/metrics'
