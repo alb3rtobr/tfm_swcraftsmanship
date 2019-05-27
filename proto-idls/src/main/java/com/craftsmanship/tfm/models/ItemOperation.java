@@ -5,17 +5,17 @@ import java.util.Objects;
 public class ItemOperation {
 
     private OperationType type;
-    private DomainItem item;
+    private Item item;
 
     public ItemOperation() {
     }
 
-    public ItemOperation(OperationType type, DomainItem item) {
+    public ItemOperation(OperationType type, Item itemResponse) {
         this.type = type;
-        this.item = item;
+        this.item = itemResponse;
     }
 
-    public DomainItem getItem() {
+    public Item getItem() {
         return this.item;
     }
 
