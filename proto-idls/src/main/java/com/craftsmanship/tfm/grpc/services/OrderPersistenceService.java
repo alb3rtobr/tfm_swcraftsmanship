@@ -17,7 +17,7 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.ListOrderResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistenceServiceGrpc.OrderPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
-import com.craftsmanship.tfm.utils.DomainConversion;
+import com.craftsmanship.tfm.utils.ConversionLogic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +28,9 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderPersistenceService.class);
 
     private OrderPersistence orderPersistence;
-    private DomainConversion conversionLogic;
+    private ConversionLogic conversionLogic;
 
-    public OrderPersistenceService(OrderPersistence orderPersistenceStub, DomainConversion conversionLogic) {
+    public OrderPersistenceService(OrderPersistence orderPersistenceStub, ConversionLogic conversionLogic) {
         this.orderPersistence = orderPersistenceStub;
         this.conversionLogic = conversionLogic;
     }

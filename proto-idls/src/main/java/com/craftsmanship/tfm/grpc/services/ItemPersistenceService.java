@@ -17,7 +17,7 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
-import com.craftsmanship.tfm.utils.DomainConversion;
+import com.craftsmanship.tfm.utils.ConversionLogic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +28,9 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceService.class);
 
     private ItemPersistence itemPersistence;
-    private DomainConversion conversionLogic;
+    private ConversionLogic conversionLogic;
 
-    public ItemPersistenceService(ItemPersistence itemsPersistence, DomainConversion conversionLogic) {
+    public ItemPersistenceService(ItemPersistence itemsPersistence, ConversionLogic conversionLogic) {
         this.itemPersistence = itemsPersistence;
         this.conversionLogic = conversionLogic;
     }

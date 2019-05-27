@@ -13,7 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
-import com.craftsmanship.tfm.dal.model.Item;
+import com.craftsmanship.tfm.dal.model.EntityItem;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -26,11 +26,11 @@ public class ItemRepositoryTest {
 	@Autowired
 	private GrpcServer grpcServer;
 	
-	private Item item;
+	private EntityItem item;
 	
 	@Before
 	public void setUp() throws Exception {
-		item = new Item("Item for repository description", 299, 73);
+		item = new EntityItem("Item for repository description", 299, 73);
 	}
 
 	@After
@@ -40,13 +40,13 @@ public class ItemRepositoryTest {
 
 	@Test
 	public void givenItemRepository_whenSaveItem_thenReturnItem() {
-		Item savedItem = itemRepository.save(item);
+		EntityItem savedItem = itemRepository.save(item);
 		assertThat(savedItem.getName()).isEqualTo("Item for repository description");
 	}
 
 	@Test
 	public void givenItemRepository_whenSaveItem_thenFoundById() {
-		Item savedItem = itemRepository.save(item);
+		EntityItem savedItem = itemRepository.save(item);
 		assertThat(itemRepository.findById(item.getId())).isEqualTo(Optional.of(savedItem));
 	}
 }

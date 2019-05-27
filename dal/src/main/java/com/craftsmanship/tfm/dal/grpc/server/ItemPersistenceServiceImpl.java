@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.craftsmanship.tfm.dal.ItemDAO;
-import com.craftsmanship.tfm.dal.model.Item;
+import com.craftsmanship.tfm.dal.model.EntityItem;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemRequest;
@@ -32,8 +32,8 @@ public class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
         logger.info("CREATE RPC CALLED");
         GrpcItem grpcItem = request.getItem();
-        Item item = getItemFromGrpcItem(grpcItem);
-        Item createdItem = itemDAO.create(item);
+        EntityItem item = getItemFromGrpcItem(grpcItem);
+        EntityItem createdItem = itemDAO.create(item);
 
         GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
         CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
@@ -47,7 +47,7 @@ public class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
         logger.info("LIST RPC CALLED");
 
         Builder responseBuilder = ListItemResponse.newBuilder();
-        for (Item item : itemDAO.list()) {
+        for (EntityItem item : itemDAO.list()) {
             GrpcItem grpcItem = getGrpcItemFromItem(item);
             responseBuilder.addItem(grpcItem);
         }
@@ -61,7 +61,7 @@ public class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
     public void get(GetItemRequest request, io.grpc.stub.StreamObserver<GetItemResponse> responseObserver) {
         logger.info("GET RPC CALLED");
 
-        Item item = itemDAO.get(request.getId());
+        EntityItem item = itemDAO.get(request.getId());
         GrpcItem grpcItem = getGrpcItemFromItem(item);
 
         GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
@@ -76,8 +76,8 @@ public class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
 
         // TODO: right now, if the id does not exists, the item is creted, Should we
         // raise an error?
-        Item item = getItemFromGrpcItem(request.getItem());
-        Item createdItem = itemDAO.update(request.getId(), item);
+        EntityItem item = getItemFromGrpcItem(request.getItem());
+        EntityItem createdItem = itemDAO.update(request.getId(), item);
 
         GrpcItem grpcItemResponse = getGrpcItemFromItem(createdItem);
 
@@ -91,7 +91,7 @@ public class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
     public void delete(DeleteItemRequest request, io.grpc.stub.StreamObserver<DeleteItemResponse> responseObserver) {
         logger.info("DELETE RPC CALLED");
 
-        Item deletedItem = itemDAO.delete(request.getId());
+        EntityItem deletedItem = itemDAO.delete(request.getId());
         GrpcItem grpcItemResponse = getGrpcItemFromItem(deletedItem);
 
         DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
@@ -99,14 +99,14 @@ public class ItemPersistenceServiceImpl extends ItemPersistenceServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private GrpcItem getGrpcItemFromItem(Item item) {
+    private GrpcItem getGrpcItemFromItem(EntityItem item) {
         return GrpcItem.newBuilder()
                 .setId(item.getId())
                 .setName(item.getName())
                 .setPrice(item.getPrice())
                 .setStock(item.getStock()).build();
     }
-    private Item getItemFromGrpcItem(GrpcItem grpcItem) {
-        return new Item(grpcItem.getId(), grpcItem.getName(), grpcItem.getPrice(), grpcItem.getStock());
+    private EntityItem getItemFromGrpcItem(GrpcItem grpcItem) {
+        return new EntityItem(grpcItem.getId(), grpcItem.getName(), grpcItem.getPrice(), grpcItem.getStock());
     }
 }
