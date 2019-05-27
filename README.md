@@ -227,7 +227,7 @@ When executed, the following steps are performed:
 
 The application chart has dependendecies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
 
-First it is needed to install the Helm Incubator repository:
+First it is needed to add the Helm Incubator repository:
 
 ```bash
 $ helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
@@ -245,8 +245,9 @@ Hang tight while we grab the latest from your chart repositories...
 ...Successfully got an update from the "incubator" chart repository
 ...Successfully got an update from the "stable" chart repository
 Update Complete. ⎈Happy Helming!⎈
-Saving 1 charts
+Saving 2 charts
 Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleapis.com/
+Downloading elastic-stack from repo https://kubernetes-charts.storage.googleapis.com/
 Deleting outdated charts
 ```
 
@@ -261,41 +262,101 @@ $ helm install --name=tfm-almacar tfm-almacar
 The deployment is the following:
 
 ```
-NAME                                            READY   STATUS    RESTARTS   AGE
-pod/tfm-almacar-dal-84896976db-wc2cp            1/1     Running   2          23h
-pod/tfm-almacar-kafka-0                         1/1     Running   3          23h
-pod/tfm-almacar-mysql-fd97cb567-zbw8w           1/1     Running   0          23h
-pod/tfm-almacar-restapi-bc6cfd455-2qhc8         1/1     Running   0          23h
-pod/tfm-almacar-stockchecker-7ff8d66486-rlz6g   1/1     Running   4          23h
-pod/tfm-almacar-zookeeper-0                     1/1     Running   0          23h
-pod/tfm-almacar-zookeeper-1                     1/1     Running   0          23h
-pod/tfm-almacar-zookeeper-2                     1/1     Running   0          23h
+NAME:   tfm-almacar
+LAST DEPLOYED: Tue May 28 00:17:22 2019
+NAMESPACE: default
+STATUS: DEPLOYED
 
-NAME                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
-service/kubernetes                       ClusterIP   10.96.0.1        <none>        443/TCP                      64d
-service/tfm-almacar-dal                  ClusterIP   10.105.42.213    <none>        50057/TCP                    23h
-service/tfm-almacar-kafka                ClusterIP   10.102.174.201   <none>        9092/TCP                     23h
-service/tfm-almacar-kafka-headless       ClusterIP   None             <none>        9092/TCP                     23h
-service/tfm-almacar-mysql                ClusterIP   10.101.230.4     <none>        3306/TCP                     23h
-service/tfm-almacar-restapi              NodePort    10.100.175.116   <none>        8787:31034/TCP               23h
-service/tfm-almacar-zookeeper            ClusterIP   10.100.139.119   <none>        2181/TCP                     23h
-service/tfm-almacar-zookeeper-headless   ClusterIP   None             <none>        2181/TCP,3888/TCP,2888/TCP   23h
+RESOURCES:
+==> v1/ClusterRoleBinding
+NAME                    AGE
+rbac-default-namespace  2s
 
-NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/tfm-almacar-dal            1/1     1            1           23h
-deployment.apps/tfm-almacar-mysql          1/1     1            1           23h
-deployment.apps/tfm-almacar-restapi        1/1     1            1           23h
-deployment.apps/tfm-almacar-stockchecker   1/1     1            1           23h
+==> v1/ConfigMap
+NAME                           DATA  AGE
+tfm-almacar-dal                1     2s
+tfm-almacar-elasticsearch      4     2s
+tfm-almacar-kibana             1     2s
+tfm-almacar-kibana-test        1     2s
+tfm-almacar-logstash-patterns  0     2s
+tfm-almacar-logstash-pipeline  2     2s
+tfm-almacar-restapi            1     2s
+tfm-almacar-stockchecker       1     2s
 
-NAME                                                  DESIRED   CURRENT   READY   AGE
-replicaset.apps/tfm-almacar-dal-84896976db            1         1         1       23h
-replicaset.apps/tfm-almacar-mysql-fd97cb567           1         1         1       23h
-replicaset.apps/tfm-almacar-restapi-bc6cfd455         1         1         1       23h
-replicaset.apps/tfm-almacar-stockchecker-7ff8d66486   1         1         1       23h
+==> v1/Deployment
+NAME                      READY  UP-TO-DATE  AVAILABLE  AGE
+tfm-almacar-dal           0/1    1           0          2s
+tfm-almacar-mysql         0/1    1           0          2s
+tfm-almacar-restapi       0/1    1           0          2s
+tfm-almacar-stockchecker  0/1    1           0          2s
 
-NAME                                     READY   AGE
-statefulset.apps/tfm-almacar-kafka       1/1     23h
-statefulset.apps/tfm-almacar-zookeeper   3/3     23h
+==> v1/PersistentVolume
+NAME             CAPACITY  ACCESS MODES  RECLAIM POLICY  STATUS  CLAIM                   STORAGECLASS  REASON  AGE
+mysql-pv-volume  1Gi       RWO           Retain          Bound   default/mysql-pv-claim  manual        2s
+
+==> v1/PersistentVolumeClaim
+NAME            STATUS  VOLUME           CAPACITY  ACCESS MODES  STORAGECLASS  AGE
+mysql-pv-claim  Bound   mysql-pv-volume  1Gi       RWO           manual        2s
+
+==> v1/Pod(related)
+NAME                                              READY  STATUS             RESTARTS  AGE
+tfm-almacar-dal-fdc745558-wgclm                   0/1    Init:0/1           0         2s
+tfm-almacar-elasticsearch-client-9cddc5d7d-4m2sq  0/1    Init:0/1           0         2s
+tfm-almacar-elasticsearch-client-9cddc5d7d-x9sxs  0/1    Init:0/1           0         2s
+tfm-almacar-elasticsearch-data-0                  0/1    Pending            0         1s
+tfm-almacar-elasticsearch-master-0                0/1    Pending            0         1s
+tfm-almacar-kafka-0                               0/1    Pending            0         1s
+tfm-almacar-kibana-7689c69d7c-5jjh7               0/1    Pending            0         2s
+tfm-almacar-logstash-0                            0/1    Pending            0         1s
+tfm-almacar-mysql-5fb5d7cd84-d5ntl                0/1    ContainerCreating  0         2s
+tfm-almacar-restapi-6f9c98dfbc-jzzmn              0/1    Pending            0         2s
+tfm-almacar-stockchecker-868564579d-5t7pd         0/1    Pending            0         2s
+tfm-almacar-zookeeper-0                           0/1    Pending            0         1s
+
+==> v1/Service
+NAME                                 TYPE       CLUSTER-IP      EXTERNAL-IP  PORT(S)                     AGE
+tfm-almacar-dal                      ClusterIP  10.104.172.47   <none>       50057/TCP                   2s
+tfm-almacar-elasticsearch-client     ClusterIP  10.106.190.155  <none>       9200/TCP                    2s
+tfm-almacar-elasticsearch-discovery  ClusterIP  None            <none>       9300/TCP                    2s
+tfm-almacar-kafka                    ClusterIP  10.100.145.84   <none>       9092/TCP                    2s
+tfm-almacar-kafka-headless           ClusterIP  None            <none>       9092/TCP                    2s
+tfm-almacar-kibana                   ClusterIP  10.106.194.22   <none>       443/TCP                     2s
+tfm-almacar-logstash                 ClusterIP  10.102.55.20    <none>       5044/TCP                    2s
+tfm-almacar-mysql                    ClusterIP  10.110.79.5     <none>       3306/TCP                    2s
+tfm-almacar-restapi                  NodePort   10.105.30.112   <none>       8080:31476/TCP              2s
+tfm-almacar-zookeeper                ClusterIP  10.110.117.0    <none>       2181/TCP                    2s
+tfm-almacar-zookeeper-headless       ClusterIP  None            <none>       2181/TCP,3888/TCP,2888/TCP  2s
+
+==> v1/ServiceAccount
+NAME                              SECRETS  AGE
+tfm-almacar-elasticsearch-client  1        2s
+tfm-almacar-elasticsearch-data    1        2s
+tfm-almacar-elasticsearch-master  1        2s
+
+==> v1beta1/Deployment
+NAME                              READY  UP-TO-DATE  AVAILABLE  AGE
+tfm-almacar-elasticsearch-client  0/2    2           0          2s
+tfm-almacar-kibana                0/1    1           0          2s
+
+==> v1beta1/Ingress
+NAME                         HOSTS  ADDRESS  PORTS  AGE
+tfm-almacar-restapi-ingress  *      80       1s
+
+==> v1beta1/PodDisruptionBudget
+NAME                   MIN AVAILABLE  MAX UNAVAILABLE  ALLOWED DISRUPTIONS  AGE
+tfm-almacar-logstash   N/A            1                0                    2s
+tfm-almacar-zookeeper  N/A            1                0                    2s
+
+==> v1beta1/StatefulSet
+NAME                              READY  AGE
+tfm-almacar-elasticsearch-data    0/2    2s
+tfm-almacar-elasticsearch-master  0/3    1s
+tfm-almacar-kafka                 0/1    1s
+tfm-almacar-zookeeper             0/1    1s
+
+==> v1beta2/StatefulSet
+NAME                  READY  AGE
+tfm-almacar-logstash  0/1    1s
 
 ```
 
