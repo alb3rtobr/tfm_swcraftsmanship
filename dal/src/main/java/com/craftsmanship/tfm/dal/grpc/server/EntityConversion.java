@@ -25,36 +25,61 @@ public class EntityConversion implements ConversionLogic{
     }
 
     @Override
-    public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {
-        EntityItem item = getItemFromGrpcItem(grpcPurchase.getItem());
-        return new ItemPurchase(item, grpcPurchase.getQuantity());
+    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase arg0) {
+        // TODO THIS FUNCIONALITY IS NOT READY YET....
+        return null;
     }
 
     @Override
-    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase itemPurchase) {
-        GrpcItem grpcItem = getGrpcItemFromItem(itemPurchase.getItem());
-        return GrpcItemPurchase.newBuilder().setItem(grpcItem).setQuantity(itemPurchase.getQuantity()).build();
+    public GrpcOrder getGrpcOrderFromOrder(Order arg0) {
+        // TODO THIS FUNCIONALITY IS NOT READY YET....
+        return null;
     }
 
     @Override
-    public Order getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
-        Order order = new Order.Builder().withId(grpcOrder.getId()).build();
-        for (GrpcItemPurchase purchase : grpcOrder.getListOfItemPurchasesList()) {
-            order.add(getItemPurchaseFromGrpcItemPurchase(purchase));
-        }
-
-        return order;
+    public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase arg0) {
+        // TODO THIS FUNCIONALITY IS NOT READY YET....
+        return null;
     }
 
     @Override
-    public GrpcOrder getGrpcOrderFromOrder(Order order) {
-        Builder grpcOrderBuilder = GrpcOrder.newBuilder();
-        for (int i = 0; i < order.getItemPurchases().size(); i++) {
-            GrpcItemPurchase grpcItemPurchase = 
-                    getGrpcItemPurchaseFromItemPurchase(order.getItemPurchases().get(i));
-            grpcOrderBuilder.addListOfItemPurchases(i, grpcItemPurchase);
-        }
-        return grpcOrderBuilder.setId(order.getId()).build();
+    public Order getOrderFromGrpcOrder(GrpcOrder arg0) {
+        // TODO THIS FUNCIONALITY IS NOT READY YET....
+        return null;
     }
+
+    // TODO: THIS FUNCIONALITY IS NOT READY YET....
+//    @Override
+//    public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {
+//        EntityItem item = getItemFromGrpcItem(grpcPurchase.getItem());
+//        return new ItemPurchase(item, grpcPurchase.getQuantity());
+//    }
+//
+//    @Override
+//    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase itemPurchase) {
+//        GrpcItem grpcItem = getGrpcItemFromItem(itemPurchase.getItem());
+//        return GrpcItemPurchase.newBuilder().setItem(grpcItem).setQuantity(itemPurchase.getQuantity()).build();
+//    }
+//
+//    @Override
+//    public Order getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
+//        Order order = new Order.Builder().withId(grpcOrder.getId()).build();
+//        for (GrpcItemPurchase purchase : grpcOrder.getListOfItemPurchasesList()) {
+//            order.add(getItemPurchaseFromGrpcItemPurchase(purchase));
+//        }
+//
+//        return order;
+//    }
+//
+//    @Override
+//    public GrpcOrder getGrpcOrderFromOrder(Order order) {
+//        Builder grpcOrderBuilder = GrpcOrder.newBuilder();
+//        for (int i = 0; i < order.getItemPurchases().size(); i++) {
+//            GrpcItemPurchase grpcItemPurchase = 
+//                    getGrpcItemPurchaseFromItemPurchase(order.getItemPurchases().get(i));
+//            grpcOrderBuilder.addListOfItemPurchases(i, grpcItemPurchase);
+//        }
+//        return grpcOrderBuilder.setId(order.getId()).build();
+//    }
 
 }
