@@ -16,6 +16,7 @@ import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 import com.craftsmanship.tfm.testing.persistence.OrderPersistenceStub;
+import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,6 +39,7 @@ public class OrderPersistenceGrpcTest {
     private OrderPersistenceGrpc grpcClient;
     private OrderPersistenceStub orderPersistenceStub;
     private ItemPersistenceStub itemPersistenceStub;
+    private DomainConversion domainConversion;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -47,9 +49,10 @@ public class OrderPersistenceGrpcTest {
         // Create the Persistence stubs
         itemPersistenceStub = new ItemPersistenceStub();
         orderPersistenceStub = new OrderPersistenceStub(itemPersistenceStub);
+        domainConversion = new DomainConversion();
 
         // create the Order Grpc service
-        orderPersistenceService = new OrderPersistenceService(orderPersistenceStub);
+        orderPersistenceService = new OrderPersistenceService(orderPersistenceStub, domainConversion);
 
         orderPersistenceGrpcServer = new PersistenceInProcessGrpcServer(GRPC_SERVER_NAME, orderPersistenceService);
         orderPersistenceGrpcServer.start();

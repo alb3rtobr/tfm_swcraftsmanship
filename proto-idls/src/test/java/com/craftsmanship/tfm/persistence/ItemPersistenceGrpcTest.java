@@ -13,6 +13,7 @@ import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 import com.craftsmanship.tfm.grpc.servers.PersistenceInProcessGrpcServer;
 import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
+import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,6 +35,7 @@ public class ItemPersistenceGrpcTest {
     private ItemPersistenceGrpc grpcClient;
     private ItemPersistenceStub itemPersistenceStub;
     private ItemPersistenceService itemPersistenceService;
+    private DomainConversion domainConversion;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -43,8 +45,10 @@ public class ItemPersistenceGrpcTest {
         // Create the Item Persistence stub
         itemPersistenceStub = new ItemPersistenceStub();
 
+        domainConversion = new DomainConversion();
+
         // create the Item Grpc service
-        itemPersistenceService = new ItemPersistenceService(itemPersistenceStub);
+        itemPersistenceService = new ItemPersistenceService(itemPersistenceStub, domainConversion);
 
         itemPersistenceGrpcServer = new PersistenceInProcessGrpcServer(GRPC_SERVER_NAME, itemPersistenceService);
         itemPersistenceGrpcServer.start();

@@ -17,7 +17,7 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
-import com.craftsmanship.tfm.utils.ConversionUtils;
+import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,21 +28,23 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceService.class);
 
     private ItemPersistence itemPersistence;
+    private DomainConversion conversionLogic;
 
-    public ItemPersistenceService(ItemPersistence itemsPersistence) {
+    public ItemPersistenceService(ItemPersistence itemsPersistence, DomainConversion conversionLogic) {
         this.itemPersistence = itemsPersistence;
+        this.conversionLogic = conversionLogic;
     }
 
     @Override
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
         GrpcItem grpcItem = request.getItem();
-        DomainItem item = ConversionUtils.getItemFromGrpcItem(grpcItem);
+        DomainItem item = conversionLogic.getItemFromGrpcItem(grpcItem);
 
         try {
             DomainItem createdItem = itemPersistence.create(item);
 
-            GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
+            GrpcItem grpcItemResponse = conversionLogic.getGrpcItemFromItem(createdItem);
             CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
 
             responseObserver.onNext(response);
@@ -60,7 +62,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 
         Builder responseBuilder = ListItemResponse.newBuilder();
         for (DomainItem item : itemPersistence.list()) {
-            GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
+            GrpcItem grpcItem = conversionLogic.getGrpcItemFromItem(item);
             responseBuilder.addItem(grpcItem);
         }
         ListItemResponse response = responseBuilder.build();
@@ -75,7 +77,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 
         try {
             DomainItem item = itemPersistence.get(request.getId());
-            GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
+            GrpcItem grpcItem = conversionLogic.getGrpcItemFromItem(item);
             GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -93,10 +95,10 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
             // first check if the item does not exist
             itemPersistence.get(request.getId());
 
-            DomainItem item = ConversionUtils.getItemFromGrpcItem(request.getItem());
+            DomainItem item = conversionLogic.getItemFromGrpcItem(request.getItem());
             DomainItem createdItem = itemPersistence.update(request.getId(), item);
     
-            GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(createdItem);
+            GrpcItem grpcItemResponse = conversionLogic.getGrpcItemFromItem(createdItem);
     
             UpdateItemResponse response = UpdateItemResponse.newBuilder().setItem(grpcItemResponse).build();
     
@@ -115,7 +117,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
         try {
             DomainItem deletedItem = itemPersistence.delete(request.getId());
 
-            GrpcItem grpcItemResponse = ConversionUtils.getGrpcItemFromItem(deletedItem);
+            GrpcItem grpcItemResponse = conversionLogic.getGrpcItemFromItem(deletedItem);
             DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
