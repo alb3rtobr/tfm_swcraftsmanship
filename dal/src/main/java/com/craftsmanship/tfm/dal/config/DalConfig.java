@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.craftsmanship.tfm.dal.DataAccess;
+import com.craftsmanship.tfm.dal.ItemDAO;
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 import com.craftsmanship.tfm.dal.grpc.server.ItemPersistenceServiceImpl;
 
@@ -12,12 +12,12 @@ import com.craftsmanship.tfm.dal.grpc.server.ItemPersistenceServiceImpl;
 public class DalConfig {
 
     @Autowired
-    DataAccess dataAccess;
+    ItemDAO itemDAO;
 
     @Bean
     public GrpcServer grpcServer() {
 
-        ItemPersistenceServiceImpl service = new ItemPersistenceServiceImpl(dataAccess);
+        ItemPersistenceServiceImpl service = new ItemPersistenceServiceImpl(itemDAO);
         GrpcServer grpcServer = new GrpcServer(service);
         return grpcServer;
     }

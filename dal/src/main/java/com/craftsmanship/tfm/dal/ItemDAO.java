@@ -9,7 +9,7 @@ import com.craftsmanship.tfm.dal.model.Item;
 import com.craftsmanship.tfm.dal.repository.ItemRepository;
 
 @Component
-public class DataAccess {
+public class ItemDAO {
 	
 	@Autowired
 	private ItemRepository itemRepository;
