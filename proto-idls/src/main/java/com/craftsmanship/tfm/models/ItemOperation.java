@@ -5,21 +5,21 @@ import java.util.Objects;
 public class ItemOperation {
 
     private OperationType type;
-    private Item item;
+    private DomainItem item;
 
     public ItemOperation() {
     }
 
-    public ItemOperation(OperationType type, Item item) {
+    public ItemOperation(OperationType type, DomainItem item) {
         this.type = type;
         this.item = item;
     }
 
-    public Item getItem() {
+    public DomainItem getItem() {
         return this.item;
     }
 
-    public void setItem(Item item) {
+    public void setItem(DomainItem item) {
         this.item = item;
     }
 

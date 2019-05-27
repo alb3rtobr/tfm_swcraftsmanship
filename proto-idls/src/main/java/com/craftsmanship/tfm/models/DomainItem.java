@@ -2,23 +2,23 @@ package com.craftsmanship.tfm.models;
 
 import java.util.Objects;
 
-public class Item {
+public class DomainItem {
     private Long id;
     private String name;
     private Long price;
     private int stock;
 
-    private Item() {
+    private DomainItem() {
     }
 
-    private Item(String name, Long price, int stock) {
+    private DomainItem(String name, Long price, int stock) {
         this.id = -1L;
         this.name = name;
         this.price = price;
         this.stock = stock;
     }
 
-    public Item(Item another) {
+    public DomainItem(DomainItem another) {
         this.id = another.id;
         this.name = another.name;
         this.price = another.price;
@@ -61,10 +61,10 @@ public class Item {
     public boolean equals(Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof Item)) {
+        if (!(o instanceof DomainItem)) {
             return false;
         }
-        Item item = (Item) o;
+        DomainItem item = (DomainItem) o;
         return Objects.equals(id, item.id) && Objects.equals(name, item.name) && Objects.equals(price, item.price)
                 && Objects.equals(stock, item.stock);
     }
@@ -119,8 +119,8 @@ public class Item {
             return this;
         }
 
-        public Item build() {
-            Item item = new Item();
+        public DomainItem build() {
+            DomainItem item = new DomainItem();
             item.id = this.id;
             item.name = this.name;
             item.price = this.price.longValue();

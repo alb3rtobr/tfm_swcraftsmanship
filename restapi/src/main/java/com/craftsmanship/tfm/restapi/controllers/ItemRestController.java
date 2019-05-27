@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
 import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
@@ -37,11 +37,11 @@ public class ItemRestController {
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.POST)
-    public Item create(@RequestBody Item item) throws ItemAlreadyExists {
+    public DomainItem create(@RequestBody DomainItem item) throws ItemAlreadyExists {
         LOGGER.info("Creating item");
 
         // Create item
-        Item itemResponse = itemPersistence.create(item);
+        DomainItem itemResponse = itemPersistence.create(item);
 
         LOGGER.info("REST API itemResponse = " + itemResponse);
 
@@ -51,29 +51,29 @@ public class ItemRestController {
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.GET)
-    public List<Item> list() {
+    public List<DomainItem> list() {
         LOGGER.info("List items");
         return itemPersistence.list();
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.GET)
-    public Item get(@PathVariable Long id) throws ItemDoesNotExist {
+    public DomainItem get(@PathVariable Long id) throws ItemDoesNotExist {
         LOGGER.info("Get item with id: " + id);
         return itemPersistence.get(id);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.PUT)
-    public Item edit(@PathVariable Long id, @RequestBody Item item) throws ItemDoesNotExist {
+    public DomainItem edit(@PathVariable Long id, @RequestBody DomainItem item) throws ItemDoesNotExist {
         LOGGER.info("Edit item with id: " + id);
         return itemPersistence.update(id, item);
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.DELETE)
-    public Item delete(@PathVariable Long id) throws ItemDoesNotExist {
+    public DomainItem delete(@PathVariable Long id) throws ItemDoesNotExist {
         LOGGER.info("Delete item with id: " + id);
 
         // delete de item
-        Item deletedItem = itemPersistence.delete(id);
+        DomainItem deletedItem = itemPersistence.delete(id);
 
         // Send message to Kafka topic
         itemOperationService.sendItemOperation(new ItemOperation(OperationType.DELETED, deletedItem));

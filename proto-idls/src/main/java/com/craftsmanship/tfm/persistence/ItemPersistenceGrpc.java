@@ -2,7 +2,7 @@ package com.craftsmanship.tfm.persistence;
 
 import java.util.List;
 
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,27 +33,27 @@ public class ItemPersistenceGrpc implements ItemPersistence {
     }
 
     @Override
-    public Item create(Item item) throws ItemAlreadyExists {
+    public DomainItem create(DomainItem item) throws ItemAlreadyExists {
         return grpcClient.create(item);
     }
 
     @Override
-    public List<Item> list() {
+    public List<DomainItem> list() {
         return grpcClient.list();
     }
 
     @Override
-    public Item get(Long id) throws ItemDoesNotExist {
+    public DomainItem get(Long id) throws ItemDoesNotExist {
         return grpcClient.get(id);
     }
 
     @Override
-    public Item update(Long id, Item item) throws ItemDoesNotExist {
+    public DomainItem update(Long id, DomainItem item) throws ItemDoesNotExist {
         return grpcClient.update(id, item);
     }
 
     @Override
-    public Item delete(Long id) throws ItemDoesNotExist {
+    public DomainItem delete(Long id) throws ItemDoesNotExist {
         return grpcClient.delete(id);
     }
 

@@ -9,8 +9,8 @@ public class ItemPurchaseTest {
 
     @Test
     public void test_when_two_equals_item_purchases_when_compared_then_return_true() {
-        Item item1 = new Item.Builder().withName("Shoe").withPrice(2).withStock(100).build();
-        Item item2 = new Item.Builder().withName("Shoe").withPrice(2).withStock(100).build();
+        DomainItem item1 = new DomainItem.Builder().withName("Shoe").withPrice(2).withStock(100).build();
+        DomainItem item2 = new DomainItem.Builder().withName("Shoe").withPrice(2).withStock(100).build();
 
         ItemPurchase itemPurchase1 = new ItemPurchase(item1, 10);
         ItemPurchase itemPurchase2 = new ItemPurchase(item2, 10);
@@ -20,8 +20,8 @@ public class ItemPurchaseTest {
 
     @Test
     public void test_when_two_item_purchases_with_different_item_when_compared_then_return_false() {
-        Item item1 = new Item.Builder().withName("Shoe").withPrice(2).withStock(100).build();
-        Item item2 = new Item.Builder().withName("Car").withPrice(2).withStock(100).build();
+        DomainItem item1 = new DomainItem.Builder().withName("Shoe").withPrice(2).withStock(100).build();
+        DomainItem item2 = new DomainItem.Builder().withName("Car").withPrice(2).withStock(100).build();
 
         ItemPurchase itemPurchase1 = new ItemPurchase(item1, 10);
         ItemPurchase itemPurchase2 = new ItemPurchase(item2, 10);
@@ -31,8 +31,8 @@ public class ItemPurchaseTest {
 
     @Test
     public void test_when_two_item_purchases_with_different_quantity_when_compared_then_return_false() {
-        Item item1 = new Item.Builder().withName("Shoe").withPrice(2).withStock(100).build();
-        Item item2 = new Item.Builder().withName("Shoe").withPrice(2).withStock(100).build();
+        DomainItem item1 = new DomainItem.Builder().withName("Shoe").withPrice(2).withStock(100).build();
+        DomainItem item2 = new DomainItem.Builder().withName("Shoe").withPrice(2).withStock(100).build();
 
         ItemPurchase itemPurchase1 = new ItemPurchase(item1, 10);
         ItemPurchase itemPurchase2 = new ItemPurchase(item2, 50);

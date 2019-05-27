@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 
 public class PurchaseOrderClient implements RestClient {
 
@@ -28,7 +28,7 @@ public class PurchaseOrderClient implements RestClient {
 	}
 	
 	@Override
-	public PurchaseOrder sendPurchaseOrder(Item item, int currentStock) {
+	public PurchaseOrder sendPurchaseOrder(DomainItem item, int currentStock) {
 		if (currentStock<this.stockThreshold) {
 			PurchaseOrder newOrder = new PurchaseOrder(item);
 			LOGGER.info("Items below threshold ( "+currentStock+"<"+this.stockThreshold+" ), contacting REST API.");

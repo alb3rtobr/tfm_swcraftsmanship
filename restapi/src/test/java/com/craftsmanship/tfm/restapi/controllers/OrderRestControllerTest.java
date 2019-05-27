@@ -14,7 +14,7 @@ import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.OperationType;
@@ -156,16 +156,16 @@ public class OrderRestControllerTest {
     }
 
     private void createSomeItems() throws ItemAlreadyExists {
-        Item item1 = new Item.Builder().withName("PS4").withStock(15).build();
-        Item item2 = new Item.Builder().withName("Switch").withPrice(350).withStock(10).build();
-        Item item3 = new Item.Builder().withName("NES").withPrice(80).build();
+        DomainItem item1 = new DomainItem.Builder().withName("PS4").withStock(15).build();
+        DomainItem item2 = new DomainItem.Builder().withName("Switch").withPrice(350).withStock(10).build();
+        DomainItem item3 = new DomainItem.Builder().withName("NES").withPrice(80).build();
 
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
     }
 
-    private Item getItem(int id) throws ItemDoesNotExist {
+    private DomainItem getItem(int id) throws ItemDoesNotExist {
         return itemPersistence.get(new Long(id));
     }
 
@@ -241,7 +241,7 @@ public class OrderRestControllerTest {
 
         int numKafkaMessages = records.size();
 
-        Item itemNotPersisted = new Item.Builder().withName("NES").withPrice(80).build();
+        DomainItem itemNotPersisted = new DomainItem.Builder().withName("NES").withPrice(80).build();
 
         Order order = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(itemNotPersisted, 2).build();
 
@@ -322,7 +322,7 @@ public class OrderRestControllerTest {
         Order orderCreated = orderPersistence.create(order);
 
         // When
-        Item itemNotPersisted = new Item.Builder().withName("Show").withPrice(80).build();
+        DomainItem itemNotPersisted = new DomainItem.Builder().withName("Show").withPrice(80).build();
         Order newOrder = new Order.Builder().addItem(getItem(2), 1).addItem(itemNotPersisted, 5).build();
 
         try {

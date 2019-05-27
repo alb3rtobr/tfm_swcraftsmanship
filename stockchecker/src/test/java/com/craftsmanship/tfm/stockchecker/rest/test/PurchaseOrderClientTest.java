@@ -28,7 +28,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.stockchecker.rest.PurchaseOrder;
 import com.craftsmanship.tfm.stockchecker.rest.RestClient;
@@ -55,14 +55,14 @@ public class PurchaseOrderClientTest {
 	@Test
 	public void whenItemsAreBelowThreshold_thenRestApiIsCalledWithExpectedItem() throws Exception {
 
-		Item item = new Item.Builder().withName("PlayStation4").build();
+		DomainItem item = new DomainItem.Builder().withName("PlayStation4").build();
 		PurchaseOrder nullOrder = client.sendPurchaseOrder(item, 3);
 		assertNull(nullOrder);
 	}
 
 	@Test
 	public void whenItemsAreAboveThreshold_thenRestApiIsNotCalled() {
-		Item item = new Item.Builder().withName("MegaDrive").build();
+		DomainItem item = new DomainItem.Builder().withName("MegaDrive").build();
 		PurchaseOrder order = client.sendPurchaseOrder(item, 0);
 		PurchaseOrder expected = new PurchaseOrder(item);
 		assertNotNull(order);

@@ -2,7 +2,7 @@ package com.craftsmanship.tfm.testing.grpc;
 
 import java.util.concurrent.TimeUnit;
 
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class ItemPersistenceExampleClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Item createItem(Item item) {
+    public DomainItem createItem(DomainItem item) {
         logger.info("Creating Item");
 
         GrpcItem grpcItem = GrpcItem.newBuilder().setDescription(item.getName()).build();
@@ -49,7 +49,7 @@ public class ItemPersistenceExampleClient {
         GrpcItem itemResponse = response.getItem();
         logger.info("Received GrpcItem: " + itemResponse);
 
-        Item result = new Item.Builder().withId(itemResponse.getId()).withName(itemResponse.getDescription()).build();
+        DomainItem result = new DomainItem.Builder().withId(itemResponse.getId()).withName(itemResponse.getDescription()).build();
 
         return result;
     }
@@ -61,10 +61,10 @@ public class ItemPersistenceExampleClient {
         ItemPersistenceExampleClient client = new ItemPersistenceExampleClient("localhost", 50051);
 
         try {
-            Item item = new Item.Builder().withName("Zapato").build();
+            DomainItem item = new DomainItem.Builder().withName("Zapato").build();
 
             // Looking for a valid feature
-            Item receivedItem = client.createItem(item);
+            DomainItem receivedItem = client.createItem(item);
             logger.info("Received item: " + receivedItem);
         } finally {
             client.shutdown();

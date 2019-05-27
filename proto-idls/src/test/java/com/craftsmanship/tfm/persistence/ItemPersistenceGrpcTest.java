@@ -11,7 +11,7 @@ import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 import com.craftsmanship.tfm.grpc.servers.PersistenceInProcessGrpcServer;
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 
 import org.junit.After;
@@ -64,9 +64,9 @@ public class ItemPersistenceGrpcTest {
 
     @Test
     public void test_when_item_is_created() throws InterruptedException, ItemAlreadyExists {
-        Item item = new Item.Builder().withName("Shoe").withPrice(2L).withStock(100).build();
+        DomainItem item = new DomainItem.Builder().withName("Shoe").withPrice(2L).withStock(100).build();
 
-        Item createdItem = grpcClient.create(item);
+        DomainItem createdItem = grpcClient.create(item);
 
         item.setId(1L);
         assertThat(createdItem, equalTo(item));
@@ -75,21 +75,21 @@ public class ItemPersistenceGrpcTest {
 
     @Test
     public void test_given_zero_items_when_list_is_queried_then_no_items_received() {
-        List<Item> items = grpcClient.list();
+        List<DomainItem> items = grpcClient.list();
 
         assertThat(items, is(empty()));
     }
 
     @Test
     public void test_given_some_items_when_list_is_queried_then_items_received() throws ItemAlreadyExists {
-        Item item1 = new Item.Builder().withName("Shoe").withPrice(2L).build();
-        Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withName("Car").withStock(100).build();
-        Item itemResponse2 = grpcClient.create(item2);
+        DomainItem item1 = new DomainItem.Builder().withName("Shoe").withPrice(2L).build();
+        DomainItem itemResponse1 = grpcClient.create(item1);
+        DomainItem item2 = new DomainItem.Builder().withName("Car").withStock(100).build();
+        DomainItem itemResponse2 = grpcClient.create(item2);
 
-        List<Item> items = grpcClient.list();
+        List<DomainItem> items = grpcClient.list();
 
-        List<Item> expectedList = new ArrayList<Item>();
+        List<DomainItem> expectedList = new ArrayList<DomainItem>();
         expectedList.add(itemResponse1);
         expectedList.add(itemResponse2);
 
@@ -98,12 +98,12 @@ public class ItemPersistenceGrpcTest {
 
     @Test
     public void test_given_some_items_when_get_is_queried_then_item_received() throws ItemDoesNotExist, ItemAlreadyExists {
-        Item item1 = new Item.Builder().withName("Shoe").withStock(100).withPrice(2L).build();
-        Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withName("Car").withPrice(10L).build();
+        DomainItem item1 = new DomainItem.Builder().withName("Shoe").withStock(100).withPrice(2L).build();
+        DomainItem itemResponse1 = grpcClient.create(item1);
+        DomainItem item2 = new DomainItem.Builder().withName("Car").withPrice(10L).build();
         grpcClient.create(item2);
 
-        Item responseItem = grpcClient.get(1L);
+        DomainItem responseItem = grpcClient.get(1L);
 
         assertThat(responseItem, equalTo(itemResponse1));
     }
@@ -119,11 +119,11 @@ public class ItemPersistenceGrpcTest {
 
     @Test
     public void test_given_item_when_updated_is_queried_then_item_is_updated() throws ItemDoesNotExist, ItemAlreadyExists {
-        Item item1 = new Item.Builder().withName("Shoe").withPrice(8L).build();
-        Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withName("Car").build();
+        DomainItem item1 = new DomainItem.Builder().withName("Shoe").withPrice(8L).build();
+        DomainItem itemResponse1 = grpcClient.create(item1);
+        DomainItem item2 = new DomainItem.Builder().withName("Car").build();
 
-        Item responseItem = grpcClient.update(itemResponse1.getId(), item2);
+        DomainItem responseItem = grpcClient.update(itemResponse1.getId(), item2);
 
         item2.setId(itemResponse1.getId());
         assertThat(responseItem, equalTo(item2));
@@ -135,19 +135,19 @@ public class ItemPersistenceGrpcTest {
         exceptionRule.expect(ItemDoesNotExist.class);
         exceptionRule.expectMessage("Item with id " + id + " does not exist");
 
-        Item newItem = new Item.Builder().withName("Shoe").build();
+        DomainItem newItem = new DomainItem.Builder().withName("Shoe").build();
 
         grpcClient.update(id, newItem);
     }
 
     @Test
     public void test_when_delete_existing_item_then_item_is_deleted() throws ItemDoesNotExist, ItemAlreadyExists {
-        Item item1 = new Item.Builder().withName("Shoe").build();
-        Item itemResponse1 = grpcClient.create(item1);
-        Item item2 = new Item.Builder().withName("Car").build();
+        DomainItem item1 = new DomainItem.Builder().withName("Shoe").build();
+        DomainItem itemResponse1 = grpcClient.create(item1);
+        DomainItem item2 = new DomainItem.Builder().withName("Car").build();
         grpcClient.create(item2);
 
-        Item deletedItem = grpcClient.delete(itemResponse1.getId());
+        DomainItem deletedItem = grpcClient.delete(itemResponse1.getId());
 
         assertThat(deletedItem, equalTo(itemResponse1));
     }

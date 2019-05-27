@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.utils.ConversionUtils;
 
 import org.slf4j.Logger;
@@ -58,14 +58,14 @@ public class ItemPersistenceGrpcClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Item create(Item item) throws ItemAlreadyExists {
+    public DomainItem create(DomainItem item) throws ItemAlreadyExists {
         logger.info("Creating Item");
 
         GrpcItem grpcItem = ConversionUtils.getGrpcItemFromItem(item);
 
         CreateItemRequest request = CreateItemRequest.newBuilder().setItem(grpcItem).build();
 
-        Item itemReceived = null;
+        DomainItem itemReceived = null;
         try {
             CreateItemResponse response = blockingStub.create(request);
             itemReceived = ConversionUtils.getItemFromGrpcItem(response.getItem());
@@ -84,12 +84,12 @@ public class ItemPersistenceGrpcClient {
         return itemReceived;
     }
 
-    public List<Item> list() {
+    public List<DomainItem> list() {
         logger.info("List all Items");
 
         Empty request = Empty.newBuilder().build();
 
-        List<Item> result = new ArrayList<>();
+        List<DomainItem> result = new ArrayList<>();
         try {
             ListItemResponse response = blockingStub.list(request);
             List<GrpcItem> itemsResponse = response.getItemList();
@@ -110,12 +110,12 @@ public class ItemPersistenceGrpcClient {
         return result;
     }
 
-    public Item get(Long id) throws ItemDoesNotExist {
+    public DomainItem get(Long id) throws ItemDoesNotExist {
         logger.info("Get item with id: " + id);
 
         GetItemRequest request = GetItemRequest.newBuilder().setId(id).build();
 
-        Item item = null;
+        DomainItem item = null;
         try {
             GetItemResponse response = blockingStub.get(request);
             item = ConversionUtils.getItemFromGrpcItem(response.getItem());
@@ -134,13 +134,13 @@ public class ItemPersistenceGrpcClient {
         return item;
     }
 
-    public Item update(Long id, Item item) throws ItemDoesNotExist {
+    public DomainItem update(Long id, DomainItem item) throws ItemDoesNotExist {
         logger.info("Updating item with id: " + id);
 
         UpdateItemRequest request = UpdateItemRequest.newBuilder().setId(id)
                 .setItem(ConversionUtils.getGrpcItemFromItem(item)).build();
 
-        Item updatedItem = null;
+        DomainItem updatedItem = null;
         try {
             UpdateItemResponse response = blockingStub.update(request);
             updatedItem = ConversionUtils.getItemFromGrpcItem(response.getItem());
@@ -159,12 +159,12 @@ public class ItemPersistenceGrpcClient {
         return updatedItem;
     }
 
-    public Item delete(Long id) throws ItemDoesNotExist {
+    public DomainItem delete(Long id) throws ItemDoesNotExist {
         logger.info("Deleting item with id: " + id);
 
         DeleteItemRequest request = DeleteItemRequest.newBuilder().setId(id).build();
 
-        Item item = null;
+        DomainItem item = null;
         try {
             DeleteItemResponse response = blockingStub.delete(request);
             item = ConversionUtils.getItemFromGrpcItem(response.getItem());
