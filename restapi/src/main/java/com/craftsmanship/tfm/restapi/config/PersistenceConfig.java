@@ -1,6 +1,7 @@
 package com.craftsmanship.tfm.restapi.config;
 
 import com.craftsmanship.tfm.persistence.ItemPersistenceGrpc;
+import com.craftsmanship.tfm.persistence.OrderPersistenceGrpc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,12 @@ public class PersistenceConfig {
   private int serverPort;
 
   @Bean
-  public ItemPersistenceGrpc persistenceHandler() {
+  public ItemPersistenceGrpc itemPersistenceHandler() {
     return new ItemPersistenceGrpc(serverHost, serverPort);
+  }
+
+  @Bean
+  public OrderPersistenceGrpc orderPersistenceHandler() {
+    return new OrderPersistenceGrpc(serverHost, serverPort);
   }
 }

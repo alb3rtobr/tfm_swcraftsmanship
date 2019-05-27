@@ -6,6 +6,10 @@ public class ItemPurchase {
     private Item item;
     private int quantity;
 
+    public ItemPurchase() {
+        this(null, 0);
+    }
+
     public ItemPurchase(Item item, int quantity) {
         this.item = item;
         this.quantity = quantity;

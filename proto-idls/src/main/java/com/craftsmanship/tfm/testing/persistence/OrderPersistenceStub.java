@@ -9,16 +9,21 @@ import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
-import com.craftsmanship.tfm.persistence.ItemPersistence;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OrderPersistenceStub implements OrderPersistence {
-    private ItemPersistence itemPersistence;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderPersistenceStub.class);
+
+    private ItemPersistenceStub itemPersistenceStub;
     private Map<Long, Order> orders = new HashMap<Long, Order>();
     private Long currentIndex = 1L;
 
-    public OrderPersistenceStub(ItemPersistence itemPersistence) {
-        this.itemPersistence = itemPersistence;
+    public OrderPersistenceStub(ItemPersistenceStub itemPersistenceStub) {
+        this.itemPersistenceStub = itemPersistenceStub;
     }
 
     @Override
@@ -77,9 +82,14 @@ public class OrderPersistenceStub implements OrderPersistence {
         currentIndex = 1L;
     }
 
+    public ItemPersistenceStub getItemPersistenceStub() {
+        return this.itemPersistenceStub;
+    }
+
     private void checkItemsExists(Order order) throws ItemDoesNotExist {
         for (ItemPurchase itemPurchase : order.getItemPurchases()) {
-            itemPersistence.get(itemPurchase.getItem().getId());
+            LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
+            itemPersistenceStub.get(itemPurchase.getItem().getId());
         }
     }
 }
