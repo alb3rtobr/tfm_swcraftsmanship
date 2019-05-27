@@ -4,6 +4,12 @@ BASE_DIR=`pwd`
 
 SERVICES="restapi stockchecker dal"
 
+function usage() {
+    echo "Usage:"
+    echo "    -h | --help"
+    echo "    --no-docker"
+}
+
 function build_protos() {
     echo "---------------------------------------------"
     echo " BUILDING proto-idls"
@@ -41,11 +47,35 @@ function delete_docker_image() {
     fi
 }
 
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -h | --help)
+    usage
+    exit 0
+    ;;
+    --no-docker)
+    DOCKER="no"
+    shift # past argument
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
 build_protos
 
 for service in $SERVICES; do
     build_service $service
-    delete_docker_image $service
-    build_docker_image $service
+    if [[ ${DOCKER} != "no" ]]; then
+        delete_docker_image $service
+        build_docker_image $service
+    fi
 done
 
