@@ -8,6 +8,7 @@ global:
   dal:
     host: tfm-almacar-dal
     port: 50057
+    portmetrics: 8080
     jvm:
       startheapmemory: 128m
       maxheapmemory: 256m
@@ -93,6 +94,11 @@ prometheus-operator:
           metrics_path: '/actuator/prometheus'
           static_configs:
             - targets: ['tfm-almacar-stockchecker:8080']
+        - job_name: 'dal-service'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['tfm-almacar-dal:8080']
         - job_name: 'grafana'
           scrape_interval: 1m
           metrics_path: '/metrics'

@@ -35,6 +35,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.global.dal.port }}
+        - containerPort: {{ .Values.global.dal.portmetrics }}
         env:
         - name: JAVA_OPTS
           value: "-Xmx{{ .Values.global.restapi.jvm.maxheapmemory }} -Xms{{ .Values.global.restapi.jvm.startheapmemory }}"
