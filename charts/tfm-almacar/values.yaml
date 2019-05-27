@@ -106,4 +106,9 @@ prometheus-operator:
             - targets: ['tfm-almacar-grafana:3000']
   grafana:
     adminPassword: 'adminadmin'
+    service:
+      type: NodePort
+      port: 3000
+      targetPort: 3000
+
 
