@@ -2,3 +2,6 @@ dependencies:
   - name: kafka
     version: 0.14.4
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+  - name: prometheus-operator
+    version: 5.10.4
+    repository: https://kubernetes-charts.storage.googleapis.com/

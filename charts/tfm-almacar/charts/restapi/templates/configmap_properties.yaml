@@ -16,3 +16,9 @@ data:
       host: {{ .Values.global.dal.host }}
       port: {{ .Values.global.dal.port }}
 
+    management:
+      endpoints:
+          web:
+            exposure:
+              include: prometheus
+

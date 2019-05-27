@@ -72,3 +72,25 @@ dal:
 
 stockchecker:
   replicaCount: 1
+
+prometheus-operator:
+  prometheus:
+    prometheusSpec:
+      additionalScrapeConfigs:
+        - job_name: 'prometheus'
+          scrape_interval: 1m
+          static_configs:
+            - targets: ['localhost:9090']
+        - job_name: 'restapi-service'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['tfm-almacar-restapi:8080']
+        - job_name: 'grafana'
+          scrape_interval: 1m
+          metrics_path: '/metrics'
+          static_configs:
+            - targets: ['tfm-almacar-grafana:3000']
+  grafana:
+    adminPassword: 'adminadmin'
+
