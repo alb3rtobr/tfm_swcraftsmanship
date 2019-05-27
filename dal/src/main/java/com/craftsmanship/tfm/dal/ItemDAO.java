@@ -1,5 +1,6 @@
 package com.craftsmanship.tfm.dal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,40 +8,43 @@ import org.springframework.stereotype.Component;
 
 import com.craftsmanship.tfm.dal.model.EntityItem;
 import com.craftsmanship.tfm.dal.repository.ItemRepository;
+import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.persistence.ItemPersistence;
 
 @Component
-public class ItemDAO {
-	
-	@Autowired
-	private ItemRepository itemRepository;
-	
-	public EntityItem create(EntityItem item) {
-		return itemRepository.save(item);
-	}
+public class ItemDAO implements ItemPersistence{
 
-	public EntityItem read(long id) {
-		return itemRepository.getOne(id);
-	}
+    @Autowired
+    private ItemRepository itemRepository;
 
-	public List<EntityItem> list() {
-		return itemRepository.findAll();
-	}
+    @Override
+    public EntityItem create(Item item) {
+        return itemRepository.save((EntityItem) item);
+    }
 
-	public EntityItem get(long id) {
-		return itemRepository.findById(id).get();
-	}
+    @Override
+    public List<Item> list() {
+        return new ArrayList<Item>(itemRepository.findAll());
+    }
 
-	public EntityItem update(long id, EntityItem item) {
-		return itemRepository.save(item);
-	}
+    @Override
+    public EntityItem get(Long id) {
+        return itemRepository.findById(id).get();
+    }
 
-	public EntityItem delete(long id) {
-		EntityItem deletedItem = itemRepository.findById(id).get();
-		itemRepository.delete(deletedItem);
-		return deletedItem;
-	}
+    @Override
+    public EntityItem update(Long id, Item item) {
+        return itemRepository.save((EntityItem) item);
+    }
 
-	public int count() {
-		return (int) itemRepository.count();
-	}
+    @Override
+    public EntityItem delete(Long id) {
+        EntityItem deletedItem = itemRepository.findById(id).get();
+        itemRepository.delete(deletedItem);
+        return deletedItem;
+    }
+
+    public int count() {
+        return (int) itemRepository.count();
+    }
 }

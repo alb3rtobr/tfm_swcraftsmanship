@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class ItemPersistenceGrpcClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public DomainItem create(DomainItem item) throws ItemAlreadyExists {
+    public DomainItem create(Item item) throws ItemAlreadyExists {
         logger.info("Creating Item");
 
         GrpcItem grpcItem = domainConversion.getGrpcItemFromItem(item);
@@ -86,12 +87,12 @@ public class ItemPersistenceGrpcClient {
         return itemReceived;
     }
 
-    public List<DomainItem> list() {
+    public List<Item> list() {
         logger.info("List all Items");
 
         Empty request = Empty.newBuilder().build();
 
-        List<DomainItem> result = new ArrayList<>();
+        List<Item> result = new ArrayList<>();
         try {
             ListItemResponse response = blockingStub.list(request);
             List<GrpcItem> itemsResponse = response.getItemList();
@@ -136,7 +137,7 @@ public class ItemPersistenceGrpcClient {
         return item;
     }
 
-    public DomainItem update(Long id, DomainItem item) throws ItemDoesNotExist {
+    public DomainItem update(Long id, Item item) throws ItemDoesNotExist {
         logger.info("Updating item with id: " + id);
 
         UpdateItemRequest request = UpdateItemRequest.newBuilder().setId(id)

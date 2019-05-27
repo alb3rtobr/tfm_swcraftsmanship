@@ -15,7 +15,7 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
-import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
 import com.craftsmanship.tfm.utils.ConversionLogic;
 
@@ -39,10 +39,10 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
         GrpcItem grpcItem = request.getItem();
-        DomainItem item = conversionLogic.getItemFromGrpcItem(grpcItem);
+        Item item = conversionLogic.getItemFromGrpcItem(grpcItem);
 
         try {
-            DomainItem createdItem = itemPersistence.create(item);
+            Item createdItem = itemPersistence.create(item);
 
             GrpcItem grpcItemResponse = conversionLogic.getGrpcItemFromItem(createdItem);
             CreateItemResponse response = CreateItemResponse.newBuilder().setItem(grpcItemResponse).build();
@@ -61,7 +61,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
         LOGGER.info("LIST RPC CALLED");
 
         Builder responseBuilder = ListItemResponse.newBuilder();
-        for (DomainItem item : itemPersistence.list()) {
+        for (Item item : itemPersistence.list()) {
             GrpcItem grpcItem = conversionLogic.getGrpcItemFromItem(item);
             responseBuilder.addItem(grpcItem);
         }
@@ -76,7 +76,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
         LOGGER.info("GET RPC CALLED");
 
         try {
-            DomainItem item = itemPersistence.get(request.getId());
+            Item item = itemPersistence.get(request.getId());
             GrpcItem grpcItem = conversionLogic.getGrpcItemFromItem(item);
             GetItemResponse response = GetItemResponse.newBuilder().setItem(grpcItem).build();
             responseObserver.onNext(response);
@@ -95,8 +95,8 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
             // first check if the item does not exist
             itemPersistence.get(request.getId());
 
-            DomainItem item = conversionLogic.getItemFromGrpcItem(request.getItem());
-            DomainItem createdItem = itemPersistence.update(request.getId(), item);
+            Item item = conversionLogic.getItemFromGrpcItem(request.getItem());
+            Item createdItem = itemPersistence.update(request.getId(), item);
     
             GrpcItem grpcItemResponse = conversionLogic.getGrpcItemFromItem(createdItem);
     
@@ -115,7 +115,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
         LOGGER.info("DELETE RPC CALLED");
 
         try {
-            DomainItem deletedItem = itemPersistence.delete(request.getId());
+            Item deletedItem = itemPersistence.delete(request.getId());
 
             GrpcItem grpcItemResponse = conversionLogic.getGrpcItemFromItem(deletedItem);
             DeleteItemResponse response = DeleteItemResponse.newBuilder().setItem(grpcItemResponse).build();

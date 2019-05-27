@@ -5,8 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.craftsmanship.tfm.dal.ItemDAO;
+import com.craftsmanship.tfm.dal.grpc.server.EntityConversion;
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
-import com.craftsmanship.tfm.dal.grpc.server.ItemPersistenceServiceImpl;
+import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 
 @Configuration
 public class DalConfig {
@@ -17,7 +18,8 @@ public class DalConfig {
     @Bean
     public GrpcServer grpcServer() {
 
-        ItemPersistenceServiceImpl service = new ItemPersistenceServiceImpl(itemDAO);
+        EntityConversion entityConversion = new EntityConversion();
+        ItemPersistenceService service = new ItemPersistenceService(itemDAO, entityConversion);
         GrpcServer grpcServer = new GrpcServer(service);
         return grpcServer;
     }

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
 
 import org.slf4j.Logger;
@@ -18,12 +19,13 @@ public class ItemPersistenceStub implements ItemPersistence {
     private Map<Long, DomainItem> items = new HashMap<Long, DomainItem>();
     private Long currentIndex = 1L;
 
-    public DomainItem create(DomainItem item) throws ItemAlreadyExists {
+    @Override
+    public DomainItem create(Item item) throws ItemAlreadyExists {
         if (items.get(item.getId()) != null) {
             throw new ItemAlreadyExists(item.getName());
         }
 
-        DomainItem newItem = new DomainItem(item);
+        DomainItem newItem = new DomainItem((DomainItem) item);
 
         newItem.setId(currentIndex);
         items.put(currentIndex, newItem);
@@ -31,10 +33,12 @@ public class ItemPersistenceStub implements ItemPersistence {
         return newItem;
     }
 
-    public List<DomainItem> list() {
-        return new ArrayList<DomainItem>(items.values());
+    @Override
+    public List<Item> list() {
+        return new ArrayList<Item>(items.values());
     }
 
+    @Override
     public DomainItem get(Long id) throws ItemDoesNotExist {
         DomainItem item = items.get(id);
 
@@ -45,16 +49,18 @@ public class ItemPersistenceStub implements ItemPersistence {
         return item;
     }
 
-    public DomainItem update(Long id, DomainItem item) throws ItemDoesNotExist {
+    @Override
+    public DomainItem update(Long id, Item item) throws ItemDoesNotExist {
         if (items.get(id) == null) {
             throw new ItemDoesNotExist(id);
         }
 
         item.setId(id);
-        items.put(id, item);
-        return item;
+        items.put(id, (DomainItem) item);
+        return (DomainItem) item;
     }
 
+    @Override
     public DomainItem delete(Long id) throws ItemDoesNotExist {
         if (items.get(id) == null) {
             throw new ItemDoesNotExist(id);

@@ -3,19 +3,19 @@ package com.craftsmanship.tfm.models;
 import java.util.Objects;
 
 public class ItemPurchase {
-    private DomainItem item;
+    private Item item;
     private int quantity;
 
     public ItemPurchase() {
         this(null, 0);
     }
 
-    public ItemPurchase(DomainItem item, int quantity) {
+    public ItemPurchase(Item item, int quantity) {
         this.item = item;
         this.quantity = quantity;
     }
 
-    public DomainItem getItem() {
+    public Item getItem() {
         return this.item;
     }
 

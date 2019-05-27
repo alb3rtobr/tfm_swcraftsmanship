@@ -1,20 +1,20 @@
-package com.craftsmanship.tfm.utils;
+package com.craftsmanship.tfm.dal.grpc.server;
 
-import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.dal.model.EntityItem;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcItemPurchase;
+import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder;
+import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder.Builder;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.utils.ConversionLogic;
 
-import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
-import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder;
-import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder.Builder;
-import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcItemPurchase;
-
-public class DomainConversion implements ConversionLogic {
+public class EntityConversion implements ConversionLogic{
 
     @Override
-    public DomainItem getItemFromGrpcItem(GrpcItem grpcItem) {
-        return new DomainItem.Builder().withId(grpcItem.getId()).withName(grpcItem.getName()).withPrice(grpcItem.getPrice())
+    public EntityItem getItemFromGrpcItem(GrpcItem grpcItem) {
+        return new EntityItem.Builder().withId(grpcItem.getId()).withName(grpcItem.getName()).withPrice(grpcItem.getPrice())
                 .withStock(grpcItem.getStock()).build();
     }
 
@@ -26,7 +26,7 @@ public class DomainConversion implements ConversionLogic {
 
     @Override
     public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {
-        DomainItem item = getItemFromGrpcItem(grpcPurchase.getItem());
+        EntityItem item = getItemFromGrpcItem(grpcPurchase.getItem());
         return new ItemPurchase(item, grpcPurchase.getQuantity());
     }
 
@@ -56,4 +56,5 @@ public class DomainConversion implements ConversionLogic {
         }
         return grpcOrderBuilder.setId(order.getId()).build();
     }
+
 }
