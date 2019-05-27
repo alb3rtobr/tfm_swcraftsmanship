@@ -9,6 +9,13 @@ function usage() {
     echo "    -h | --halt | --stop"
 }
 
+function update_helm_dependecies() {
+    cd ${BASEDIR}/charts
+    find . -iname "*.tgz" | xargs rm
+    helm dependency update ${CHARTNAME}
+    cd ${BASEDIR}
+}
+
 function delete_prometheus_spillsovers() {
     echo "Deleting Prometheus spillsovers"
     kubectl delete crd prometheuses.monitoring.coreos.com
@@ -57,6 +64,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if [[ ${START} == "yes" ]]; then
     echo "Starting cluster..."
+    update_helm_dependecies
     start_cluster
 fi
 
