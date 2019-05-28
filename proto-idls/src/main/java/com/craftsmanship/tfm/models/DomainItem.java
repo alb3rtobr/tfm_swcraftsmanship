@@ -9,6 +9,7 @@ public class DomainItem implements Item {
     private int stock;
 
     private DomainItem() {
+        this(null, 0L, 0);
     }
 
     private DomainItem(String name, Long price, int stock) {

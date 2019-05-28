@@ -79,6 +79,28 @@ public class ItemPersistenceGrpcTest {
     }
 
     @Test
+    public void test_given_item_without_stock_when_created_then_item_is_created() throws InterruptedException, ItemAlreadyExists {
+        DomainItem item = new DomainItem.Builder().withName("Shoe").withPrice(2L).build();
+
+        DomainItem createdItem = (DomainItem) grpcClient.create(item);
+
+        item.setId(1L);
+        assertThat(createdItem, equalTo(item));
+        assertThat(itemPersistenceStub.count(), equalTo(1));
+    }
+
+    @Test
+    public void test_given_item_without_price_when_created_then_item_is_created() throws InterruptedException, ItemAlreadyExists {
+        DomainItem item = new DomainItem.Builder().withName("Shoe").withStock(100).build();
+
+        DomainItem createdItem = (DomainItem) grpcClient.create(item);
+
+        item.setId(1L);
+        assertThat(createdItem, equalTo(item));
+        assertThat(itemPersistenceStub.count(), equalTo(1));
+    }
+
+    @Test
     public void test_given_zero_items_when_list_is_queried_then_no_items_received() {
         List<Item> items = grpcClient.list();
 

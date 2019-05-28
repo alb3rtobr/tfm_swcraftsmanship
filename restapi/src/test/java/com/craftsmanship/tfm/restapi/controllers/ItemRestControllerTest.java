@@ -198,6 +198,31 @@ public class ItemRestControllerTest {
     }
 
     @Test
+    public void test_given_item_with_no_price_when_rest_created_then_item_created()
+            throws InterruptedException, ItemDoesNotExist {
+        String itemName = "Wheel";
+        Long expectedId = new Long(itemPersistence.count() + 1);
+        DomainItem item = new DomainItem.Builder().withName(itemName).withPrice(17L).build();
+
+        // post item
+        DomainItem responseItem = postItem(item);
+
+        // check returned item
+        assertThat(responseItem.getId(), equalTo(expectedId));
+        assertThat(responseItem.getName(), equalTo(item.getName()));
+
+        // check item was created in persistence
+        item.setId(responseItem.getId());
+        DomainItem storedItem = itemPersistence.get(responseItem.getId());
+        assertThat(storedItem, equalTo(item));
+
+        // check that the Kafka message was received
+        ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
+        ItemOperation expectedOperation = new ItemOperation(OperationType.CREATED, responseItem);
+        assertThat(received, hasValue(expectedOperation));
+    }
+
+    @Test
     public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws ItemAlreadyExists {
         // Given
         DomainItem item1 = new DomainItem.Builder().withName("item1").withPrice(10L).withStock(1).build();
