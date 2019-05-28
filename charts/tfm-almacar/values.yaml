@@ -8,6 +8,16 @@ global:
   dal:
     host: tfm-almacar-dal
     port: 50057
+    jvm:
+      startheapmemory: 128m
+      maxheapmemory: 256m
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
   mysql:
     host: tfm-almacar-mysql
     port: 3306
@@ -17,6 +27,27 @@ global:
       host: localhost
       port: 8082
       endpoint: order
+    jvm:
+      startheapmemory: 128m
+      maxheapmemory: 256m
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  restapi:
+    jvm:
+      startheapmemory: 128m
+      maxheapmemory: 256m
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
 
 kafka:
   headless:

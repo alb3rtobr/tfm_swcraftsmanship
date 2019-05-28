@@ -35,10 +35,13 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.global.dal.port }}
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx{{ .Values.global.restapi.jvm.maxheapmemory }} -Xms{{ .Values.global.restapi.jvm.startheapmemory }}"
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "{{ .Values.global.dal.resources.requests.memory }}"
+            cpu: "{{ .Values.global.dal.resources.requests.cpu }}"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "{{ .Values.global.dal.resources.limits.memory }}"
+            cpu: "{{ .Values.global.dal.resources.limits.cpu }}"

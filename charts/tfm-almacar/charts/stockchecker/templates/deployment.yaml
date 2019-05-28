@@ -33,10 +33,13 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx{{ .Values.global.restapi.jvm.maxheapmemory }} -Xms{{ .Values.global.restapi.jvm.startheapmemory }}"
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "{{ .Values.global.stockchecker.resources.requests.memory }}"
+            cpu: "{{ .Values.global.stockchecker.resources.requests.cpu }}"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "{{ .Values.global.stockchecker.resources.limits.memory }}"
+            cpu: "{{ .Values.global.stockchecker.resources.limits.cpu }}"

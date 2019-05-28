@@ -35,12 +35,17 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.port }}
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx{{ .Values.global.restapi.jvm.maxheapmemory }} -Xms{{ .Values.global.restapi.jvm.startheapmemory }}"
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "{{ .Values.global.restapi.resources.requests.memory }}"
+            cpu: "{{ .Values.global.restapi.resources.requests.cpu }}"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "{{ .Values.global.restapi.resources.limits.memory }}"
+            cpu: "{{ .Values.global.restapi.resources.limits.cpu }}"
+
+
 
 
