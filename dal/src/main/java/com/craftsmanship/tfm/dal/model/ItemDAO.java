@@ -3,6 +3,8 @@ package com.craftsmanship.tfm.dal.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,13 +13,17 @@ import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
 
 @Component
-public class ItemDAO implements ItemPersistence{
+public class ItemDAO implements ItemPersistence {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemDAO.class);
 
     @Autowired
     private ItemRepository itemRepository;
 
     @Override
-    public EntityItem create(Item item) {
+    public Item create(Item item) {
+        LOGGER.info("Creating item: " + item);
+        LOGGER.info("itemRepository: " + itemRepository);
         return itemRepository.save((EntityItem) item);
     }
 
@@ -27,17 +33,19 @@ public class ItemDAO implements ItemPersistence{
     }
 
     @Override
-    public EntityItem get(Long id) {
+    public Item get(Long id) {
         return itemRepository.findById(id).get();
     }
 
     @Override
-    public EntityItem update(Long id, Item item) {
+    public Item update(Long id, Item item) {
+        itemRepository.findById(id).get();  // this throws NoSuchElementException if no item with id
+        item.setId(id);
         return itemRepository.save((EntityItem) item);
     }
 
     @Override
-    public EntityItem delete(Long id) {
+    public Item delete(Long id) {
         EntityItem deletedItem = itemRepository.findById(id).get();
         itemRepository.delete(deletedItem);
         return deletedItem;
