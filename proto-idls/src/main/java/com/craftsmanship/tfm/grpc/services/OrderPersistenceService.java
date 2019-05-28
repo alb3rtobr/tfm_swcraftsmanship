@@ -16,6 +16,7 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.UpdateOrderResponse;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.ListOrderResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistenceServiceGrpc.OrderPersistenceServiceImplBase;
 import com.craftsmanship.tfm.models.DomainOrder;
+import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
 import com.craftsmanship.tfm.utils.ConversionLogic;
 
@@ -39,10 +40,10 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     public void create(CreateOrderRequest request, io.grpc.stub.StreamObserver<CreateOrderResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
         GrpcOrder grpcOrder = request.getOrder();
-        DomainOrder order = conversionLogic.getOrderFromGrpcOrder(grpcOrder);
+        Order order = conversionLogic.getOrderFromGrpcOrder(grpcOrder);
 
         try {
-            DomainOrder createdOrder = orderPersistence.create(order);
+            Order createdOrder = orderPersistence.create(order);
 
             GrpcOrder grpcOrderResponse = conversionLogic.getGrpcOrderFromOrder(createdOrder);
             CreateOrderResponse response = CreateOrderResponse.newBuilder().setOrder(grpcOrderResponse).build();
@@ -59,7 +60,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
         LOGGER.info("LIST RPC CALLED");
 
         Builder responseBuilder = ListOrderResponse.newBuilder();
-        for (DomainOrder order : orderPersistence.list()) {
+        for (Order order : orderPersistence.list()) {
             GrpcOrder grpcOrder = conversionLogic.getGrpcOrderFromOrder(order);
             responseBuilder.addListOfOrders(grpcOrder);
         }
@@ -74,7 +75,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
         LOGGER.info("GET RPC CALLED");
 
         try {
-            DomainOrder order = orderPersistence.get(request.getId());
+            Order order = orderPersistence.get(request.getId());
             GrpcOrder grpcOrder = conversionLogic.getGrpcOrderFromOrder(order);
             GetOrderResponse response = GetOrderResponse.newBuilder().setOrder(grpcOrder).build();
             responseObserver.onNext(response);
@@ -92,8 +93,8 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
         try {
             orderPersistence.get(request.getId());
 
-            DomainOrder order = conversionLogic.getOrderFromGrpcOrder(request.getOrder());
-            DomainOrder updatedOrder = orderPersistence.update(request.getId(), order);
+            Order order = conversionLogic.getOrderFromGrpcOrder(request.getOrder());
+            Order updatedOrder = orderPersistence.update(request.getId(), order);
 
             GrpcOrder grpcOrderResponse = conversionLogic.getGrpcOrderFromOrder(updatedOrder);
 
@@ -116,7 +117,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
         LOGGER.info("DELETE RPC CALLED");
 
         try {
-            DomainOrder deletedOrder = orderPersistence.delete(request.getId());
+            Order deletedOrder = orderPersistence.delete(request.getId());
 
             GrpcOrder grpcOrderResponse = conversionLogic.getGrpcOrderFromOrder(deletedOrder);
             DeleteOrderResponse response = DeleteOrderResponse.newBuilder().setOrder(grpcOrderResponse).build();

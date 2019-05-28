@@ -6,7 +6,8 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcItemPurchase;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder.Builder;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.models.ItemPurchase;
+import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainItemPurchase;
 import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.utils.ConversionLogic;
 
@@ -25,19 +26,19 @@ public class EntityConversion implements ConversionLogic{
     }
 
     @Override
-    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase arg0) {
+    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(DomainItemPurchase arg0) {
         // TODO THIS FUNCIONALITY IS NOT READY YET....
         return null;
     }
 
     @Override
-    public GrpcOrder getGrpcOrderFromOrder(DomainOrder arg0) {
+    public GrpcOrder getGrpcOrderFromOrder(Order arg0) {
         // TODO THIS FUNCIONALITY IS NOT READY YET....
         return null;
     }
 
     @Override
-    public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase arg0) {
+    public DomainItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase arg0) {
         // TODO THIS FUNCIONALITY IS NOT READY YET....
         return null;
     }

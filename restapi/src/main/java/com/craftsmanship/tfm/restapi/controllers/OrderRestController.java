@@ -1,11 +1,13 @@
 package com.craftsmanship.tfm.restapi.controllers;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.ItemOperation;
-import com.craftsmanship.tfm.models.ItemPurchase;
+import com.craftsmanship.tfm.models.DomainItemPurchase;
 import com.craftsmanship.tfm.models.OperationType;
 import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
@@ -39,8 +41,8 @@ public class OrderRestController {
         this.itemOperationService = itemOperationService;
     }
 
-    private void sendItemOperations(OperationType type, List<ItemPurchase> itemPurchases) {
-        for (ItemPurchase itemPurchase : itemPurchases) {
+    private void sendItemOperations(OperationType type, List<DomainItemPurchase> itemPurchases) {
+        for (DomainItemPurchase itemPurchase : itemPurchases) {
             itemOperationService.sendItemOperation(new ItemOperation(type, itemPurchase.getItem()));
         }
     }
@@ -50,12 +52,14 @@ public class OrderRestController {
         LOGGER.info("Creating order");
 
         try {
-            DomainOrder orderResponse = orderPersistence.create(order);
+            DomainOrder orderResponse = (DomainOrder) orderPersistence.create(order);
 
             LOGGER.info("REST API orderResponse = " + orderResponse);
 
             // Send messages to Kafka topic
-            this.sendItemOperations(OperationType.CREATED, orderResponse.getItemPurchases());
+
+            this.sendItemOperations(OperationType.CREATED, 
+                    (List <DomainItemPurchase>)(List)orderResponse.getItemPurchases());
             return orderResponse;
         } catch (ItemDoesNotExist e) {
             throw new ResponseStatusException(
@@ -66,7 +70,7 @@ public class OrderRestController {
     @RequestMapping(value = "/orders", method = RequestMethod.GET)
     public List<DomainOrder> list() {
         LOGGER.info("List orders");
-        return orderPersistence.list();
+        return (List<DomainOrder>)(List)orderPersistence.list();
     }
 
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
@@ -74,7 +78,7 @@ public class OrderRestController {
         LOGGER.info("Get order with id: " + id);
 
         try {
-            return orderPersistence.get(id);
+            return (DomainOrder) orderPersistence.get(id);
         } catch (OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);
@@ -86,7 +90,7 @@ public class OrderRestController {
         LOGGER.info("Edit order with id: " + id);
 
         try {
-            return orderPersistence.update(id, order);
+            return (DomainOrder) orderPersistence.update(id, order);
         } catch (ItemDoesNotExist | OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);
@@ -98,7 +102,7 @@ public class OrderRestController {
         LOGGER.info("Delete order with id: " + id);
 
         try {
-            return orderPersistence.delete(id);
+            return (DomainOrder) orderPersistence.delete(id);
         } catch (OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);

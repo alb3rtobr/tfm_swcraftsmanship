@@ -1,46 +1,15 @@
 package com.craftsmanship.tfm.models;
 
-import java.util.Objects;
+public interface ItemPurchase {
 
-public class ItemPurchase {
-    private DomainItem item;
-    private int quantity;
+    Item getItem();
 
-    public ItemPurchase() {
-        this(null, 0);
-    }
+    int getQuantity();
 
-    public ItemPurchase(DomainItem item, int quantity) {
-        this.item = item;
-        this.quantity = quantity;
-    }
+    boolean equals(Object o);
 
-    public Item getItem() {
-        return this.item;
-    }
+    int hashCode();
 
-    public int getQuantity() {
-        return this.quantity;
-    }
+    String toString();
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof ItemPurchase)) {
-            return false;
-        }
-        ItemPurchase itemPurchase = (ItemPurchase) o;
-        return Objects.equals(item, itemPurchase.item) && Objects.equals(quantity, itemPurchase.quantity);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(item, quantity);
-    }
-
-    @Override
-    public String toString() {
-        return "{" + " item='" + this.item + "'" + ", quantity='" + this.quantity + "'" + "}";
-    }
 }

@@ -127,7 +127,7 @@ public class OrderPersistenceGrpcTest {
         orderPersistenceStub.create(order3);
 
         // When
-        List<DomainOrder> orders = grpcClient.list();
+        List<DomainOrder> orders = (List<DomainOrder>)(List)grpcClient.list();
 
         // Then
         List<DomainOrder> expectedOrders = new ArrayList<DomainOrder>();

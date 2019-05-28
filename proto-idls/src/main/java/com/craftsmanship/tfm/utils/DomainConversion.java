@@ -2,7 +2,8 @@ package com.craftsmanship.tfm.utils;
 
 import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.models.ItemPurchase;
+import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainItemPurchase;
 import com.craftsmanship.tfm.models.DomainOrder;
 
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
@@ -25,13 +26,13 @@ public class DomainConversion implements ConversionLogic {
     }
 
     @Override
-    public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {
+    public DomainItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {
         DomainItem item = getItemFromGrpcItem(grpcPurchase.getItem());
-        return new ItemPurchase(item, grpcPurchase.getQuantity());
+        return new DomainItemPurchase(item, grpcPurchase.getQuantity());
     }
 
     @Override
-    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase itemPurchase) {
+    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(DomainItemPurchase itemPurchase) {
         GrpcItem grpcItem = getGrpcItemFromItem(itemPurchase.getItem());
         return GrpcItemPurchase.newBuilder().setItem(grpcItem).setQuantity(itemPurchase.getQuantity()).build();
     }
@@ -47,11 +48,11 @@ public class DomainConversion implements ConversionLogic {
     }
 
     @Override
-    public GrpcOrder getGrpcOrderFromOrder(DomainOrder order) {
+    public GrpcOrder getGrpcOrderFromOrder(Order order) {
         Builder grpcOrderBuilder = GrpcOrder.newBuilder();
         for (int i = 0; i < order.getItemPurchases().size(); i++) {
             GrpcItemPurchase grpcItemPurchase = 
-                    getGrpcItemPurchaseFromItemPurchase(order.getItemPurchases().get(i));
+                    getGrpcItemPurchaseFromItemPurchase((DomainItemPurchase) order.getItemPurchases().get(i));
             grpcOrderBuilder.addListOfItemPurchases(i, grpcItemPurchase);
         }
         return grpcOrderBuilder.setId(order.getId()).build();

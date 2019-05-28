@@ -7,8 +7,10 @@ import java.util.Map;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
-import com.craftsmanship.tfm.models.ItemPurchase;
+import com.craftsmanship.tfm.models.DomainItemPurchase;
 import com.craftsmanship.tfm.models.DomainOrder;
+import com.craftsmanship.tfm.models.ItemPurchase;
+import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
 
 import org.slf4j.Logger;
@@ -27,20 +29,20 @@ public class OrderPersistenceStub implements OrderPersistence {
     }
 
     @Override
-    public DomainOrder create(DomainOrder order) throws ItemDoesNotExist {
-        checkItemsExists(order);
+    public DomainOrder create(Order order) throws ItemDoesNotExist {
+        checkItemsExists((DomainOrder) order);
 
         // TODO: Order should be a COPY
 
         order.setId(currentIndex);
-        orders.put(currentIndex, order);
+        orders.put(currentIndex, (DomainOrder) order);
         currentIndex++;
-        return order;
+        return (DomainOrder) order;
     }
 
     @Override
-    public List<DomainOrder> list() {
-        return new ArrayList<DomainOrder>(orders.values());
+    public List<Order> list() {
+        return new ArrayList<Order>(orders.values());
     }
 
     @Override
@@ -52,16 +54,16 @@ public class OrderPersistenceStub implements OrderPersistence {
     }
 
     @Override
-    public DomainOrder update(Long id, DomainOrder order) throws OrderDoesNotExist, ItemDoesNotExist {
+    public DomainOrder update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
         if (orders.get(id) == null) {
             throw new OrderDoesNotExist(id);
         }
 
-        checkItemsExists(order);
+        checkItemsExists((DomainOrder) order);
 
         order.setId(id);
-        orders.put(id, order);
-        return order;
+        orders.put(id, (DomainOrder) order);
+        return (DomainOrder) order;
     }
 
     @Override

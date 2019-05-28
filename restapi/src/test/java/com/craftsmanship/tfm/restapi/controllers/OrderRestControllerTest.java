@@ -16,7 +16,7 @@ import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.ItemOperation;
-import com.craftsmanship.tfm.models.ItemPurchase;
+import com.craftsmanship.tfm.models.DomainItemPurchase;
 import com.craftsmanship.tfm.models.OperationType;
 import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
@@ -196,7 +196,7 @@ public class OrderRestControllerTest {
         new RestTemplate().delete(url);
     }
 
-    private void checkKafkaMessages(OperationType type, List<ItemPurchase> purchases) throws InterruptedException {
+    private void checkKafkaMessages(OperationType type, List<DomainItemPurchase> purchases) throws InterruptedException {
         List<ItemOperation> receivedItemsOperations = new ArrayList<ItemOperation>();
 
         // get all the Kafka messages (should be one per item purchase)
@@ -206,7 +206,7 @@ public class OrderRestControllerTest {
         }
 
         // check that all the received ItemOperations are the expected ones
-        for (ItemPurchase purchase : purchases) {
+        for (DomainItemPurchase purchase : purchases) {
             ItemOperation expectedOperation = new ItemOperation(type, purchase.getItem());
             assertThat(expectedOperation, isIn(receivedItemsOperations));
         }
@@ -232,7 +232,8 @@ public class OrderRestControllerTest {
         assertThat(storedOrder, equalTo(order));
 
         // check that the Kafka message was received
-        checkKafkaMessages(OperationType.CREATED, order.getItemPurchases());
+        checkKafkaMessages(OperationType.CREATED, 
+                (List <DomainItemPurchase>)(List)order.getItemPurchases());
     }
 
     @Test

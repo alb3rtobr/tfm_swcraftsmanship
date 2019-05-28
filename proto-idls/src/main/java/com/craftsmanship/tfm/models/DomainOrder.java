@@ -6,14 +6,14 @@ import java.util.Objects;
 
 public class DomainOrder implements Order {
     private Long id;
-    private List<ItemPurchase> itemPurchases;
+    private List<DomainItemPurchase> itemPurchases;
 
     public DomainOrder() {
         this.id = -1L;
-        this.itemPurchases = new ArrayList<ItemPurchase>();
+        this.itemPurchases = new ArrayList<DomainItemPurchase>();
     }
 
-    public DomainOrder(List<ItemPurchase> itemPurchases) {
+    public DomainOrder(List<DomainItemPurchase> itemPurchases) {
         this.itemPurchases = itemPurchases;
     }
 
@@ -29,13 +29,13 @@ public class DomainOrder implements Order {
 
     @Override
     public void add(ItemPurchase itemPurchase) {
-        itemPurchases.add(itemPurchase);
+        itemPurchases.add((DomainItemPurchase) itemPurchase);
     }
 
     // TODO: Probably this should be more stylish to use iterator
     @Override
     public List<ItemPurchase> getItemPurchases() {
-        return itemPurchases;
+        return new ArrayList<ItemPurchase>(itemPurchases);
     }
 
     @Override
@@ -62,11 +62,11 @@ public class DomainOrder implements Order {
     public static class Builder {
 
         private Long id;
-        private List<ItemPurchase> itemPurchases;
+        private List<DomainItemPurchase> itemPurchases;
 
         public Builder() {
             this.id = -1L;
-            this.itemPurchases = new ArrayList<ItemPurchase>();
+            this.itemPurchases = new ArrayList<DomainItemPurchase>();
         }
 
         public Builder withId(Long id) {
@@ -75,7 +75,7 @@ public class DomainOrder implements Order {
         }
 
         public Builder addItem(DomainItem item, int stock) {
-            itemPurchases.add(new ItemPurchase(item, stock));
+            itemPurchases.add(new DomainItemPurchase(item, stock));
             return this;
         }
 
