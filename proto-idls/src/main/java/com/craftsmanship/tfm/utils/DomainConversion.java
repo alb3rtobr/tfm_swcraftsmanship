@@ -5,12 +5,17 @@ import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder.Builder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcItemPurchase;
 
 public class DomainConversion implements ConversionLogic {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomainConversion.class);
 
     @Override
     public DomainItem getItemFromGrpcItem(GrpcItem grpcItem) {
@@ -20,6 +25,7 @@ public class DomainConversion implements ConversionLogic {
 
     @Override
     public GrpcItem getGrpcItemFromItem(Item item) {
+        LOGGER.info("getGrpcItemFromItem ITEM: " + item);
         return GrpcItem.newBuilder().setId(item.getId()).setName(item.getName()).setPrice(item.getPrice())
                 .setStock(item.getStock()).build();
     }
