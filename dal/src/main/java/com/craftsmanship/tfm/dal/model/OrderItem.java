@@ -16,7 +16,9 @@ public class OrderItem implements ItemPurchase{
 
     private int quantity;
     
-    protected OrderItem() {
+
+    public OrderItem() {
+        this(null, null, 0);
     }
 
     public OrderItem(EntityOrder order, EntityItem item, int quantity) {

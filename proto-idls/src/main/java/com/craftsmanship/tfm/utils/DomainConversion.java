@@ -2,6 +2,7 @@ package com.craftsmanship.tfm.utils;
 
 import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.models.DomainItemPurchase;
 import com.craftsmanship.tfm.models.DomainOrder;
@@ -19,7 +20,7 @@ public class DomainConversion implements ConversionLogic {
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainConversion.class);
 
     @Override
-    public DomainItem getItemFromGrpcItem(GrpcItem grpcItem) {
+    public Item getItemFromGrpcItem(GrpcItem grpcItem) {
         return new DomainItem.Builder().withId(grpcItem.getId()).withName(grpcItem.getName()).withPrice(grpcItem.getPrice())
                 .withStock(grpcItem.getStock()).build();
     }
@@ -32,19 +33,7 @@ public class DomainConversion implements ConversionLogic {
     }
 
     @Override
-    public DomainItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {
-        DomainItem item = getItemFromGrpcItem(grpcPurchase.getItem());
-        return new DomainItemPurchase(item, grpcPurchase.getQuantity());
-    }
-
-    @Override
-    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(DomainItemPurchase itemPurchase) {
-        GrpcItem grpcItem = getGrpcItemFromItem(itemPurchase.getItem());
-        return GrpcItemPurchase.newBuilder().setItem(grpcItem).setQuantity(itemPurchase.getQuantity()).build();
-    }
-
-    @Override
-    public DomainOrder getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
+    public Order getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
         DomainOrder order = new DomainOrder.Builder().withId(grpcOrder.getId()).build();
         for (GrpcItemPurchase purchase : grpcOrder.getListOfItemPurchasesList()) {
             order.add(getItemPurchaseFromGrpcItemPurchase(purchase));
@@ -63,4 +52,16 @@ public class DomainConversion implements ConversionLogic {
         }
         return grpcOrderBuilder.setId(order.getId()).build();
     }
+
+    public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase) {
+        DomainItem item = (DomainItem) getItemFromGrpcItem(grpcPurchase.getItem());
+        return new DomainItemPurchase(item, grpcPurchase.getQuantity());
+    }
+
+    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase itemPurchase) {
+        GrpcItem grpcItem = getGrpcItemFromItem(itemPurchase.getItem());
+        return GrpcItemPurchase.newBuilder().setItem(grpcItem).setQuantity(itemPurchase.getQuantity()).build();
+    }
+
+
 }

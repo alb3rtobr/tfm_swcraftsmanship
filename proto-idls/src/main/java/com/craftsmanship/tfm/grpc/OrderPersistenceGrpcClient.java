@@ -69,7 +69,7 @@ public class OrderPersistenceGrpcClient {
         DomainOrder orderReceived = null;
         try {
             CreateOrderResponse response = blockingStub.create(request);
-            orderReceived = domainConversion.getOrderFromGrpcOrder(response.getOrder());
+            orderReceived = (DomainOrder) domainConversion.getOrderFromGrpcOrder(response.getOrder());
         } catch (StatusRuntimeException e) {
             logger.error("Exception creating Order: " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -97,7 +97,7 @@ public class OrderPersistenceGrpcClient {
             List<GrpcOrder> ordersResponse = response.getListOfOrdersList();
     
             for (GrpcOrder grpcOrder : ordersResponse) {
-                result.add(domainConversion.getOrderFromGrpcOrder(grpcOrder));
+                result.add((DomainOrder) domainConversion.getOrderFromGrpcOrder(grpcOrder));
             }
         } catch (StatusRuntimeException e) {
             logger.error("Exception listing orders: " + e.getMessage());
@@ -120,7 +120,7 @@ public class OrderPersistenceGrpcClient {
         DomainOrder order = null;
         try {
             GetOrderResponse response = blockingStub.get(request);
-            order = domainConversion.getOrderFromGrpcOrder(response.getOrder());
+            order = (DomainOrder) domainConversion.getOrderFromGrpcOrder(response.getOrder());
         } catch (StatusRuntimeException e) {
             logger.error("Exception getting order with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -145,7 +145,7 @@ public class OrderPersistenceGrpcClient {
         DomainOrder updatedOrder = null;
         try {
             UpdateOrderResponse response = blockingStub.update(request);
-            updatedOrder = domainConversion.getOrderFromGrpcOrder(response.getOrder());
+            updatedOrder = (DomainOrder) domainConversion.getOrderFromGrpcOrder(response.getOrder());
         } catch (StatusRuntimeException e) {
             logger.error("Exception updating order with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -173,7 +173,7 @@ public class OrderPersistenceGrpcClient {
         DomainOrder order = null;
         try {
             DeleteOrderResponse response = blockingStub.delete(request);
-            order = domainConversion.getOrderFromGrpcOrder(response.getOrder());
+            order = (DomainOrder) domainConversion.getOrderFromGrpcOrder(response.getOrder());
         } catch (StatusRuntimeException e) {
             logger.error("Exception deleting order with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
