@@ -10,8 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.models.DomainItemPurchase;
+import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainOrder.Builder;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -33,6 +37,10 @@ public class EntityOrder  implements Order{
 
     public EntityOrder(long id) {
         this.id = id;
+    }
+
+    public EntityOrder(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
     }
 
     @Override
@@ -69,4 +77,32 @@ public class EntityOrder  implements Order{
         return "Order [order id=" + id  + 
                 ", ordered items=" + orderItems + "]";
     }
+
+    public static class Builder {
+
+        private Long id;
+        private List<OrderItem> orderItems;
+
+        public Builder() {
+            this.id = -1L;
+            this.orderItems = new ArrayList<OrderItem>();
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder addItem(EntityOrder order, EntityItem item, int stock) {
+            orderItems.add(new OrderItem(order, item, stock));
+            return this;
+        }
+
+        public EntityOrder build() {
+            EntityOrder order = new EntityOrder(this.orderItems);
+            order.setId(this.id);
+            return order;
+        }
+    }
+
 }

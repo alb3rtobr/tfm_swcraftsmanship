@@ -4,21 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.craftsmanship.tfm.models.DomainItem;
-import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.utils.DomainConversion;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
-import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.CreateItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemRequest;
@@ -26,11 +16,20 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.DeleteItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.GetItemResponse;
+import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
-import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
+import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
+import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.utils.DomainConversion;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 
 public class ItemPersistenceGrpcClient {
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceGrpcClient.class);
@@ -71,7 +70,7 @@ public class ItemPersistenceGrpcClient {
         DomainItem itemReceived = null;
         try {
             CreateItemResponse response = blockingStub.create(request);
-            itemReceived = domainConversion.getItemFromGrpcItem(response.getItem());
+            itemReceived = (DomainItem) domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception creating Item: " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -121,7 +120,7 @@ public class ItemPersistenceGrpcClient {
         DomainItem item = null;
         try {
             GetItemResponse response = blockingStub.get(request);
-            item = domainConversion.getItemFromGrpcItem(response.getItem());
+            item = (DomainItem) domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception getting item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -146,7 +145,7 @@ public class ItemPersistenceGrpcClient {
         DomainItem updatedItem = null;
         try {
             UpdateItemResponse response = blockingStub.update(request);
-            updatedItem = domainConversion.getItemFromGrpcItem(response.getItem());
+            updatedItem = (DomainItem) domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception updating item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
@@ -170,7 +169,7 @@ public class ItemPersistenceGrpcClient {
         DomainItem item = null;
         try {
             DeleteItemResponse response = blockingStub.delete(request);
-            item = domainConversion.getItemFromGrpcItem(response.getItem());
+            item = (DomainItem) domainConversion.getItemFromGrpcItem(response.getItem());
         } catch (StatusRuntimeException e) {
             logger.error("Exception deleting item with id " + id + ": " + e.getMessage());
             Status status = Status.fromThrowable(e);
