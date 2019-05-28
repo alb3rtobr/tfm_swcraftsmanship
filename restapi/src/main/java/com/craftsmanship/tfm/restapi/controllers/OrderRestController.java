@@ -7,7 +7,7 @@ import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.OperationType;
-import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
 import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
 
@@ -46,11 +46,11 @@ public class OrderRestController {
     }
 
     @RequestMapping(value = "/orders", method = RequestMethod.POST)
-    public Order create(@RequestBody Order order) {
+    public DomainOrder create(@RequestBody DomainOrder order) {
         LOGGER.info("Creating order");
 
         try {
-            Order orderResponse = orderPersistence.create(order);
+            DomainOrder orderResponse = orderPersistence.create(order);
 
             LOGGER.info("REST API orderResponse = " + orderResponse);
 
@@ -64,13 +64,13 @@ public class OrderRestController {
     }
 
     @RequestMapping(value = "/orders", method = RequestMethod.GET)
-    public List<Order> list() {
+    public List<DomainOrder> list() {
         LOGGER.info("List orders");
         return orderPersistence.list();
     }
 
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
-    public Order get(@PathVariable Long id) {
+    public DomainOrder get(@PathVariable Long id) {
         LOGGER.info("Get order with id: " + id);
 
         try {
@@ -82,7 +82,7 @@ public class OrderRestController {
     }
 
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.PUT)
-    public Order edit(@PathVariable Long id, @RequestBody Order order) {
+    public DomainOrder edit(@PathVariable Long id, @RequestBody DomainOrder order) {
         LOGGER.info("Edit order with id: " + id);
 
         try {
@@ -94,7 +94,7 @@ public class OrderRestController {
     }
 
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.DELETE)
-    public Order delete(@PathVariable Long id) throws OrderDoesNotExist {
+    public DomainOrder delete(@PathVariable Long id) throws OrderDoesNotExist {
         LOGGER.info("Delete order with id: " + id);
 
         try {

@@ -2,7 +2,7 @@ package com.craftsmanship.tfm.persistence;
 
 import java.util.List;
 
-import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainOrder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,27 +33,27 @@ public class OrderPersistenceGrpc implements OrderPersistence {
     }
 
     @Override
-    public Order create(Order order) throws ItemDoesNotExist {
+    public DomainOrder create(DomainOrder order) throws ItemDoesNotExist {
         return grpcClient.create(order);
     }
 
     @Override
-    public List<Order> list() {
+    public List<DomainOrder> list() {
         return grpcClient.list();
     }
 
     @Override
-    public Order get(Long id) throws OrderDoesNotExist {
+    public DomainOrder get(Long id) throws OrderDoesNotExist {
         return grpcClient.get(id);
     }
 
     @Override
-    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
+    public DomainOrder update(Long id, DomainOrder order) throws OrderDoesNotExist, ItemDoesNotExist {
         return grpcClient.update(id, order);
     }
 
     @Override
-    public Order delete(Long id) throws OrderDoesNotExist {
+    public DomainOrder delete(Long id) throws OrderDoesNotExist {
         return grpcClient.delete(id);
     }
 

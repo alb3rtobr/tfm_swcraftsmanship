@@ -19,7 +19,7 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.ListOrderResponse;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.UpdateOrderRequest;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.UpdateOrderResponse;
 import com.craftsmanship.tfm.idls.v2.OrderPersistenceServiceGrpc.OrderPersistenceServiceBlockingStub;
-import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.utils.DomainConversion;
 
 import org.slf4j.Logger;
@@ -59,14 +59,14 @@ public class OrderPersistenceGrpcClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Order create(Order order) throws ItemDoesNotExist {
+    public DomainOrder create(DomainOrder order) throws ItemDoesNotExist {
         logger.info("Creating Order");
 
         GrpcOrder grpcOrder = domainConversion.getGrpcOrderFromOrder(order);
 
         CreateOrderRequest request = CreateOrderRequest.newBuilder().setOrder(grpcOrder).build();
 
-        Order orderReceived = null;
+        DomainOrder orderReceived = null;
         try {
             CreateOrderResponse response = blockingStub.create(request);
             orderReceived = domainConversion.getOrderFromGrpcOrder(response.getOrder());
@@ -86,12 +86,12 @@ public class OrderPersistenceGrpcClient {
         return orderReceived;
     }
 
-    public List<Order> list() {
+    public List<DomainOrder> list() {
         logger.info("List all Orders");
 
         Empty request = Empty.newBuilder().build();
 
-        List<Order> result = new ArrayList<>();
+        List<DomainOrder> result = new ArrayList<>();
         try {
             ListOrderResponse response = blockingStub.list(request);
             List<GrpcOrder> ordersResponse = response.getListOfOrdersList();
@@ -112,12 +112,12 @@ public class OrderPersistenceGrpcClient {
         return result;
     }
 
-    public Order get(Long id) throws OrderDoesNotExist {
+    public DomainOrder get(Long id) throws OrderDoesNotExist {
         logger.info("Get order with id: " + id);
 
         GetOrderRequest request = GetOrderRequest.newBuilder().setId(id).build();
 
-        Order order = null;
+        DomainOrder order = null;
         try {
             GetOrderResponse response = blockingStub.get(request);
             order = domainConversion.getOrderFromGrpcOrder(response.getOrder());
@@ -136,13 +136,13 @@ public class OrderPersistenceGrpcClient {
         return order;
     }
 
-    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
+    public DomainOrder update(Long id, DomainOrder order) throws OrderDoesNotExist, ItemDoesNotExist {
         logger.info("Updating order with id: " + id);
 
         UpdateOrderRequest request = UpdateOrderRequest.newBuilder().setId(id)
                 .setOrder(domainConversion.getGrpcOrderFromOrder(order)).build();
 
-        Order updatedOrder = null;
+        DomainOrder updatedOrder = null;
         try {
             UpdateOrderResponse response = blockingStub.update(request);
             updatedOrder = domainConversion.getOrderFromGrpcOrder(response.getOrder());
@@ -165,12 +165,12 @@ public class OrderPersistenceGrpcClient {
         return updatedOrder;
     }
 
-    public Order delete(Long id) throws OrderDoesNotExist {
+    public DomainOrder delete(Long id) throws OrderDoesNotExist {
         logger.info("Deleting order with id: " + id);
 
         DeleteOrderRequest request = DeleteOrderRequest.newBuilder().setId(id).build();
 
-        Order order = null;
+        DomainOrder order = null;
         try {
             DeleteOrderResponse response = blockingStub.delete(request);
             order = domainConversion.getOrderFromGrpcOrder(response.getOrder());

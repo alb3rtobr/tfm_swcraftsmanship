@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Order {
+public class DomainOrder {
     private Long id;
     private List<ItemPurchase> itemPurchases;
 
-    public Order() {
+    public DomainOrder() {
         this.id = -1L;
         this.itemPurchases = new ArrayList<ItemPurchase>();
     }
 
-    public Order(List<ItemPurchase> itemPurchases) {
+    public DomainOrder(List<ItemPurchase> itemPurchases) {
         this.itemPurchases = itemPurchases;
     }
 
@@ -38,10 +38,10 @@ public class Order {
     public boolean equals(Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof Order)) {
+        if (!(o instanceof DomainOrder)) {
             return false;
         }
-        Order order = (Order) o;
+        DomainOrder order = (DomainOrder) o;
         return Objects.equals(id, order.id) && Objects.equals(itemPurchases, order.itemPurchases);
     }
 
@@ -75,8 +75,8 @@ public class Order {
             return this;
         }
 
-        public Order build() {
-            Order order = new Order(this.itemPurchases);
+        public DomainOrder build() {
+            DomainOrder order = new DomainOrder(this.itemPurchases);
             order.setId(this.id);
 
             return order;

@@ -3,7 +3,7 @@ package com.craftsmanship.tfm.utils;
 import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemPurchase;
-import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainOrder;
 
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder;
@@ -37,8 +37,8 @@ public class DomainConversion implements ConversionLogic {
     }
 
     @Override
-    public Order getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
-        Order order = new Order.Builder().withId(grpcOrder.getId()).build();
+    public DomainOrder getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
+        DomainOrder order = new DomainOrder.Builder().withId(grpcOrder.getId()).build();
         for (GrpcItemPurchase purchase : grpcOrder.getListOfItemPurchasesList()) {
             order.add(getItemPurchaseFromGrpcItemPurchase(purchase));
         }
@@ -47,7 +47,7 @@ public class DomainConversion implements ConversionLogic {
     }
 
     @Override
-    public GrpcOrder getGrpcOrderFromOrder(Order order) {
+    public GrpcOrder getGrpcOrderFromOrder(DomainOrder order) {
         Builder grpcOrderBuilder = GrpcOrder.newBuilder();
         for (int i = 0; i < order.getItemPurchases().size(); i++) {
             GrpcItemPurchase grpcItemPurchase = 

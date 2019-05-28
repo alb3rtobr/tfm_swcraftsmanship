@@ -18,7 +18,7 @@ import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.OperationType;
-import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 import com.craftsmanship.tfm.testing.persistence.OrderPersistenceStub;
 
@@ -169,26 +169,26 @@ public class OrderRestControllerTest {
         return itemPersistence.get(new Long(id));
     }
 
-    private ResponseEntity<Order> getOrder(Long id) throws HttpClientErrorException {
+    private ResponseEntity<DomainOrder> getOrder(Long id) throws HttpClientErrorException {
         String url = "http://localhost:" + restPort + "/api/v1/orders/" + id;
-        return new RestTemplate().getForEntity(url, Order.class);
+        return new RestTemplate().getForEntity(url, DomainOrder.class);
     }
 
-    private ResponseEntity<List<Order>> listOrders() throws HttpClientErrorException {
+    private ResponseEntity<List<DomainOrder>> listOrders() throws HttpClientErrorException {
         String url = "http://localhost:" + restPort + "/api/v1/orders/";
-        return new RestTemplate().exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Order>>() {});
+        return new RestTemplate().exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<DomainOrder>>() {});
     }
 
-    private ResponseEntity<Order> createOrder(Order order) throws HttpClientErrorException {
+    private ResponseEntity<DomainOrder> createOrder(DomainOrder order) throws HttpClientErrorException {
         String url = "http://localhost:" + restPort + "/api/v1/orders";
-        HttpEntity<Order> request = new HttpEntity<>(order);
-        return new RestTemplate().postForEntity(url, request, Order.class);
+        HttpEntity<DomainOrder> request = new HttpEntity<>(order);
+        return new RestTemplate().postForEntity(url, request, DomainOrder.class);
     }
 
-    private ResponseEntity<Order> editOrder(Long id, Order order) throws HttpClientErrorException {
+    private ResponseEntity<DomainOrder> editOrder(Long id, DomainOrder order) throws HttpClientErrorException {
         String url = "http://localhost:" + restPort + "/api/v1/orders/" + id;
-        HttpEntity<Order> request = new HttpEntity<>(order);
-        return new RestTemplate().exchange(url, HttpMethod.PUT, request, Order.class);
+        HttpEntity<DomainOrder> request = new HttpEntity<>(order);
+        return new RestTemplate().exchange(url, HttpMethod.PUT, request, DomainOrder.class);
     }
 
     private void deleteOrder(Long id) throws HttpClientErrorException {
@@ -216,10 +216,10 @@ public class OrderRestControllerTest {
     public void test_when_order_is_created_then_order_persisted_and_kafka_messages_generated()
             throws Exception {
 
-        Order order = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(getItem(3), 2).build();
+        DomainOrder order = new DomainOrder.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(getItem(3), 2).build();
 
         // post order
-        Order responseOrder = createOrder(order).getBody();
+        DomainOrder responseOrder = createOrder(order).getBody();
 
         // first, for comparison, we need to set the order id, created in persistence
         order.setId(responseOrder.getId());
@@ -228,7 +228,7 @@ public class OrderRestControllerTest {
         assertThat(responseOrder, equalTo(order));
 
         // check item was created in persistence
-        Order storedOrder = orderPersistence.get(responseOrder.getId());
+        DomainOrder storedOrder = orderPersistence.get(responseOrder.getId());
         assertThat(storedOrder, equalTo(order));
 
         // check that the Kafka message was received
@@ -243,7 +243,7 @@ public class OrderRestControllerTest {
 
         DomainItem itemNotPersisted = new DomainItem.Builder().withName("NES").withPrice(80).build();
 
-        Order order = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(itemNotPersisted, 2).build();
+        DomainOrder order = new DomainOrder.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(itemNotPersisted, 2).build();
 
         try {
             createOrder(order);
@@ -260,16 +260,16 @@ public class OrderRestControllerTest {
     @Test
     public void test_given_some_orders_when_list_orders_then_orders_are_returned() throws Exception {
         // Given
-        Order order1 = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).build();
-        Order orderCreated1 = orderPersistence.create(order1);
-        Order order2 = new Order.Builder().addItem(getItem(2), 67).addItem(getItem(3), 12).build();
-        Order orderCreated2 = orderPersistence.create(order2);
+        DomainOrder order1 = new DomainOrder.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).build();
+        DomainOrder orderCreated1 = orderPersistence.create(order1);
+        DomainOrder order2 = new DomainOrder.Builder().addItem(getItem(2), 67).addItem(getItem(3), 12).build();
+        DomainOrder orderCreated2 = orderPersistence.create(order2);
 
         // When
-        List<Order> receivedOrders = listOrders().getBody();
+        List<DomainOrder> receivedOrders = listOrders().getBody();
 
         // Then
-        List<Order> expectedList = new ArrayList<Order>();
+        List<DomainOrder> expectedList = new ArrayList<DomainOrder>();
         expectedList.add(orderCreated1);
         expectedList.add(orderCreated2);
         assertThat(receivedOrders, equalTo(expectedList));
@@ -278,11 +278,11 @@ public class OrderRestControllerTest {
     @Test
     public void test_given_order_when_get_order_then_order_is_returned() throws Exception {
         // Given
-        Order order = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(3), 5).build();
-        Order orderCreated = orderPersistence.create(order);
+        DomainOrder order = new DomainOrder.Builder().addItem(getItem(1), 1).addItem(getItem(3), 5).build();
+        DomainOrder orderCreated = orderPersistence.create(order);
 
         // When
-        Order getOrder = getOrder(orderCreated.getId()).getBody();
+        DomainOrder getOrder = getOrder(orderCreated.getId()).getBody();
 
         // Then
         order.setId(orderCreated.getId());
@@ -303,12 +303,12 @@ public class OrderRestControllerTest {
     @Test
     public void test_given_order_when_edit_then_edited_order_is_returned() throws Exception {
         // Given
-        Order order = new Order.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
-        Order orderCreated = orderPersistence.create(order);
+        DomainOrder order = new DomainOrder.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
+        DomainOrder orderCreated = orderPersistence.create(order);
 
         // When
-        Order newOrder = new Order.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
-        Order editedOrder = editOrder(orderCreated.getId(), newOrder).getBody();
+        DomainOrder newOrder = new DomainOrder.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
+        DomainOrder editedOrder = editOrder(orderCreated.getId(), newOrder).getBody();
 
         // Then
         newOrder.setId(orderCreated.getId());
@@ -318,12 +318,12 @@ public class OrderRestControllerTest {
     @Test
     public void test_given_order_when_edit_with_item_does_not_exist_then_exception() throws Exception {
         // Given
-        Order order = new Order.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
-        Order orderCreated = orderPersistence.create(order);
+        DomainOrder order = new DomainOrder.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
+        DomainOrder orderCreated = orderPersistence.create(order);
 
         // When
         DomainItem itemNotPersisted = new DomainItem.Builder().withName("Show").withPrice(80).build();
-        Order newOrder = new Order.Builder().addItem(getItem(2), 1).addItem(itemNotPersisted, 5).build();
+        DomainOrder newOrder = new DomainOrder.Builder().addItem(getItem(2), 1).addItem(itemNotPersisted, 5).build();
 
         try {
             editOrder(orderCreated.getId(), newOrder);
@@ -336,7 +336,7 @@ public class OrderRestControllerTest {
 
     @Test
     public void test_when_edit_order_does_not_exist_then_exception() throws Exception {
-        Order newOrder = new Order.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
+        DomainOrder newOrder = new DomainOrder.Builder().addItem(getItem(2), 1).addItem(getItem(3), 5).build();
 
         try {
             editOrder(1000L, newOrder);
@@ -351,9 +351,9 @@ public class OrderRestControllerTest {
     public void test_given_some_orders_when_delete_order_then_order_is_deleted()
             throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist {
         // Given
-        Order order1 = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).build();
-        Order orderCreated1 = orderPersistence.create(order1);
-        Order order2 = new Order.Builder().addItem(getItem(2), 67).addItem(getItem(3), 12).build();
+        DomainOrder order1 = new DomainOrder.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).build();
+        DomainOrder orderCreated1 = orderPersistence.create(order1);
+        DomainOrder order2 = new DomainOrder.Builder().addItem(getItem(2), 67).addItem(getItem(3), 12).build();
         orderPersistence.create(order2);
 
         // When

@@ -5,7 +5,7 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcItemPurchase;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemPurchase;
-import com.craftsmanship.tfm.models.Order;
+import com.craftsmanship.tfm.models.DomainOrder;
 
 public interface ConversionLogic {
 
@@ -17,8 +17,8 @@ public interface ConversionLogic {
 
     GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase itemPurchase);
 
-    Order getOrderFromGrpcOrder(GrpcOrder grpcOrder);
+    DomainOrder getOrderFromGrpcOrder(GrpcOrder grpcOrder);
 
-    GrpcOrder getGrpcOrderFromOrder(Order order);
+    GrpcOrder getGrpcOrderFromOrder(DomainOrder order);
 
 }
