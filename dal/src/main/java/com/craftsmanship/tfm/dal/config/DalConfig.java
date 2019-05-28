@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.craftsmanship.tfm.dal.ItemDAO;
 import com.craftsmanship.tfm.dal.grpc.server.EntityConversion;
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
+import com.craftsmanship.tfm.dal.model.ItemDAO;
 import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 
 @Configuration

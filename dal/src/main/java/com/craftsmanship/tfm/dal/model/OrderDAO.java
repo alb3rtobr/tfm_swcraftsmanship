@@ -1,11 +1,10 @@
-package com.craftsmanship.tfm.dal;
+package com.craftsmanship.tfm.dal.model;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.craftsmanship.tfm.dal.model.Order;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
 
 @Component
