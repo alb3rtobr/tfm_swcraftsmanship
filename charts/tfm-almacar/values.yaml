@@ -63,6 +63,13 @@ kafka:
     #servicePort: '19092'
   zookeeper:
     replicaCount: 1
+  prometheus:
+    operator:
+      enabled: true
+      serviceMonitor:
+        namespace: "default"
+    jmx:
+      enabled: true
 
 restapi:
   replicaCount: 1
@@ -99,6 +106,11 @@ prometheus-operator:
           metrics_path: '/actuator/prometheus'
           static_configs:
             - targets: ['tfm-almacar-dal:8080']
+        - job_name: 'kafka'
+          scrape_interval: 1m
+          metrics_path: '/'
+          static_configs:
+            - targets: ['tfm-almacar-kafka:5555']
         - job_name: 'grafana'
           scrape_interval: 1m
           metrics_path: '/metrics'
