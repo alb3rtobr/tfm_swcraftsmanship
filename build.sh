@@ -7,7 +7,8 @@ SERVICES="restapi stockchecker dal"
 function usage() {
     echo "Usage:"
     echo "    -h | --help"
-    echo "    --no-docker"
+    echo "    --no-test : Do not execute unit test"
+    echo "    --no-docker : Do not generate docker images"
 }
 
 function build_protos() {
@@ -15,7 +16,7 @@ function build_protos() {
     echo " BUILDING proto-idls"
     echo "---------------------------------------------"
     cd ${BASE_DIR}/proto-idls
-    mvn clean install || exit $?
+    mvn clean ${NOTEST} install || exit $?
 }
 
 function build_service() {
@@ -24,7 +25,7 @@ function build_service() {
     echo " BUILDING $service"
     echo "---------------------------------------------"
     cd ${BASE_DIR}/${service}
-    mvn clean package || exit $?
+    mvn clean ${NOTEST} package || exit $?
 }
 
 function build_docker_image() {
@@ -56,6 +57,10 @@ case $key in
     -h | --help)
     usage
     exit 0
+    ;;
+    --no-test)
+    NOTEST="-DskipTests"
+    shift # past argument
     ;;
     --no-docker)
     DOCKER="no"
