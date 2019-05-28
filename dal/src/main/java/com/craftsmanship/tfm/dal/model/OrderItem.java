@@ -4,10 +4,11 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import com.craftsmanship.tfm.models.ItemPurchase;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class OrderItem {
+public class OrderItem implements ItemPurchase{
 
     @EmbeddedId
     @JsonIgnore
@@ -18,7 +19,7 @@ public class OrderItem {
     protected OrderItem() {
     }
 
-    public OrderItem(Order order, EntityItem item, int quantity) {
+    public OrderItem(EntityOrder order, EntityItem item, int quantity) {
         key = new OrderItemKey();
         key.setOrder(order);
         key.setItem(item);
@@ -26,8 +27,14 @@ public class OrderItem {
     }
 
     @Transient
+    @Override
     public EntityItem getItem() {
         return this.key.getItem();
+    }
+    
+    @Override
+    public int getQuantity() {
+        return this.quantity;
     }
 
     public OrderItemKey getKey() {
@@ -36,14 +43,6 @@ public class OrderItem {
     
     public void setKey(OrderItemKey key) {
         this.key = key;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     @Override
@@ -76,5 +75,10 @@ public class OrderItem {
         }
 
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + " key='" + this.key + "'" + ", quantity='" + this.quantity + "'" + "}";
     }
 }

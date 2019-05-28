@@ -15,17 +15,17 @@ public class OrderItemKey implements Serializable{
     @JsonBackReference
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    private Order order;
+    private EntityOrder order;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private EntityItem item;
 
-    public Order getOrder() {
+    public EntityOrder getOrder() {
         return order;
     }
 
-    public void setOrder(Order order) {
+    public void setOrder(EntityOrder order) {
         this.order = order;
     }
 

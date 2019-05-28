@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
+import com.craftsmanship.tfm.models.DomainItemPurchase;
+import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
@@ -19,7 +21,7 @@ public class OrderPersistenceStub implements OrderPersistence {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderPersistenceStub.class);
 
     private ItemPersistenceStub itemPersistenceStub;
-    private Map<Long, Order> orders = new HashMap<Long, Order>();
+    private Map<Long, DomainOrder> orders = new HashMap<Long, DomainOrder>();
     private Long currentIndex = 1L;
 
     public OrderPersistenceStub(ItemPersistenceStub itemPersistenceStub) {
@@ -27,15 +29,15 @@ public class OrderPersistenceStub implements OrderPersistence {
     }
 
     @Override
-    public Order create(Order order) throws ItemDoesNotExist {
-        checkItemsExists(order);
+    public DomainOrder create(Order order) throws ItemDoesNotExist {
+        checkItemsExists((DomainOrder) order);
 
         // TODO: Order should be a COPY
 
         order.setId(currentIndex);
-        orders.put(currentIndex, order);
+        orders.put(currentIndex, (DomainOrder) order);
         currentIndex++;
-        return order;
+        return (DomainOrder) order;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class OrderPersistenceStub implements OrderPersistence {
     }
 
     @Override
-    public Order get(Long id) throws OrderDoesNotExist {
+    public DomainOrder get(Long id) throws OrderDoesNotExist {
         if (orders.get(id) == null) {
             throw new OrderDoesNotExist(id);
         }
@@ -52,20 +54,20 @@ public class OrderPersistenceStub implements OrderPersistence {
     }
 
     @Override
-    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
+    public DomainOrder update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
         if (orders.get(id) == null) {
             throw new OrderDoesNotExist(id);
         }
 
-        checkItemsExists(order);
+        checkItemsExists((DomainOrder) order);
 
         order.setId(id);
-        orders.put(id, order);
-        return order;
+        orders.put(id, (DomainOrder) order);
+        return (DomainOrder) order;
     }
 
     @Override
-    public Order delete(Long id) throws OrderDoesNotExist {
+    public DomainOrder delete(Long id) throws OrderDoesNotExist {
         if (orders.get(id) == null) {
             throw new OrderDoesNotExist(id);
         }
@@ -86,7 +88,7 @@ public class OrderPersistenceStub implements OrderPersistence {
         return this.itemPersistenceStub;
     }
 
-    private void checkItemsExists(Order order) throws ItemDoesNotExist {
+    private void checkItemsExists(DomainOrder order) throws ItemDoesNotExist {
         for (ItemPurchase itemPurchase : order.getItemPurchases()) {
             LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
             itemPersistenceStub.get(itemPurchase.getItem().getId());
