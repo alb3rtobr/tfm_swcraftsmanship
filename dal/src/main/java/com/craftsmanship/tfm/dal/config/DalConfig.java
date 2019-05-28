@@ -37,7 +37,7 @@ public class DalConfig {
         services.add(itemService);
         services.add(orderService);
 
-        GrpcServer grpcServer = new GrpcServer(itemService);
+        GrpcServer grpcServer = new GrpcServer(services);
         return grpcServer;
     }
 
