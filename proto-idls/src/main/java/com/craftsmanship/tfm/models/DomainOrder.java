@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class DomainOrder {
+public class DomainOrder implements Order {
     private Long id;
     private List<ItemPurchase> itemPurchases;
 
@@ -17,19 +17,23 @@ public class DomainOrder {
         this.itemPurchases = itemPurchases;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
+    @Override
     public void add(ItemPurchase itemPurchase) {
         itemPurchases.add(itemPurchase);
     }
 
     // TODO: Probably this should be more stylish to use iterator
+    @Override
     public List<ItemPurchase> getItemPurchases() {
         return itemPurchases;
     }
