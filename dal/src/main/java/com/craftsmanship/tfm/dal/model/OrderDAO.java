@@ -101,17 +101,5 @@ public class OrderDAO implements OrderPersistence {
             orderItemRepository.save((OrderItem) itemPurchase);
         }
     }
-    
-    private void saveOrderItems(Order order) {
-        for (ItemPurchase itemPurchase : order.getItemPurchases()) {
-            orderItemRepository.save((OrderItem) itemPurchase);
-        }
-    }
-
-    private void deleteOrderItems(Order order) {
-        for (ItemPurchase itemPurchase : order.getItemPurchases()) {
-            orderItemRepository.save((OrderItem) itemPurchase);
-        }
-    }
 
 }
