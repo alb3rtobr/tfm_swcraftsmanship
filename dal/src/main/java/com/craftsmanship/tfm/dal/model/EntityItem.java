@@ -1,17 +1,20 @@
 package com.craftsmanship.tfm.dal.model;
 
 import java.util.Objects;
+import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
-import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.models.DomainItem.Builder;
 
 @Entity
+@Table(name = "item")
 public class EntityItem implements Item{
 
     @Id
@@ -22,6 +25,9 @@ public class EntityItem implements Item{
     private long price;
     private int stock;
 
+    @OneToMany(mappedBy = "item")
+    private Set <OrderItem> orderItems;
+    
     protected EntityItem() {
 
     }
@@ -75,6 +81,10 @@ public class EntityItem implements Item{
     @Override
     public void setStock(int stock) {
         this.stock = stock;
+    }
+    
+    public Set<OrderItem> getOrderItems() {
+        return orderItems;
     }
 
     @Override
