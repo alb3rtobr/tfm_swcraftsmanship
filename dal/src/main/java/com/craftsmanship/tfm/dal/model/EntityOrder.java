@@ -53,7 +53,28 @@ public class EntityOrder {
     public void setOrderItems(Set<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
-
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EntityOrder other = (EntityOrder) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (orderItems == null) {
+            if (other.orderItems != null)
+                return false;
+        } else if (!orderItems.equals(other.orderItems))
+            return false;
+        return true;
+    }
 
     @Override
     public String toString() {

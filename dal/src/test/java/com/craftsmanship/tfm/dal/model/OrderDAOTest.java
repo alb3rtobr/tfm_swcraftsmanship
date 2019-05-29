@@ -3,18 +3,15 @@ package com.craftsmanship.tfm.dal.model;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.models.Order;
-import com.craftsmanship.tfm.dal.model.ItemDAO;
+import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 import com.craftsmanship.tfm.dal.repository.ItemRepository;
+import com.craftsmanship.tfm.dal.repository.OrderItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,9 +36,13 @@ public class OrderDAOTest {
 
     @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
     private OrderDAO dao;
+    
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -53,8 +54,9 @@ public class OrderDAOTest {
 
     @After
     public void tearDown() {
-        itemRepository.deleteAll();
         orderRepository.deleteAll();
+        orderItemRepository.deleteAll();
+        itemRepository.deleteAll();
     }
 
     private void createSomeItems() {
@@ -62,9 +64,10 @@ public class OrderDAOTest {
         EntityItem item2 = new EntityItem.Builder().withName("Porsche").withPrice(33330).withStock(7).build();
         EntityItem item3 = new EntityItem.Builder().withName("Lamborghini").withPrice(800000).withStock(3).build();
 
-        itemRepository.save((EntityItem) item1);
-        itemRepository.save((EntityItem) item2);
-        itemRepository.save((EntityItem) item3);
+        itemRepository.save(item1);
+        itemRepository.save(item2);
+        itemRepository.save(item3);
+        itemRepository.flush();
     }
 
     public EntityItem getItem(int id) {
@@ -79,7 +82,7 @@ public class OrderDAOTest {
         LOGGER.info("Llamamos al DAO");
         EntityOrder createdOrder = dao.create(order);
 
-        assertThat(createdOrder, equalTo(itemRepository.getOne(createdOrder.getId())));
+        assertThat(createdOrder, equalTo(orderRepository.getOne(createdOrder.getId())));
     }
 
     @Test
@@ -88,7 +91,7 @@ public class OrderDAOTest {
         EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(nonPersistedItem, 4).build();
 
         exceptionRule.expect(ItemDoesNotExist.class);
-        exceptionRule.expectMessage("Item with id " + 0 + " does not exist");
+        exceptionRule.expectMessage("Item does not exist");
 
         dao.create(order);
     }
@@ -134,6 +137,7 @@ public class OrderDAOTest {
     @Test
     public void given_persisted_order_when_updated_then_order_is_returned() throws Exception {
         EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
+        persistOrderItems(order);
         EntityOrder persistedOrder = orderRepository.save((EntityOrder) order);
 
         EntityOrder newOrder = new EntityOrder.Builder().addItem(getItem(2), 10).build();
@@ -147,7 +151,7 @@ public class OrderDAOTest {
     @Test
     public void when_update_id_does_not_exist_then_exception() throws Exception {
         Long id = 1000L;
-        exceptionRule.expect(NoSuchElementException.class);
+        exceptionRule.expect(OrderDoesNotExist.class);
 
         EntityOrder newOrder = new EntityOrder.Builder().addItem(getItem(2), 10).build();
 
@@ -157,12 +161,13 @@ public class OrderDAOTest {
     @Test
     public void test_given_order_persisted_when_updated_with_non_existing_item_then_exception() throws Exception {
         EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
-        EntityOrder persistedOrder = orderRepository.save((EntityOrder) order);
+        persistOrderItems(order);
+        EntityOrder persistedOrder = orderRepository.save(order);
 
         EntityItem nonPersistedItem = new EntityItem.Builder().withName("Seat").withPrice(200).withStock(1).build();
         EntityOrder newOrder = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(nonPersistedItem, 4).build();
 
-        exceptionRule.expect(NoSuchElementException.class);
+        exceptionRule.expect(ItemDoesNotExist.class);
 
         dao.update(persistedOrder.getId(), newOrder);
     }
@@ -186,4 +191,12 @@ public class OrderDAOTest {
 
         dao.delete(id);
     }
+
+    private void persistOrderItems(EntityOrder order) {
+        LOGGER.info("Saving order items: " + order.getOrderItems());
+        for (OrderItem itemPurchase : order.getOrderItems()) {
+            orderItemRepository.save(itemPurchase);
+        }
+    }
+
 }

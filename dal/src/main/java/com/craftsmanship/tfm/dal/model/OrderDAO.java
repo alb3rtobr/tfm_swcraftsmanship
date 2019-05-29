@@ -3,7 +3,6 @@ package com.craftsmanship.tfm.dal.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +14,6 @@ import com.craftsmanship.tfm.dal.repository.OrderItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
-import com.craftsmanship.tfm.models.ItemPurchase;
-import com.craftsmanship.tfm.models.Order;
-import com.craftsmanship.tfm.persistence.OrderPersistence;
 
 @Component
 public class OrderDAO {
@@ -74,14 +70,13 @@ public class OrderDAO {
 
     private void checkItemsExists(EntityOrder order) throws ItemDoesNotExist {
         LOGGER.info("Checking ItemPurchases: " + order.getOrderItems());
-        try {
-            for (OrderItem itemPurchase : order.getOrderItems()) {
-                LOGGER.info("Checking ItemPurchase: " + itemPurchase);
-                LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
-                itemRepository.getOne(itemPurchase.getItem().getId());
+        for (OrderItem itemPurchase : order.getOrderItems()) {
+            LOGGER.info("Checking ItemPurchase: " + itemPurchase);
+            LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
+
+            if (!itemRepository.existsById(itemPurchase.getItem().getId())) {
+                throw new ItemDoesNotExist("Item does not exist");
             }
-        } catch (EntityNotFoundException e) {
-            throw new ItemDoesNotExist(e.getMessage());
         }
     }
     
