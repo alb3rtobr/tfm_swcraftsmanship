@@ -12,6 +12,8 @@ import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.dal.model.ItemDAO;
 import com.craftsmanship.tfm.dal.repository.ItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
+import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence;
 
 import org.junit.After;
@@ -80,103 +82,108 @@ public class OrderDAOTest {
         assertThat(createdOrder, equalTo(itemRepository.getOne(createdOrder.getId())));
     }
 
-    // @Test
-    // public void given_item_without_price_when_created_then_item_is_persisted() {
-    //     Item item = new EntityItem.Builder().withName("BMW").withStock(1).build();
+    @Test
+    public void given_order_with_non_persisted_item_when_created_then_exception() throws Exception {
+        EntityItem nonPersistedItem = new EntityItem.Builder().withName("Seat").withPrice(200).withStock(1).build();
+        Order order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(nonPersistedItem, 4).build();
 
-    //     Item createdItem = dao.create(item);
+        exceptionRule.expect(ItemDoesNotExist.class);
+        exceptionRule.expectMessage("Item with id " + 0 + " does not exist");
 
-    //     assertThat(createdItem, equalTo(itemRepository.getOne(createdItem.getId())));
-    // }
+        dao.create(order);
+    }
 
-    // @Test
-    // public void given_item_without_stock_when_created_then_item_is_persisted() {
-    //     Item item = new EntityItem.Builder().withName("BMW").withPrice(20).build();
+    @Test
+    public void given_order_with_no_items_when_created_then_exception() {
+        // TODO: it this allowed? or exception?
+    }
 
-    //     Item createdItem = dao.create(item);
+    @Test
+    public void given_several_persisted_orders_when_list_then_all_orders_are_returned() {
+        Order order1 = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
+        Order order2 = new EntityOrder.Builder().addItem(getItem(3), 40).build();
+        Order order3 = new EntityOrder.Builder().addItem(getItem(2), 1).addItem(getItem(3), 41).build();
 
-    //     assertThat(createdItem, equalTo(itemRepository.getOne(createdItem.getId())));
-    // }
+        orderRepository.save((EntityOrder) order1);
+        orderRepository.save((EntityOrder) order2);
+        orderRepository.save((EntityOrder) order3);
 
-    // @Test
-    // public void given_several_persisted_items_when_list_then_all_items_are_returned() {
-    //     Item item1 = new EntityItem.Builder().withName("BMW").withPrice(200000).withStock(1).build();
-    //     Item item2 = new EntityItem.Builder().withName("Porsche").withPrice(33330).withStock(7).build();
-    //     Item item3 = new EntityItem.Builder().withName("Lamborghini").withPrice(800000).withStock(3).build();
+        List<Order> orders = dao.list();
 
-    //     List<Item> expectedItems = new ArrayList<Item>();
-    //     expectedItems.add(item1);
-    //     expectedItems.add(item2);
-    //     expectedItems.add(item3);
+        assertThat(orders, equalTo(orderRepository.findAll()));
+    }
 
-    //     itemRepository.save((EntityItem) item1);
-    //     itemRepository.save((EntityItem) item2);
-    //     itemRepository.save((EntityItem) item3);
+    @Test
+    public void test_given_order_persisted_when_get_then_order_returned() throws Exception {
+        Order order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
+        Order persistedOrder = orderRepository.save((EntityOrder) order);
 
-    //     List<Item> items = dao.list();
+        Order receivedOrder = dao.get(persistedOrder.getId());
+        
+        assertThat(receivedOrder, equalTo(persistedOrder));
+    }
 
-    //     assertThat(items, equalTo(itemRepository.findAll()));
-    // }
+    @Test
+    public void when_get_id_does_not_exist_then_exception() throws Exception {
+        Long id = 1000L;
+        exceptionRule.expect(OrderDoesNotExist.class);
 
-    // @Test
-    // public void given_persisted_item_when_get_then_item_is_returned() {
-    //     Item item = new EntityItem.Builder().withName("BMW").withPrice(200000).withStock(1).build();
+        dao.get(id);
+    }
 
-    //     Item persistedItem = itemRepository.save((EntityItem) item);
+    @Test
+    public void given_persisted_order_when_updated_then_order_is_returned() throws Exception {
+        Order order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
+        Order persistedOrder = orderRepository.save((EntityOrder) order);
 
-    //     Item receivedItem = dao.get(persistedItem.getId());
+        Order newOrder = new EntityOrder.Builder().addItem(getItem(2), 10).build();
 
-    //     assertThat(receivedItem, equalTo(persistedItem));
-    // }
+        Order orderReceived = dao.update(persistedOrder.getId(), newOrder);
 
-    // @Test
-    // public void when_get_id_does_not_exist_then_exception() {
-    //     Long id = 1000L;
-    //     exceptionRule.expect(NoSuchElementException.class);
+        newOrder.setId(orderReceived.getId());
+        assertThat(orderReceived, equalTo(newOrder));
+    }
 
-    //     dao.get(id);
-    // }
+    @Test
+    public void when_update_id_does_not_exist_then_exception() throws Exception {
+        Long id = 1000L;
+        exceptionRule.expect(NoSuchElementException.class);
 
-    // @Test
-    // public void given_persisted_item_when_updated_then_item_is_returned() {
-    //     Item item = new EntityItem.Builder().withName("BMW").withPrice(200000).withStock(1).build();
-    //     Item persistedItem = itemRepository.save((EntityItem) item);
+        Order newOrder = new EntityOrder.Builder().addItem(getItem(2), 10).build();
 
-    //     Item newItem = new EntityItem.Builder().withName("BMW").withPrice(100000).withStock(10).build();
+        dao.update(id, newOrder);
+    }
 
-    //     Item receivedItem = dao.update(persistedItem.getId(), newItem);
+    @Test
+    public void test_given_order_persisted_when_updated_with_non_existing_item_then_exception() throws Exception {
+        Order order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
+        Order persistedOrder = orderRepository.save((EntityOrder) order);
 
-    //     newItem.setId(persistedItem.getId());
-    //     assertThat(receivedItem, equalTo(newItem));
-    // }
+        EntityItem nonPersistedItem = new EntityItem.Builder().withName("Seat").withPrice(200).withStock(1).build();
+        Order newOrder = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(nonPersistedItem, 4).build();
 
-    // @Test
-    // public void when_update_id_does_not_exist_then_exception() {
-    //     Long id = 1000L;
-    //     exceptionRule.expect(NoSuchElementException.class);
+        exceptionRule.expect(NoSuchElementException.class);
 
-    //     Item newItem = new EntityItem.Builder().withName("BMW").withPrice(100000).withStock(10).build();
+        dao.update(persistedOrder.getId(), newOrder);
+    }
 
-    //     dao.update(id, newItem);
-    // }
+    @Test
+    public void given_persisted_order_when_deleted_then_order_is_deleted() throws Exception {
+        Long expectedOrders = orderRepository.count();
+        Order order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
+        Order persistedOrder = orderRepository.save((EntityOrder) order);
 
-    // @Test
-    // public void given_persisted_item_when_deleted_then_item_is_deleted() {
-    //     Long expectedItems = itemRepository.count();
-    //     Item item = new EntityItem.Builder().withName("BMW").withPrice(200000).withStock(1).build();
-    //     Item persistedItem = itemRepository.save((EntityItem) item);
+        Order deletedOrder = dao.delete(persistedOrder.getId());
 
-    //     Item deletedItem = dao.delete(persistedItem.getId());
+        assertThat(deletedOrder, equalTo(persistedOrder));
+        assertThat(orderRepository.count(), equalTo(expectedOrders));
+    }
 
-    //     assertThat(deletedItem, equalTo(persistedItem));
-    //     assertThat(itemRepository.count(), equalTo(expectedItems));
-    // }
+    @Test
+    public void when_delete_id_does_not_exist_then_exception() throws Exception {
+        Long id = 1000L;
+        exceptionRule.expect(NoSuchElementException.class);
 
-    // @Test
-    // public void when_delete_id_does_not_exist_then_exception() {
-    //     Long id = 1000L;
-    //     exceptionRule.expect(NoSuchElementException.class);
-
-    //     dao.delete(id);
-    // }
+        dao.delete(id);
+    }
 }

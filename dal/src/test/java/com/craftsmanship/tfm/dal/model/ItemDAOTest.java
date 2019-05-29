@@ -75,11 +75,6 @@ public class ItemDAOTest {
         Item item2 = new EntityItem.Builder().withName("Porsche").withPrice(33330).withStock(7).build();
         Item item3 = new EntityItem.Builder().withName("Lamborghini").withPrice(800000).withStock(3).build();
 
-        List<Item> expectedItems = new ArrayList<Item>();
-        expectedItems.add(item1);
-        expectedItems.add(item2);
-        expectedItems.add(item3);
-
         itemRepository.save((EntityItem) item1);
         itemRepository.save((EntityItem) item2);
         itemRepository.save((EntityItem) item3);
