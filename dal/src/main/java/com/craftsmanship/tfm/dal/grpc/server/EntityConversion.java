@@ -39,11 +39,15 @@ public class EntityConversion {
 
     public GrpcOrder getGrpcOrderFromOrder(EntityOrder order) {
         Builder grpcOrderBuilder = GrpcOrder.newBuilder();
-        for (int i = 0; i < order.getOrderItems().size(); i++) {
+
+        int i = 0;
+        for (OrderItem orderItem : order.getOrderItems()) {
             GrpcItemPurchase grpcItemPurchase = 
-                    getGrpcItemPurchaseFromItemPurchase(order.getOrderItems().get(i));
+                    getGrpcItemPurchaseFromItemPurchase(orderItem);
             grpcOrderBuilder.addListOfItemPurchases(i, grpcItemPurchase);
+            i++;
         }
+
         return grpcOrderBuilder.setId(order.getId()).build();
     }
 

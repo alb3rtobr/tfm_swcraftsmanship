@@ -1,7 +1,9 @@
 package com.craftsmanship.tfm.dal.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,18 +21,17 @@ public class EntityOrder {
     private Long id;
 
     @OneToMany(mappedBy = "entityOrder")
-    private List<OrderItem> orderItems = new ArrayList<OrderItem>();
+    private Set<OrderItem> orderItems = new HashSet<OrderItem>();
 
-    protected EntityOrder() {
+    public EntityOrder() {
+    }
 
+    public EntityOrder(Set<OrderItem> orderItems) {
+        this.orderItems = orderItems;
     }
 
     public EntityOrder(long id) {
         this.id = id;
-    }
-
-    public EntityOrder(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
     }
 
     public Long getId() {
@@ -42,14 +43,14 @@ public class EntityOrder {
     }
 
     public void add(OrderItem orderItem) {
-        orderItems.add((OrderItem) orderItem);
+        orderItems.add(orderItem);
     }
 
-    public List<OrderItem> getOrderItems() {
+    public Set<OrderItem> getOrderItems() {
         return orderItems;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
+    public void setOrderItems(Set<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
 
@@ -63,11 +64,11 @@ public class EntityOrder {
     public static class Builder {
 
         private Long id;
-        private List<ItemStock> itemStocks;
+        private Set<ItemStock> itemStocks;
 
         public Builder() {
             this.id = -1L;
-            this.itemStocks = new ArrayList<ItemStock>();
+            this.itemStocks = new HashSet<ItemStock>();
         }
 
         public Builder withId(Long id) {
@@ -81,14 +82,15 @@ public class EntityOrder {
         }
 
         public EntityOrder build() {
-            EntityOrder order = new EntityOrder(this.id);
-
+            Set<OrderItem> orderItems = new HashSet<OrderItem>();
             for (ItemStock itemStock : this.itemStocks) {
-                order.add(new OrderItem(order, itemStock.getItem(), itemStock.getStock()));
+                OrderItem orderItem = new OrderItem(null, itemStock.getItem(), itemStock.getStock());
+                orderItems.add(orderItem);
             }
 
+            EntityOrder order = new EntityOrder(orderItems);
+            order.setId(this.id);
             return order;
         }
     }
-
 }
