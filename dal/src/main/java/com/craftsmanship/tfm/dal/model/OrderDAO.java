@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.craftsmanship.tfm.dal.repository.OrderItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
@@ -22,6 +23,8 @@ public class OrderDAO implements OrderPersistence{
 
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     private ItemDAO itemDAO;
 
@@ -32,7 +35,7 @@ public class OrderDAO implements OrderPersistence{
     @Override
     public Order create(Order order) throws ItemDoesNotExist{
         checkItemsExists(order);
-        
+        saveOrderItems(order);
         return orderRepository.save((EntityOrder) order);
     }
 
@@ -55,6 +58,7 @@ public class OrderDAO implements OrderPersistence{
             throw new OrderDoesNotExist(id);
         }
         checkItemsExists(order);
+        saveOrderItems(order);
         return orderRepository.save((EntityOrder) order);
     }
 
@@ -65,6 +69,7 @@ public class OrderDAO implements OrderPersistence{
         }
         Order deletedOrder = orderRepository.findById(id).get();
         orderRepository.delete((EntityOrder) deletedOrder);
+        deleteOrderItems(deletedOrder);
         return deletedOrder;
     }
 
@@ -72,6 +77,18 @@ public class OrderDAO implements OrderPersistence{
         for (ItemPurchase itemPurchase : order.getItemPurchases()) {
             LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
             itemDAO.get(itemPurchase.getItem().getId());
+        }
+    }
+    
+    private void saveOrderItems(Order order) {
+        for (ItemPurchase itemPurchase : order.getItemPurchases()) {
+            orderItemRepository.save((OrderItem) itemPurchase);
+        }
+    }
+
+    private void deleteOrderItems(Order order) {
+        for (ItemPurchase itemPurchase : order.getItemPurchases()) {
+            orderItemRepository.save((OrderItem) itemPurchase);
         }
     }
 
