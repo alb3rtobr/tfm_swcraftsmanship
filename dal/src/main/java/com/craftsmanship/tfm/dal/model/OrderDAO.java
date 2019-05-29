@@ -20,43 +20,40 @@ import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
 
 @Component
-public class OrderDAO implements OrderPersistence {
+public class OrderDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderDAO.class);
 
     @Autowired
     private ItemRepository itemRepository;
+
     @Autowired
     private OrderItemRepository orderItemRepository;
 
     @Autowired
     private OrderRepository orderRepository;
 
-    @Override
-    public Order create(Order order) throws ItemDoesNotExist {
+    public EntityOrder create(EntityOrder order) throws ItemDoesNotExist {
         LOGGER.info("Check if items exist");
         checkItemsExists(order);
         LOGGER.info("All the items exist");
         saveOrderItems(order);
         LOGGER.info("All order items saved");
-        return orderRepository.save((EntityOrder) order);
+        return orderRepository.save(order);
     }
 
-    @Override
-    public List<Order> list() {
-        return new ArrayList<Order>(orderRepository.findAll());
+    public List<EntityOrder> list() {
+        return new ArrayList<EntityOrder>(orderRepository.findAll());
     }
 
-    @Override
-    public Order get(Long id) throws OrderDoesNotExist {
+    public EntityOrder get(Long id) throws OrderDoesNotExist {
         if (!orderRepository.findById(id).isPresent()) {
             throw new OrderDoesNotExist(id);
         }
         return orderRepository.findById(id).get();
     }
 
-    @Override
-    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
+    public EntityOrder update(Long id, EntityOrder order) throws OrderDoesNotExist, ItemDoesNotExist {
         if (!orderRepository.findById(id).isPresent()) {
             throw new OrderDoesNotExist(id);
         }
@@ -65,21 +62,20 @@ public class OrderDAO implements OrderPersistence {
         return orderRepository.save((EntityOrder) order);
     }
 
-    @Override
-    public Order delete(Long id) throws OrderDoesNotExist {
+    public EntityOrder delete(Long id) throws OrderDoesNotExist {
         if (!orderRepository.findById(id).isPresent()) {
             throw new OrderDoesNotExist(id);
         }
-        Order deletedOrder = orderRepository.findById(id).get();
+        EntityOrder deletedOrder = orderRepository.findById(id).get();
         orderRepository.delete((EntityOrder) deletedOrder);
         deleteOrderItems(deletedOrder);
         return deletedOrder;
     }
 
-    private void checkItemsExists(Order order) throws ItemDoesNotExist {
-        LOGGER.info("Checking ItemPurchases: " + order.getItemPurchases());
+    private void checkItemsExists(EntityOrder order) throws ItemDoesNotExist {
+        LOGGER.info("Checking ItemPurchases: " + order.getOrderItems());
         try {
-            for (ItemPurchase itemPurchase : order.getItemPurchases()) {
+            for (OrderItem itemPurchase : order.getOrderItems()) {
                 LOGGER.info("Checking ItemPurchase: " + itemPurchase);
                 LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
                 itemRepository.getOne(itemPurchase.getItem().getId());
@@ -89,15 +85,15 @@ public class OrderDAO implements OrderPersistence {
         }
     }
     
-    private void saveOrderItems(Order order) {
-        LOGGER.info("Saving order items: " + order.getItemPurchases());
-        for (ItemPurchase itemPurchase : order.getItemPurchases()) {
+    private void saveOrderItems(EntityOrder order) {
+        LOGGER.info("Saving order items: " + order.getOrderItems());
+        for (OrderItem itemPurchase : order.getOrderItems()) {
             orderItemRepository.save((OrderItem) itemPurchase);
         }
     }
 
-    private void deleteOrderItems(Order order) {
-        for (ItemPurchase itemPurchase : order.getItemPurchases()) {
+    private void deleteOrderItems(EntityOrder order) {
+        for (OrderItem itemPurchase : order.getOrderItems()) {
             orderItemRepository.save((OrderItem) itemPurchase);
         }
     }

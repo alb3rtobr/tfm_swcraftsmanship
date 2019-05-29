@@ -1,9 +1,10 @@
 package com.craftsmanship.tfm.dal.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,58 +12,45 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.craftsmanship.tfm.models.ItemPurchase;
-import com.craftsmanship.tfm.models.Order;
-
 @Entity
 @Table(name = "orders")
-public class EntityOrder  implements Order{
+public class EntityOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToMany(mappedBy = "entityOrder")
-    private List<OrderItem> orderItems = new ArrayList<OrderItem>();
+    private Set<OrderItem> orderItems = new HashSet<OrderItem>();
 
-    protected EntityOrder() {
+    public EntityOrder() {
+    }
 
+    public EntityOrder(Set<OrderItem> orderItems) {
+        this.orderItems = orderItems;
     }
 
     public EntityOrder(long id) {
         this.id = id;
     }
 
-    public EntityOrder(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
-    }
-
-    @Override
     public Long getId() {
         return id;
     }
 
-    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
-    @Override
-    public void add(ItemPurchase orderItem) {
-        orderItems.add((OrderItem) orderItem);
+    public void add(OrderItem orderItem) {
+        orderItems.add(orderItem);
     }
 
-    @Override
-    public List<ItemPurchase> getItemPurchases() {
-        System.out.println("XXXXXXXXX");
-        return (List<ItemPurchase>)(List)orderItems;
+    public Set<OrderItem> getOrderItems() {
+        return orderItems;
     }
 
-    public List<ItemPurchase> getOrderItems() {
-        return getItemPurchases();
-    }
-
-    public void setOrderItems(List<OrderItem> orderItems) {
+    public void setOrderItems(Set<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
 
@@ -76,11 +64,11 @@ public class EntityOrder  implements Order{
     public static class Builder {
 
         private Long id;
-        private List<ItemStock> itemStocks;
+        private Set<ItemStock> itemStocks;
 
         public Builder() {
             this.id = -1L;
-            this.itemStocks = new ArrayList<ItemStock>();
+            this.itemStocks = new HashSet<ItemStock>();
         }
 
         public Builder withId(Long id) {
@@ -94,14 +82,15 @@ public class EntityOrder  implements Order{
         }
 
         public EntityOrder build() {
-            EntityOrder order = new EntityOrder(this.id);
-
+            Set<OrderItem> orderItems = new HashSet<OrderItem>();
             for (ItemStock itemStock : this.itemStocks) {
-                order.add(new OrderItem(order, itemStock.getItem(), itemStock.getStock()));
+                OrderItem orderItem = new OrderItem(null, itemStock.getItem(), itemStock.getStock());
+                orderItems.add(orderItem);
             }
 
+            EntityOrder order = new EntityOrder(orderItems);
+            order.setId(this.id);
             return order;
         }
     }
-
 }
