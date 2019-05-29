@@ -13,7 +13,7 @@ import com.craftsmanship.tfm.models.ItemPurchase;
 
 @Entity
 @Table(name = "order_item")
-public class OrderItem implements ItemPurchase{
+public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,7 +39,6 @@ public class OrderItem implements ItemPurchase{
         this.quantity = quantity;
     }
 
-    @Override
     public EntityItem getItem() {
         return this.item;
     }
@@ -56,7 +55,6 @@ public class OrderItem implements ItemPurchase{
         this.entityOrder = order;
     }
 
-    @Override
     public int getQuantity() {
         return this.quantity;
     }

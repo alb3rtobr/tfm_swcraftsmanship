@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.craftsmanship.tfm.dal.grpc.server.EntityConversion;
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
+import com.craftsmanship.tfm.dal.grpc.services.ItemPersistenceService;
+import com.craftsmanship.tfm.dal.grpc.services.OrderPersistenceService;
 import com.craftsmanship.tfm.dal.model.ItemDAO;
 import com.craftsmanship.tfm.dal.model.OrderDAO;
-import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
-import com.craftsmanship.tfm.grpc.services.OrderPersistenceService;
 
 import io.grpc.BindableService;
 

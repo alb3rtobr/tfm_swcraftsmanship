@@ -15,7 +15,7 @@ import com.craftsmanship.tfm.models.Item;
 
 @Entity
 @Table(name = "item")
-public class EntityItem implements Item{
+public class EntityItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,42 +43,34 @@ public class EntityItem implements Item{
         this.id = id;
     }
 
-    @Override
     public Long getId() {
         return id;
     }
 
-    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public Long getPrice() {
         return price;
     }
 
-    @Override
     public void setPrice(Long price) {
         this.price = price;
     }
 
-    @Override
     public int getStock() {
         return stock;
     }
 
-    @Override
     public void setStock(int stock) {
         this.stock = stock;
     }

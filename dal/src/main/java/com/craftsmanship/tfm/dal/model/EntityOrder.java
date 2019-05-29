@@ -3,7 +3,6 @@ package com.craftsmanship.tfm.dal.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,12 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.craftsmanship.tfm.models.ItemPurchase;
-import com.craftsmanship.tfm.models.Order;
-
 @Entity
 @Table(name = "orders")
-public class EntityOrder  implements Order{
+public class EntityOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,29 +33,20 @@ public class EntityOrder  implements Order{
         this.orderItems = orderItems;
     }
 
-    @Override
     public Long getId() {
         return id;
     }
 
-    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
-    @Override
-    public void add(ItemPurchase orderItem) {
+    public void add(OrderItem orderItem) {
         orderItems.add((OrderItem) orderItem);
     }
 
-    @Override
-    public List<ItemPurchase> getItemPurchases() {
-        System.out.println("XXXXXXXXX");
-        return (List<ItemPurchase>)(List)orderItems;
-    }
-
-    public List<ItemPurchase> getOrderItems() {
-        return getItemPurchases();
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
     }
 
     public void setOrderItems(List<OrderItem> orderItems) {

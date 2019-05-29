@@ -14,22 +14,19 @@ import com.craftsmanship.tfm.models.DomainItemPurchase;
 import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.utils.ConversionLogic;
 
-public class EntityConversion implements ConversionLogic{
+public class EntityConversion {
 
-    @Override
-    public Item getItemFromGrpcItem(GrpcItem grpcItem) {
+    public EntityItem getItemFromGrpcItem(GrpcItem grpcItem) {
         return new EntityItem.Builder().withId(grpcItem.getId()).withName(grpcItem.getName()).withPrice(grpcItem.getPrice())
                 .withStock(grpcItem.getStock()).build();
     }
 
-    @Override
-    public GrpcItem getGrpcItemFromItem(Item item) {
+    public GrpcItem getGrpcItemFromItem(EntityItem item) {
         return GrpcItem.newBuilder().setId(item.getId()).setName(item.getName()).setPrice(item.getPrice())
                 .setStock(item.getStock()).build();
     }
 
-    @Override
-    public Order getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
+    public EntityOrder getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
         
         EntityOrder order = new EntityOrder.Builder().withId(grpcOrder.getId()).build();
         for (GrpcItemPurchase purchase : grpcOrder.getListOfItemPurchasesList()) {
@@ -40,23 +37,22 @@ public class EntityConversion implements ConversionLogic{
         return order;
     }
 
-    @Override
-    public GrpcOrder getGrpcOrderFromOrder(Order order) {
+    public GrpcOrder getGrpcOrderFromOrder(EntityOrder order) {
         Builder grpcOrderBuilder = GrpcOrder.newBuilder();
-        for (int i = 0; i < order.getItemPurchases().size(); i++) {
+        for (int i = 0; i < order.getOrderItems().size(); i++) {
             GrpcItemPurchase grpcItemPurchase = 
-                    getGrpcItemPurchaseFromItemPurchase(order.getItemPurchases().get(i));
+                    getGrpcItemPurchaseFromItemPurchase(order.getOrderItems().get(i));
             grpcOrderBuilder.addListOfItemPurchases(i, grpcItemPurchase);
         }
         return grpcOrderBuilder.setId(order.getId()).build();
     }
 
-    public ItemPurchase getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase, EntityOrder order) {
+    public OrderItem getItemPurchaseFromGrpcItemPurchase(GrpcItemPurchase grpcPurchase, EntityOrder order) {
         EntityItem item = (EntityItem) getItemFromGrpcItem(grpcPurchase.getItem());
         return new OrderItem(order, item, grpcPurchase.getQuantity());
     }
 
-    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(ItemPurchase itemPurchase) {
+    public GrpcItemPurchase getGrpcItemPurchaseFromItemPurchase(OrderItem itemPurchase) {
         GrpcItem grpcItem = getGrpcItemFromItem(itemPurchase.getItem());
         return GrpcItemPurchase.newBuilder().setItem(grpcItem).setQuantity(itemPurchase.getQuantity()).build();
     }
