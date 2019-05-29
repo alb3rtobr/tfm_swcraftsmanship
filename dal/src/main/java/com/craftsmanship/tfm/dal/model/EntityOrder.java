@@ -3,6 +3,7 @@ package com.craftsmanship.tfm.dal.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,13 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.craftsmanship.tfm.models.DomainItem;
-import com.craftsmanship.tfm.models.DomainItemPurchase;
-import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
-import com.craftsmanship.tfm.models.DomainOrder.Builder;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "orders")
@@ -26,10 +22,8 @@ public class EntityOrder  implements Order{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "key.order")
+    @OneToMany(mappedBy = "entityOrder")
     private List<OrderItem> orderItems = new ArrayList<OrderItem>();
-
 
     protected EntityOrder() {
 
@@ -60,7 +54,8 @@ public class EntityOrder  implements Order{
 
     @Override
     public List<ItemPurchase> getItemPurchases() {
-        return null;// new ArrayList<ItemPurchase>(orderItems);
+        System.out.println("XXXXXXXXX");
+        return (List<ItemPurchase>)(List)orderItems;
     }
 
     public List<ItemPurchase> getOrderItems() {
@@ -81,11 +76,11 @@ public class EntityOrder  implements Order{
     public static class Builder {
 
         private Long id;
-        private List<OrderItem> orderItems;
+        private List<ItemStock> itemStocks;
 
         public Builder() {
             this.id = -1L;
-            this.orderItems = new ArrayList<OrderItem>();
+            this.itemStocks = new ArrayList<ItemStock>();
         }
 
         public Builder withId(Long id) {
@@ -93,14 +88,18 @@ public class EntityOrder  implements Order{
             return this;
         }
 
-        public Builder addItem(EntityOrder order, EntityItem item, int stock) {
-            orderItems.add(new OrderItem(order, item, stock));
+        public Builder addItem(EntityItem item, int stock) {
+            itemStocks.add(new ItemStock(item, stock));
             return this;
         }
 
         public EntityOrder build() {
-            EntityOrder order = new EntityOrder(this.orderItems);
-            order.setId(this.id);
+            EntityOrder order = new EntityOrder(this.id);
+
+            for (ItemStock itemStock : this.itemStocks) {
+                order.add(new OrderItem(order, itemStock.getItem(), itemStock.getStock()));
+            }
+
             return order;
         }
     }

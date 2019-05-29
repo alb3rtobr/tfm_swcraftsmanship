@@ -1,57 +1,72 @@
 package com.craftsmanship.tfm.dal.model;
 
-import javax.persistence.EmbeddedId;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import com.craftsmanship.tfm.models.ItemPurchase;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
+@Table(name = "order_item")
 public class OrderItem implements ItemPurchase{
 
-    @EmbeddedId
-    @JsonIgnore
-    private OrderItemKey key;
-
-    private int quantity;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     
+    private int quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private EntityItem item;
+
+    @ManyToOne
+    @JoinColumn(name = "orders_id")
+    private EntityOrder entityOrder;
 
     public OrderItem() {
         this(null, null, 0);
     }
 
     public OrderItem(EntityOrder order, EntityItem item, int quantity) {
-        key = new OrderItemKey();
-        key.setOrder(order);
-        key.setItem(item);
+        this.entityOrder = order;
+        this.item = item;
         this.quantity = quantity;
     }
 
-    @Transient
     @Override
     public EntityItem getItem() {
-        return this.key.getItem();
+        return this.item;
     }
-    
+
+    public void setItem(EntityItem item) {
+        this.item = item;
+    }
+
+    public EntityOrder getOrder() {
+        return this.entityOrder;
+    }
+
+    public void setOrder(EntityOrder order) {
+        this.entityOrder = order;
+    }
+
     @Override
     public int getQuantity() {
         return this.quantity;
     }
 
-    public OrderItemKey getKey() {
-        return key;
-    }
-    
-    public void setKey(OrderItemKey key) {
-        this.key = key;
-    }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((key == null) ? 0 : key.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
 
         return result;
     }
@@ -68,11 +83,11 @@ public class OrderItem implements ItemPurchase{
             return false;
         }
         OrderItem other = (OrderItem) obj;
-        if (key == null) {
-            if (other.key != null) {
+        if (id == null) {
+            if (other.id != null) {
                 return false;
             }
-        } else if (!key.equals(other.key)) {
+        } else if (!id.equals(other.id)) {
             return false;
         }
 
@@ -81,6 +96,7 @@ public class OrderItem implements ItemPurchase{
 
     @Override
     public String toString() {
-        return "{" + " key='" + this.key + "'" + ", quantity='" + this.quantity + "'" + "}";
+        return "OrderItem [id=" + id + ", quantity=" + quantity + ", item=" + item + ", order=" + entityOrder + "]";
     }
+
 }
