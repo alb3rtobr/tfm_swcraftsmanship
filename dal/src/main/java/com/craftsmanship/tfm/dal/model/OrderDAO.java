@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.craftsmanship.tfm.dal.repository.ItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
@@ -17,23 +18,21 @@ import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
 
 @Component
-public class OrderDAO implements OrderPersistence{
+public class OrderDAO implements OrderPersistence {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderDAO.class);
 
     @Autowired
-    private OrderRepository orderRepository;
+    private ItemRepository itemRepository;
     @Autowired
     private OrderItemRepository orderItemRepository;
 
-    private ItemDAO itemDAO;
-
-    public OrderDAO(ItemDAO itemDAO) {
-        this.itemDAO = itemDAO;
-    }
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Override
-    public Order create(Order order) throws ItemDoesNotExist{
+    public Order create(Order order) throws ItemDoesNotExist {
+        LOGGER.info("Check if items exist");
         checkItemsExists(order);
         saveOrderItems(order);
         return orderRepository.save((EntityOrder) order);
@@ -74,9 +73,11 @@ public class OrderDAO implements OrderPersistence{
     }
 
     private void checkItemsExists(Order order) throws ItemDoesNotExist {
+        LOGGER.info("Checking ItemPurchases: " + order.getItemPurchases());
         for (ItemPurchase itemPurchase : order.getItemPurchases()) {
+            LOGGER.info("Checking ItemPurchase: " + itemPurchase);
             LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
-            itemDAO.get(itemPurchase.getItem().getId());
+            itemRepository.getOne(itemPurchase.getItem().getId());
         }
     }
     

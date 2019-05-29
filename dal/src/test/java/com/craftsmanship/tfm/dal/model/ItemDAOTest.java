@@ -10,9 +10,8 @@ import java.util.NoSuchElementException;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.dal.model.ItemDAO;
 import com.craftsmanship.tfm.dal.repository.ItemRepository;
-import com.craftsmanship.tfm.idls.v1.ItemPersistence;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,8 +37,8 @@ public class ItemDAOTest {
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
-    @Before
-    public void setUp() {
+    @After
+    public void tearDown() {
         itemRepository.deleteAll();
     }
 

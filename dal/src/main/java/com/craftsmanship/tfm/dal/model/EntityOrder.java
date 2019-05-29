@@ -60,7 +60,7 @@ public class EntityOrder  implements Order{
 
     @Override
     public List<ItemPurchase> getItemPurchases() {
-        return null;// new ArrayList<ItemPurchase>(orderItems);
+        return new ArrayList<ItemPurchase>(orderItems);
     }
 
     public List<ItemPurchase> getOrderItems() {
@@ -81,11 +81,11 @@ public class EntityOrder  implements Order{
     public static class Builder {
 
         private Long id;
-        private List<OrderItem> orderItems;
+        private List<ItemStock> itemStocks;
 
         public Builder() {
             this.id = -1L;
-            this.orderItems = new ArrayList<OrderItem>();
+            this.itemStocks = new ArrayList<ItemStock>();
         }
 
         public Builder withId(Long id) {
@@ -93,13 +93,18 @@ public class EntityOrder  implements Order{
             return this;
         }
 
-        public Builder addItem(EntityOrder order, EntityItem item, int stock) {
-            orderItems.add(new OrderItem(order, item, stock));
+        public Builder addItem(EntityItem item, int stock) {
+            itemStocks.add(new ItemStock(item, stock));
             return this;
         }
 
         public EntityOrder build() {
-            EntityOrder order = new EntityOrder(this.orderItems);
+            EntityOrder order = new EntityOrder();
+
+            for (ItemStock itemStock : this.itemStocks) {
+                order.add(new OrderItem(order, itemStock.getItem(), itemStock.getStock()));
+            }
+
             order.setId(this.id);
             return order;
         }
