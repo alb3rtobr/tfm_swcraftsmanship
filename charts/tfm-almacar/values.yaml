@@ -71,7 +71,8 @@ elastic-stack:
   kibana:
     enabled: true
     env:
-      ELASTICSEARCH_URL: http://http.default.svc.cluster.local:9200
+      ELASTICSEARCH_HOSTS : "http://tfm-almacar-elasticsearch-client:9200"
+      ELASTICSEARCH_URL : "http://tfm-almacar-elasticsearch-client:9200"
   
   logstash:
     enabled: true
