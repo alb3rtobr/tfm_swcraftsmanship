@@ -6,7 +6,9 @@
 	1. [Project description](#project-description)
 	2. [Goals](#goals)
 	3. [Motivation](#motivation)
-2. [Project development](#project-development)
+2. [Theoretical framework](#theoretical-framework)
+3. [State of the art](#state-of-the-art)
+4. [Project development](#project-development)
 	1. [Methodology](#methodology)
 	2. [Analysis](#analysis)
 	3. [Design](#design)
@@ -17,9 +19,9 @@
 		3. Helm dependencies
 		4. Application deployment
 		5. Delete the deployment
-3. Results
-4. Conclusions and future work
-5. References
+5. Results
+6. Conclusions and future work
+7. References
 
 
 ## Introduction
@@ -54,7 +56,27 @@ Server and client applications could be written in different languages, but they
 Cloud technologies evolve so fast, and there are so alternatives available, that when we were defining the scope of our Master Thesis we come back a huge list of "nice-to-have" features. Developing our application in an incremental way will allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we force us not to start to many issues at the same time, and focus on finishing the open ones.
 
 ### Motivation
-From the different topics we have covered during the Master, we found that Kubernetes and cloud applications was quite interesting. We also started working on cloud-related issues in our jobs, so we decided it would be very appropiate to explore this topic in our Master Thesis and take advantage of the learning opportunities we could find.
+From the different topics we have covered during the Master, we found that Kubernetes and cloud applications were quite interesting. We also started working on cloud-related issues in our jobs, so we decided it would be very appropiate to explore this topic in our Master Thesis and take advantage of the learning opportunities we could find.
+
+## Theoretical framework
+
+As starting point to understand our project theoretical environment, it is necessary to talk about microservices. A simple introductory definition would say that "Microservices are small, autonomous services that work together."[[1](#1)]. A software project that follows a microservices architecture is design in such way that its functionality is divided into smaller, loosely coupled components called services. Each service can be treated as a separate application, running its own process or processes. Services needs to communicate with each other, and they use lightweight protocols, being REST the most used.
+
+This architecture has different advantages: reinforces modularity, it improves the reutilization of code, as services can be used in more than one application. Also, the codification of each service can be paralelized, reducing the implementation time of the whole application. Each service can use different programming languages or framework, so we can chose the solution that fits most with the service functionality, without being attached to a specific language.
+
+On the other hand, these architectures also introduces several problems or issues that have to be addressed for a correct implementation of a microservices application. Distributed systems introduce complexity: the more services the application has, the harder is to coordinate all of them. As Martin Fowler points out, "Microservice proponents like to point out that since each service is smaller it's easier to understand. But the danger is that complexity isn't eliminated, it's merely shifted around to the interconnections between services."[[2](#2)]. Communication between services is key, so interfaces has to be well design, and infrastructure has to guarantee the appropriate latency in the message interchange process. The communication issue can impacts also in the delay of the transactions to be performed in the application: a given operation could need the answer for a bunch of microservices to be considered as done. If this process is not fast enough it can lead to a poor user experience.
+
+Microservice architectures is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Docker and Kubernetes. In next chapter we introduce Kubernetes and other technologies to be used in this project.
+
+## State of the art
+
+Kubernetes.....
+
+REST
+
+Kafka
+
+gRPC
 
 ## Project development
 
@@ -64,7 +86,7 @@ Trying to take advantage of all the learning opportunities during the developmen
 
 Before this project, we were used to use GitHub as source coude repository, but we wanted to go one step beyond and use it also as project management tool, using features as the issue tracker and the usage of pull requests for code review. This allowed us to get experience on its usage and get familiar with the common GitHub way of working.
 
-Slack (["Searchable Log of All Conversation and Knowledge"][1]) is a team collaboration tool, useful to coordinate distributed teams. We create our own Slack workspace, and it was our main communication mechanism during the project. In our workspace, we create a separate channel to talk about each component, so all the discussions, questions, issues... were properly organized.
+Slack ("Searchable Log of All Conversation and Knowledge" [[3](#3)]) is a team collaboration tool, useful to coordinate distributed teams. We create our own Slack workspace, and it was our main communication mechanism during the project. In our workspace, we create a separate channel to talk about each component, so all the discussions, questions, issues... were properly organized.
 We also took advantage of the different Slack plugins: we integrated both our GitHub repository and our continuous integration mechanism, so every activity generated in any of both platform was reported in its associated channel in Slack. This has proven to be very useful in a team which members are not working in the same physical place and not even at the same hours.
 
 ![slack and travis integration](./images/travis-in-slack.png)
@@ -228,8 +250,10 @@ Reference sites:
 * [gRPC](https://grpc.io/)
 * [Apache Kafka](https://kafka.apache.org/)
 
-Articles:
-* [1]: https://www.businessinsider.com/where-did-slack-get-its-name-2016-9
+Books, posts and articles:
+* [1]: "Building Microservices", Sam Newman, O'Reilly Media
+* [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
+* [3]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
 
 Spring Kafka related links:
 * [Spring Kafka - Spring Boot example](https://codenotfound.com/spring-kafka-boot-example.html)
