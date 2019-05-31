@@ -39,21 +39,9 @@ We have implemented a simple application with the following requirements:
 
 * **Allow communication between microservices using a message bus service.**
 
-We decided to use Apache Kafka, an open source distributed streaming platform. Kafka allows to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices.
-
 * **Implement a service offering its functionality via gRPC.**
 
-gRPC is an open source remote procedure call protocol developed by Google. It allows a client to call methods on a server application located on a different host transparently, as it is was a local object in the same machine. After defining the interface of the service to be implemented, the implementation of that interface has to be stored in a host which will handle external client calls using a gRPC server.
-The clients then can use a stub which provides the same interface, and it will be in charge to communicate with the gRPC server.
-Server and client applications could be written in different languages, but they will communicate thanks to sharing the same interface.
-
-![](https://grpc.io/img/landing-2.svg)
-
-*gRPC server and clients. (gRPC official site)*
-
 * **Develop our application in an incremental way, having functional versions after each iteration.**
-
-Cloud technologies evolve so fast, and there are so alternatives available, that when we were defining the scope of our Master Thesis we come back a huge list of "nice-to-have" features. Developing our application in an incremental way will allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we force us not to start to many issues at the same time, and focus on finishing the open ones.
 
 ### Motivation
 From the different topics we have covered during the Master, we found that Kubernetes and cloud applications were quite interesting. We also started working on cloud-related issues in our jobs, so we decided it would be very appropiate to explore this topic in our Master Thesis and take advantage of the learning opportunities we could find.
@@ -66,27 +54,39 @@ This architecture has different advantages: reinforces modularity, it improves t
 
 On the other hand, these architectures also introduces several problems or issues that have to be addressed for a correct implementation of a microservices application. Distributed systems introduce complexity: the more services the application has, the harder is to coordinate all of them. As Martin Fowler points out, "Microservice proponents like to point out that since each service is smaller it's easier to understand. But the danger is that complexity isn't eliminated, it's merely shifted around to the interconnections between services."[[2](#2)]. Communication between services is key, so interfaces has to be well design, and infrastructure has to guarantee the appropriate latency in the message interchange process. The communication issue can impacts also in the delay of the transactions to be performed in the application: a given operation could need the answer for a bunch of microservices to be considered as done. If this process is not fast enough it can lead to a poor user experience.
 
-Microservice architectures is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Docker and Kubernetes. In next chapter we introduce Kubernetes and other technologies to be used in this project.
 
 ## State of the art
 
-Kubernetes.....
+Microservice architectures is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Kubernetes. First, Docker popularized the usage of containers for implementation, testing, and distribution of applications, which contributed to the design of microservice applications. As commented in previous chapter, coordination of microservices (containers) was an issue to solve, and Kubernetes was the Google's answer: "Kubernetes is an open source system for managing containerized applications across multiple hosts; providing basic mechanisms for deployment, maintenance, and scaling of applications."[[3](#3)]
+The first version was released by Google in 2014. After that, Google donated the product to the Linux Foundation, which created the Cloud Native Computing Foundation setting Kubernetes as the main technology behind. Actually, Kubernetes is the most used container orchestration tool and could being consider the de facto standard.
 
-REST
+For implementing our project we have use Minikube, a tool that allows to run Kubernetes locally on our laptops. This tool starts a minimum Kubernetes cluster, which fits perfectly for testing purposes or small applications.
 
-Kafka
+We have already mentioned microservice communication is done through lightweight protocols. REST (Representational State Transfer) is the most used and we are using it too in this project. Services that follow this approach are called RESTful Web Services (RWS), and they provide an API to manipulate web resources.
 
-gRPC
+In our project we are also using other communication framework, called gRPC (Google Remote Procedure Call). It allows a client to call methods on a server application located on a different host transparently, as it is was a local object in the same machine. After defining the interface of the service to be implemented, the implementation of that interface has to be stored in a host which will handle external client calls using a gRPC server.
+The clients then can use a stub which provides the same interface, and it will be in charge to communicate with the gRPC server.
+Server and client applications could be written in different languages, but they will communicate thanks to sharing the same interface.
+
+![](https://grpc.io/img/landing-2.svg)
+
+*gRPC server and clients. (gRPC official site)*
+
+A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. Kafka works as a microservice in the Kubernetes cluster.
+
+
 
 ## Project development
 
 ### Methodology
 
+Cloud technologies evolve so fast and there are so many alternatives available, that when we were defining the scope of this project we elaborated a huge list of "nice-to-have" features. We decided that the best approach to develop our application was following an incremental approach, and it would allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we forced us not to start to many issues at the same time, and focus on finishing the open ones. This approach has resulted to be very useful for us, because although it was clear that we were not going to finish all the items of our first list, we are releasing an application that at least can provide some functionality.
+
 Trying to take advantage of all the learning opportunities during the development of this project, we decided to use two tools that are widely used in software development, but we are not familiar with: Slack & GitHub.
 
-Before this project, we were used to use GitHub as source coude repository, but we wanted to go one step beyond and use it also as project management tool, using features as the issue tracker and the usage of pull requests for code review. This allowed us to get experience on its usage and get familiar with the common GitHub way of working.
+Before this project, we were used to work with GitHub as source code repository, but we wanted to go one step beyond and use it also as project management tool, using features as the issue tracker and the usage of pull requests for code review. This allowed us to get experience on its usage and get familiar with the common GitHub way of working.
 
-Slack ("Searchable Log of All Conversation and Knowledge" [[3](#3)]) is a team collaboration tool, useful to coordinate distributed teams. We create our own Slack workspace, and it was our main communication mechanism during the project. In our workspace, we create a separate channel to talk about each component, so all the discussions, questions, issues... were properly organized.
+Slack ("Searchable Log of All Conversation and Knowledge" [[4](#4)]) is a team collaboration tool, useful to coordinate distributed teams. We create our own Slack workspace, and it was our main communication mechanism during the project. In our workspace, we create a separate channel to talk about each component, so all the discussions, questions, issues... were properly organized.
 We also took advantage of the different Slack plugins: we integrated both our GitHub repository and our continuous integration mechanism, so every activity generated in any of both platform was reported in its associated channel in Slack. This has proven to be very useful in a team which members are not working in the same physical place and not even at the same hours.
 
 ![slack and travis integration](./images/travis-in-slack.png)
@@ -244,16 +244,16 @@ $ helm del --purge tfm-almacar
 
 ## References
 
+* [1]: "Building Microservices", Sam Newman, O'Reilly Media
+* [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
+* [3]: [Kubernetes Github repository](https://github.com/kubernetes/kubernetes)
+* [3]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
+
 Reference sites:
 * [Kubernetes](https://kubernetes.io/)
 * [Spring Cloud](https://spring.io/projects/spring-cloud)
 * [gRPC](https://grpc.io/)
 * [Apache Kafka](https://kafka.apache.org/)
-
-Books, posts and articles:
-* [1]: "Building Microservices", Sam Newman, O'Reilly Media
-* [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
-* [3]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
 
 Spring Kafka related links:
 * [Spring Kafka - Spring Boot example](https://codenotfound.com/spring-kafka-boot-example.html)
