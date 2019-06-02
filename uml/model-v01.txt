@@ -1,0 +1,13 @@
+@startuml
+class Item {
+  -long id
+	-String description
+  #Item()
+  +Item(String description)
+  +Item(long id, String description)
+  +long getId()
+  +String getDescription()
+  +void setDescription(String description)
+  +String toString()
+}
+@enduml

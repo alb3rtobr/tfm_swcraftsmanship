@@ -33,6 +33,8 @@ We have implemented a simple application with the following requirements:
 * Data Abstraction Layer service to access the data base via gRPC.
 * Monitoring component who reacts to the operations performed in the data base.
 
+Our application is a draft of a stock system that could be found on a shop or a warehouse. The application allows CRUD operations over generic items, create orders with items in stock, and it automatically performs order of new items to an external end point when the stock of an item is below a given threshold.
+
 
 ### Goals
 * **Implement a cloud native application from scratch, offering a REST API.**
@@ -146,9 +148,20 @@ In this first version of the application we setup the Github repository, and the
 
 An important we solved was the Kafka configuration to communicate the `restapi` & `stockchecker` services. Thanks to Helm, the configuration of the Kafka cluster was very straightforward, but we spent quite some time with the setup of the both services to use Kafka.
 
-The model of the application was very simple, containing just one entity, `Item`.
+At this stage of the application development, the model is very simple, containing just one entity, `Item`, which has an `id` and a `description` as attributes.
 
-Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit.
+![Model of version v0.1](./uml/model-v01.png "Model of version v0.1")
+
+ The `restapi` component offers CRUD operations for `Item`:
+ * POST `api/v1/items` : create an item
+ * GET `api/v1/items` : list all items
+ * GET `api/v1/items/{id}` : get an item
+ * PUT `api/v1/items/{id}` : update an item
+ * DELETE `api/v1/items/{id}` : delete an item
+
+Although our `stockchecker` is able to send external REST notifications, taking into account the return of time invested, we decided to configure it just to log the notifications. Otherwise it would force us to implement that external end point in our tests.
+
+Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit. Our Travis dashboard can be found in `https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship`.
 
 #### Version 0.2
 
@@ -156,8 +169,27 @@ Main characteristics:
 * Model extension to include more than one relation
 * Ingress configuration
 
+The second version included a significant change in the model:
+
+![Model of version v0.2](./uml/model-v02.png "Model of version v0.2")
+
+The `restapi` component offers the same operations than previous version for `Item` objects and new operations due to the new model:
+* POST `api/v2/items` : create an item
+* GET `api/v2/items` : list all items
+* GET `api/v2/items/{id}` : get an item
+* PUT `api/v2/items/{id}` : update an item
+* DELETE `api/v2/items/{id}` : delete an item
+* POST `api/v2/orders` : create a order (`DomainOrder`)
+* GET `api/v2/orders` : list all orders
+* GET `api/v2/orders/{id}` : list an orders
+* PUT `api/v2/orders/{id}` : update an order
+* DELETE `api/v2/orders/{id}` : delete an order
+
+We also implemented a quick improvement for the API gateway. In previous version, access to `restapi` was performed using the `NodePort` option available in Kubernetes services. This automatically creates an IP which is accessed from outside the Kubernetes cluster, and together with the `NodePort` provides access to the `restapi` service. In version 0.2 we complemented this by configuring `Ingress`, a Kubernetes functionality that manages external access to the cluster services, and provides load balancing.
+
 #### Version 0.3
 
+*Under development*
 
 ### Deployment
 
