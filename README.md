@@ -14,14 +14,14 @@
 	3. [Design](#design)
 	4. [Implementation & tests](#implementation-and-tests)
 	5. [Deployment](#deployment)
-		1. Installation
-		2. Docker image preparation
-		3. Helm dependencies
-		4. Application deployment
-		5. Delete the deployment
-5. Results
-6. Conclusions and future work
-7. References
+		1. [Installation](#installation)
+		2. [Docker image preparation](#docker-image-preparation)
+		3. [Helm dependencies](#helm-dependencies)
+		4. [Application deployment](#application-deployment)
+		5. [Delete the deployment](#delete-the-deployment)
+5. [Results](#results)
+6. [Conclusions and future work](#conclusions-and-future-work)
+7. [References](#references)
 
 
 ## Introduction
@@ -285,6 +285,14 @@ statefulset.apps/tfm-almacar-zookeeper   3/3     23h
 ```bash
 $ helm del --purge tfm-almacar
 ```
+
+## Results
+
+*TBD*
+
+## Conclusions and future work
+
+*TBD*
 
 ## References
 
