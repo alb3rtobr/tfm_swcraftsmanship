@@ -74,7 +74,7 @@ Server and client applications could be written in different languages, but they
 
 A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. Kafka works as a microservice in the Kubernetes cluster.
 
-
+We also named the management of the different services as a drawback of microservices architectures. Helm is a package manager that is used to define and manage services that run on Kubernetes. Applications and its resources are defined using yaml files called Helm charts. Our application include its own Helm charts since the first version.
 
 ## Project development
 
@@ -135,17 +135,29 @@ We have implemented our application on a incremental way.
 
 #### Version 0.1
 
+Main characteristics:
 * Basic functionality of all the components
+* Kafka setup
 * Helm charts
 * ConfigMaps
 * Automatic test execution for every commit
 
+In this first version of the application we setup the Github repository, and the different projects. The application can be started using Helm charts, and configured using configmaps. ConfigMaps are a Kubernetes utility that allows inject the containers configuration, splitting the services definition and the values used for configuration.
+
+An important we solved was the Kafka configuration to communicate the `restapi` & `stockchecker` services. Thanks to Helm, the configuration of the Kafka cluster was very straightforward, but we spent quite some time with the setup of the both services to use Kafka.
+
+The model of the application was very simple, containing just one entity, `Item`.
+
+Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit.
+
 #### Version 0.2
 
+Main characteristics:
 * Model extension to include more than one relation
 * Ingress configuration
 
 #### Version 0.3
+
 
 ### Deployment
 
