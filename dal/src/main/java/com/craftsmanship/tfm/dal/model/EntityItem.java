@@ -1,18 +1,16 @@
 package com.craftsmanship.tfm.dal.model;
 
-import java.util.Objects;
 import java.util.Set;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.transaction.Transactional;
 
-import com.craftsmanship.tfm.models.Item;
-
+@Transactional
 @Entity
 @Table(name = "item")
 public class EntityItem {
@@ -80,28 +78,52 @@ public class EntityItem {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof EntityItem)) {
-            return false;
-        }
-        EntityItem item = (EntityItem) o;
-        return Objects.equals(id, item.id) 
-                && Objects.equals(name, item.name) 
-                && Objects.equals(price, item.price)
-                && Objects.equals(stock, item.stock);
+    public String toString() {
+        return "EntityItem [id=" + this.id + ", name=" + this.name + ", price=" + this.price + 
+                ", stock=" + this.stock + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((orderItems == null) ? 0 : orderItems.hashCode());
+        result = prime * result + (int) (price ^ (price >>> 32));
+        result = prime * result + stock;
+        return result;
     }
 
     @Override
-    public String toString() {
-        return "{" + " id='" + this.id + "'" + ", name='" + this.name + "'" + ", price='" + this.price + "'"
-                + ", stock='" + this.stock + "'" + "}";
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EntityItem other = (EntityItem) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (orderItems == null) {
+            if (other.orderItems != null)
+                return false;
+        } else if (!orderItems.equals(other.orderItems))
+            return false;
+        if (price != other.price)
+            return false;
+        if (stock != other.stock)
+            return false;
+        return true;
     }
 
     public static class Builder {
