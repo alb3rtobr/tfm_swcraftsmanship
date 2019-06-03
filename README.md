@@ -74,7 +74,9 @@ Server and client applications could be written in different languages, but they
 
 *gRPC server and clients. (gRPC official site)*
 
-A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. Kafka works as a microservice in the Kubernetes cluster.
+By default, gRPC uses `protocol buffers` as mechanism to serialize structured data. With the specification of how your the data will be structured, it is possible to automatically generate source code to write and read that from different data streams and using different languages. `Protocol buffers` uses `.proto` files to define messages in its interface definition language (IDL), representing your data. Our `proto` file is located in the `proto-idls` project in the source repository.
+
+A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. In our case, we implmented a produced-consumer model using Kafka as communication tool. Kafka works as a microservice in the Kubernetes cluster.
 
 We also named the management of the different services as a drawback of microservices architectures. Helm is a package manager that is used to define and manage services that run on Kubernetes. Applications and its resources are defined using yaml files called Helm charts. Our application include its own Helm charts since the first version.
 
@@ -159,6 +161,10 @@ At this stage of the application development, the model is very simple, containi
  * PUT `api/v1/items/{id}` : update an item
  * DELETE `api/v1/items/{id}` : delete an item
 
+![Example of creating an Item](./images/postman-1.png "Example of creating an Item")
+
+*Screenshoot of Postman while creating an item*
+
 Although our `stockchecker` is able to send external REST notifications, taking into account the return of time invested, we decided to configure it just to log the notifications. Otherwise it would force us to implement that external end point in our tests.
 
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit. Our Travis dashboard can be found in `https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship`.
@@ -185,7 +191,20 @@ The `restapi` component offers the same operations than previous version for `It
 * PUT `api/v2/orders/{id}` : update an order
 * DELETE `api/v2/orders/{id}` : delete an order
 
+In this version it is possible to create orders of item
+
 We also implemented a quick improvement for the API gateway. In previous version, access to `restapi` was performed using the `NodePort` option available in Kubernetes services. This automatically creates an IP which is accessed from outside the Kubernetes cluster, and together with the `NodePort` provides access to the `restapi` service. In version 0.2 we complemented this by configuring `Ingress`, a Kubernetes functionality that manages external access to the cluster services, and provides load balancing.
+
+Before configuring ingress, it is necessary to configure an ingress controller. In our case, we used Nginx Ingress Controller. It can be installed using Helm:
+```
+$> helm install --name nginx-ingress stable/nginx-ingress
+```
+In case of using Minikube, as it was our case, it is necessary to enable ingress:
+```
+$> minikube addons enable ingress
+```
+
+
 
 #### Version 0.3
 
