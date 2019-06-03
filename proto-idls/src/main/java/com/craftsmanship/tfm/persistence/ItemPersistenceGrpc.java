@@ -2,7 +2,6 @@ package com.craftsmanship.tfm.persistence;
 
 import java.util.List;
 
-import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
 
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ public class ItemPersistenceGrpc implements ItemPersistence {
     }
 
     @Override
-    public DomainItem delete(Long id) throws ItemDoesNotExist {
+    public Item delete(Long id) throws ItemDoesNotExist {
         return grpcClient.delete(id);
     }
 

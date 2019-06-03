@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
-import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
@@ -136,10 +136,10 @@ public class ItemRestControllerTest {
         assertThat(itemRestController, is(notNullValue()));
     }
 
-    private DomainItem postItem(DomainItem item) {
+    private Item postItem(Item item) {
         String url = "http://localhost:" + restPort + "/api/v1/items";
-        HttpEntity<DomainItem> request = new HttpEntity<>(item);
-        return new RestTemplate().postForObject(url, request, DomainItem.class);
+        HttpEntity<Item> request = new HttpEntity<>(item);
+        return new RestTemplate().postForObject(url, request, Item.class);
     }
 
     private void deleteItem(Long id) {
@@ -151,10 +151,10 @@ public class ItemRestControllerTest {
     public void test_when_item_is_created_then_item_persisted_and_kafka_message_generated()
             throws InterruptedException, ItemDoesNotExist {
         String itemName = "Wheel";
-        DomainItem item = new DomainItem.Builder().withName(itemName).withPrice(10L).withStock(1).build();
+        Item item = new Item.Builder().withName(itemName).withPrice(10L).withStock(1).build();
 
         // post item
-        DomainItem responseItem = postItem(item);
+        Item responseItem = postItem(item);
 
         // first, for comparison, we need to set the item id, created in persistence
         item.setId(responseItem.getId());
@@ -163,7 +163,7 @@ public class ItemRestControllerTest {
         assertThat(responseItem, equalTo(item));
 
         // check item was created in persistence
-        DomainItem storedItem = itemPersistence.get(responseItem.getId());
+        Item storedItem = itemPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
 
         // check that the Kafka message was received
@@ -177,10 +177,10 @@ public class ItemRestControllerTest {
             throws InterruptedException, ItemDoesNotExist {
         String itemName = "Wheel";
         Long expectedId = new Long(itemPersistence.count() + 1);
-        DomainItem item = new DomainItem.Builder().withName(itemName).withId(1000L).withPrice(17L).build();
+        Item item = new Item.Builder().withName(itemName).withId(1000L).withPrice(17L).build();
 
         // post item
-        DomainItem responseItem = postItem(item);
+        Item responseItem = postItem(item);
 
         // check returned item
         assertThat(responseItem.getId(), equalTo(expectedId));
@@ -188,7 +188,7 @@ public class ItemRestControllerTest {
 
         // check item was created in persistence
         item.setId(responseItem.getId());
-        DomainItem storedItem = itemPersistence.get(responseItem.getId());
+        Item storedItem = itemPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
 
         // check that the Kafka message was received
@@ -202,10 +202,10 @@ public class ItemRestControllerTest {
             throws InterruptedException, ItemDoesNotExist {
         String itemName = "Wheel";
         Long expectedId = new Long(itemPersistence.count() + 1);
-        DomainItem item = new DomainItem.Builder().withName(itemName).withPrice(17L).build();
+        Item item = new Item.Builder().withName(itemName).withPrice(17L).build();
 
         // post item
-        DomainItem responseItem = postItem(item);
+        Item responseItem = postItem(item);
 
         // check returned item
         assertThat(responseItem.getId(), equalTo(expectedId));
@@ -213,7 +213,7 @@ public class ItemRestControllerTest {
 
         // check item was created in persistence
         item.setId(responseItem.getId());
-        DomainItem storedItem = itemPersistence.get(responseItem.getId());
+        Item storedItem = itemPersistence.get(responseItem.getId());
         assertThat(storedItem, equalTo(item));
 
         // check that the Kafka message was received
@@ -225,9 +225,9 @@ public class ItemRestControllerTest {
     @Test
     public void test_given_some_items_when_get_items_mapping_then_items_are_returned() throws ItemAlreadyExists {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("item1").withPrice(10L).withStock(1).build();
-        DomainItem item2 = new DomainItem.Builder().withName("item2").withPrice(11L).withStock(2).build();
-        DomainItem item3 = new DomainItem.Builder().withName("item3").withPrice(12L).withStock(3).build();
+        Item item1 = new Item.Builder().withName("item1").withPrice(10L).withStock(1).build();
+        Item item2 = new Item.Builder().withName("item2").withPrice(11L).withStock(2).build();
+        Item item3 = new Item.Builder().withName("item3").withPrice(12L).withStock(3).build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -235,10 +235,10 @@ public class ItemRestControllerTest {
         // When
         String url = "http://localhost:" + restPort + "/api/v1/items";
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<DomainItem>> response = restTemplate.exchange(url, HttpMethod.GET, null,
-                new ParameterizedTypeReference<List<DomainItem>>() {
+        ResponseEntity<List<Item>> response = restTemplate.exchange(url, HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<Item>>() {
                 });
-        List<DomainItem> items = response.getBody();
+        List<Item> items = response.getBody();
 
         // Then
         assertThat(items, equalTo(itemPersistence.list()));
@@ -247,9 +247,9 @@ public class ItemRestControllerTest {
     @Test
     public void test_given_some_items_when_get_item_mapping_then_item_is_returned() throws ItemAlreadyExists, ItemDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("item1").withPrice(6L).withStock(1).build();
-        DomainItem item2 = new DomainItem.Builder().withName("item2").withPrice(60L).withStock(10).build();
-        DomainItem item3 = new DomainItem.Builder().withName("item3").withPrice(90L).withStock(100).build();
+        Item item1 = new Item.Builder().withName("item1").withPrice(6L).withStock(1).build();
+        Item item2 = new Item.Builder().withName("item2").withPrice(60L).withStock(10).build();
+        Item item3 = new Item.Builder().withName("item3").withPrice(90L).withStock(100).build();
         itemPersistence.create(item1);
         itemPersistence.create(item2);
         itemPersistence.create(item3);
@@ -258,7 +258,7 @@ public class ItemRestControllerTest {
         Long id = 2L;
         String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
         RestTemplate restTemplate = new RestTemplate();
-        DomainItem responseItem = restTemplate.getForObject(url, DomainItem.class);
+        Item responseItem = restTemplate.getForObject(url, Item.class);
 
         // Then
         assertThat(responseItem, equalTo(itemPersistence.get(id)));
@@ -267,21 +267,21 @@ public class ItemRestControllerTest {
     @Test
     public void test_given_item_when_edit_mapping_then_edited_item_is_returned() throws ItemAlreadyExists, ItemDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("item1").build();
-        DomainItem item2 = new DomainItem.Builder().withName("item2").build();
-        DomainItem item3 = new DomainItem.Builder().withName("item3").build();
+        Item item1 = new Item.Builder().withName("item1").build();
+        Item item2 = new Item.Builder().withName("item2").build();
+        Item item3 = new Item.Builder().withName("item3").build();
         itemPersistence.create(item1);
-        DomainItem itemToUpdate = itemPersistence.create(item2);
+        Item itemToUpdate = itemPersistence.create(item2);
         itemPersistence.create(item3);
 
         // When
         Long id = itemToUpdate.getId();
-        DomainItem updatedItem = new DomainItem.Builder().withName("updated_item2").build();
+        Item updatedItem = new Item.Builder().withName("updated_item2").build();
         String url = "http://localhost:" + restPort + "/api/v1/items/" + id;
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<DomainItem> request = new HttpEntity<>(updatedItem);
-        ResponseEntity<DomainItem> response = restTemplate.exchange(url, HttpMethod.PUT, request, DomainItem.class);
-        DomainItem responseItem = response.getBody();
+        HttpEntity<Item> request = new HttpEntity<>(updatedItem);
+        ResponseEntity<Item> response = restTemplate.exchange(url, HttpMethod.PUT, request, Item.class);
+        Item responseItem = response.getBody();
 
         // Then
         updatedItem.setId(id);
@@ -293,11 +293,11 @@ public class ItemRestControllerTest {
     public void test_given_some_items_when_delete_item_mapping_then_item_is_deleted_and_kafka_message()
             throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("item1").build();
-        DomainItem item2 = new DomainItem.Builder().withName("item2").build();
-        DomainItem item3 = new DomainItem.Builder().withName("item3").build();
+        Item item1 = new Item.Builder().withName("item1").build();
+        Item item2 = new Item.Builder().withName("item2").build();
+        Item item3 = new Item.Builder().withName("item3").build();
         itemPersistence.create(item1);
-        DomainItem expectedDeletedItem = itemPersistence.create(item2);
+        Item expectedDeletedItem = itemPersistence.create(item2);
         itemPersistence.create(item3);
 
         LOGGER.info("ITEMS: " + itemPersistence.list());

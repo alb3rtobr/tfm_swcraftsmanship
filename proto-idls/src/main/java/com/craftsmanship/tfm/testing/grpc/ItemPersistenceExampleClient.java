@@ -2,8 +2,6 @@ package com.craftsmanship.tfm.testing.grpc;
 
 import java.util.concurrent.TimeUnit;
 
-import com.craftsmanship.tfm.models.DomainItem;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +12,7 @@ import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemRequest;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.CreateItemResponse;
 import com.craftsmanship.tfm.idls.v1.ItemPersistence.GrpcItem;
 import com.craftsmanship.tfm.idls.v1.ItemPersistenceServiceGrpc.ItemPersistenceServiceBlockingStub;
+import com.craftsmanship.tfm.models.Item;
 
 public class ItemPersistenceExampleClient {
     private static final Logger logger = LoggerFactory.getLogger(ItemPersistenceExampleClient.class);
@@ -38,7 +37,7 @@ public class ItemPersistenceExampleClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public DomainItem createItem(DomainItem item) {
+    public Item createItem(Item item) {
         logger.info("Creating Item");
 
         GrpcItem grpcItem = GrpcItem.newBuilder().setDescription(item.getName()).build();
@@ -49,7 +48,7 @@ public class ItemPersistenceExampleClient {
         GrpcItem itemResponse = response.getItem();
         logger.info("Received GrpcItem: " + itemResponse);
 
-        DomainItem result = new DomainItem.Builder().withId(itemResponse.getId()).withName(itemResponse.getDescription()).build();
+        Item result = new Item.Builder().withId(itemResponse.getId()).withName(itemResponse.getDescription()).build();
 
         return result;
     }
@@ -61,10 +60,10 @@ public class ItemPersistenceExampleClient {
         ItemPersistenceExampleClient client = new ItemPersistenceExampleClient("localhost", 50051);
 
         try {
-            DomainItem item = new DomainItem.Builder().withName("Zapato").build();
+            Item item = new Item.Builder().withName("Zapato").build();
 
             // Looking for a valid feature
-            DomainItem receivedItem = client.createItem(item);
+            Item receivedItem = client.createItem(item);
             logger.info("Received item: " + receivedItem);
         } finally {
             client.shutdown();

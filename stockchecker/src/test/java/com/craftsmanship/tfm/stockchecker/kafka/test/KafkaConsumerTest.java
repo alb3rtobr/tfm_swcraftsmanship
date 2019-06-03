@@ -33,7 +33,7 @@ import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.craftsmanship.tfm.models.DomainItem;
+import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
 
@@ -91,7 +91,7 @@ public class KafkaConsumerTest {
 	public void whenAnItemOperationIsReceived_thenKafkaConsumerReceivesIt() throws Exception {
 
 		Long itemId = 1L;
-		DomainItem item = new DomainItem.Builder().withName("PlayStation4").withId(itemId).withStock(5).build();
+		Item item = new Item.Builder().withName("PlayStation4").withId(itemId).withStock(5).build();
 		consumer.resetLatch(1);
 		RestClient mockRestClient= Mockito.mock(RestClient.class);
 		consumer.setRestClient(mockRestClient);
@@ -107,7 +107,7 @@ public class KafkaConsumerTest {
 		//Wait for the message to be received
 		consumer.getLatch().await(1000, TimeUnit.MILLISECONDS);
 		
-		ArgumentCaptor<DomainItem> itemArg = ArgumentCaptor.forClass(DomainItem.class);
+		ArgumentCaptor<Item> itemArg = ArgumentCaptor.forClass(Item.class);
 		ArgumentCaptor<Integer> intArg = ArgumentCaptor.forClass(int.class);
 		
 		verify(mockRestClient).sendPurchaseOrder(itemArg.capture(),intArg.capture());

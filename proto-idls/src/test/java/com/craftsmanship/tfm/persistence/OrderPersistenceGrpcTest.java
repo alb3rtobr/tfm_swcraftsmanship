@@ -12,11 +12,11 @@ import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.grpc.servers.PersistenceInProcessGrpcServer;
 import com.craftsmanship.tfm.grpc.services.OrderPersistenceService;
-import com.craftsmanship.tfm.models.DomainItem;
-import com.craftsmanship.tfm.models.DomainOrder;
+import com.craftsmanship.tfm.models.Item;
+import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
 import com.craftsmanship.tfm.testing.persistence.OrderPersistenceStub;
-import com.craftsmanship.tfm.utils.DomainConversion;
+import com.craftsmanship.tfm.utils.ConversionLogic;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class OrderPersistenceGrpcTest {
     private OrderPersistenceGrpc grpcClient;
     private OrderPersistenceStub orderPersistenceStub;
     private ItemPersistenceStub itemPersistenceStub;
-    private DomainConversion domainConversion;
+    private ConversionLogic domainConversion;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -49,7 +49,7 @@ public class OrderPersistenceGrpcTest {
         // Create the Persistence stubs
         itemPersistenceStub = new ItemPersistenceStub();
         orderPersistenceStub = new OrderPersistenceStub(itemPersistenceStub);
-        domainConversion = new DomainConversion();
+        domainConversion = new ConversionLogic();
 
         // create the Order Grpc service
         orderPersistenceService = new OrderPersistenceService(orderPersistenceStub, domainConversion);
@@ -74,18 +74,18 @@ public class OrderPersistenceGrpcTest {
     public void test_given_order_with_several_existing_items_when_created_then_is_persisted()
             throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        DomainItem item2 = new DomainItem.Builder().withName("XBOX").withPrice(143).build();
-        DomainItem item3 = new DomainItem.Builder().withName("SWITCH").withStock(13).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
+        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).build();
 
-        DomainItem createdItem1 = itemPersistenceStub.create(item1);
-        DomainItem createdItem2 = itemPersistenceStub.create(item2);
-        DomainItem createdItem3 = itemPersistenceStub.create(item3);
+        Item createdItem1 = itemPersistenceStub.create(item1);
+        Item createdItem2 = itemPersistenceStub.create(item2);
+        Item createdItem3 = itemPersistenceStub.create(item3);
 
-        DomainOrder order = new DomainOrder.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
+        Order order = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
 
         // When
-        DomainOrder createdOrder = grpcClient.create(order);
+        Order createdOrder = grpcClient.create(order);
 
         // Then
         order.setId(1L);
@@ -96,8 +96,8 @@ public class OrderPersistenceGrpcTest {
     @Test
     public void test_given_order_with_non_existing_item_when_created_then_exception() throws ItemDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        DomainOrder order = new DomainOrder.Builder().addItem(item1, 5).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Order order = new Order.Builder().addItem(item1, 5).build();
 
         exceptionRule.expect(ItemDoesNotExist.class);
         exceptionRule.expectMessage("Item with id " + 0 + " does not exist");
@@ -110,27 +110,27 @@ public class OrderPersistenceGrpcTest {
     public void test_given_several_orders_persisted_when_listed_then_orders_returned()
             throws ItemAlreadyExists, ItemDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        DomainItem item2 = new DomainItem.Builder().withName("XBOX").withPrice(143).build();
-        DomainItem item3 = new DomainItem.Builder().withName("SWITCH").withStock(13).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
+        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).build();
 
-        DomainItem createdItem1 = itemPersistenceStub.create(item1);
-        DomainItem createdItem2 = itemPersistenceStub.create(item2);
-        DomainItem createdItem3 = itemPersistenceStub.create(item3);
+        Item createdItem1 = itemPersistenceStub.create(item1);
+        Item createdItem2 = itemPersistenceStub.create(item2);
+        Item createdItem3 = itemPersistenceStub.create(item3);
 
-        DomainOrder order1 = new DomainOrder.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
-        DomainOrder order2 = new DomainOrder.Builder().addItem(createdItem2, 1).addItem(createdItem3, 8).build();
-        DomainOrder order3 = new DomainOrder.Builder().addItem(createdItem3, 10).build();
+        Order order1 = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
+        Order order2 = new Order.Builder().addItem(createdItem2, 1).addItem(createdItem3, 8).build();
+        Order order3 = new Order.Builder().addItem(createdItem3, 10).build();
 
         orderPersistenceStub.create(order1);
         orderPersistenceStub.create(order2);
         orderPersistenceStub.create(order3);
 
         // When
-        List<DomainOrder> orders = (List<DomainOrder>)(List)grpcClient.list();
+        List<Order> orders = grpcClient.list();
 
         // Then
-        List<DomainOrder> expectedOrders = new ArrayList<DomainOrder>();
+        List<Order> expectedOrders = new ArrayList<Order>();
         expectedOrders.add(order1);
         expectedOrders.add(order2);
         expectedOrders.add(order3);
@@ -141,18 +141,18 @@ public class OrderPersistenceGrpcTest {
     public void test_given_order_persisted_when_get_then_order_returned()
             throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        DomainItem item2 = new DomainItem.Builder().withName("XBOX").withPrice(143).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
 
-        DomainItem createdItem1 = itemPersistenceStub.create(item1);
-        DomainItem createdItem2 = itemPersistenceStub.create(item2);
+        Item createdItem1 = itemPersistenceStub.create(item1);
+        Item createdItem2 = itemPersistenceStub.create(item2);
 
-        DomainOrder order = new DomainOrder.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).build();
+        Order order = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).build();
 
-        DomainOrder createdOrder = orderPersistenceStub.create(order);
+        Order createdOrder = orderPersistenceStub.create(order);
 
         // When
-        DomainOrder gotOrder = grpcClient.get(createdOrder.getId());
+        Order gotOrder = grpcClient.get(createdOrder.getId());
 
         // Then
         assertThat(gotOrder, equalTo(createdOrder));
@@ -171,21 +171,21 @@ public class OrderPersistenceGrpcTest {
     @Test
     public void test_given_order_persisted_when_updated_then_updated_order_returned() throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        DomainItem item2 = new DomainItem.Builder().withName("XBOX").withPrice(143).build();
-        DomainItem item3 = new DomainItem.Builder().withName("SWITCH").withStock(13).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
+        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).build();
 
-        DomainItem createdItem1 = itemPersistenceStub.create(item1);
-        DomainItem createdItem2 = itemPersistenceStub.create(item2);
-        DomainItem createdItem3 = itemPersistenceStub.create(item3);
+        Item createdItem1 = itemPersistenceStub.create(item1);
+        Item createdItem2 = itemPersistenceStub.create(item2);
+        Item createdItem3 = itemPersistenceStub.create(item3);
 
-        DomainOrder order = new DomainOrder.Builder().addItem(createdItem1, 5).build();
-        DomainOrder createdOrder = orderPersistenceStub.create(order);
+        Order order = new Order.Builder().addItem(createdItem1, 5).build();
+        Order createdOrder = orderPersistenceStub.create(order);
 
-        DomainOrder newOrder = new DomainOrder.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
+        Order newOrder = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
 
         // When
-        DomainOrder updatedOrder = grpcClient.update(createdOrder.getId(), newOrder);
+        Order updatedOrder = grpcClient.update(createdOrder.getId(), newOrder);
 
         // Then
         newOrder.setId(createdOrder.getId());
@@ -198,8 +198,8 @@ public class OrderPersistenceGrpcTest {
         exceptionRule.expect(OrderDoesNotExist.class);
         exceptionRule.expectMessage("Order with id " + id + " does not exist");
 
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        DomainOrder order = new DomainOrder.Builder().addItem(item1, 5).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Order order = new Order.Builder().addItem(item1, 5).build();
 
         // When
         grpcClient.update(id, order);
@@ -208,15 +208,15 @@ public class OrderPersistenceGrpcTest {
     @Test
     public void test_given_order_persisted_when_updated_with_non_existing_item_then_exception() throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
 
-        DomainItem createdItem1 = itemPersistenceStub.create(item1);
+        Item createdItem1 = itemPersistenceStub.create(item1);
 
-        DomainOrder order = new DomainOrder.Builder().addItem(createdItem1, 5).build();
-        DomainOrder createdOrder = orderPersistenceStub.create(order);
+        Order order = new Order.Builder().addItem(createdItem1, 5).build();
+        Order createdOrder = orderPersistenceStub.create(order);
 
-        DomainItem item2 = new DomainItem.Builder().withName("XBOX").withPrice(143).build();
-        DomainOrder newOrder = new DomainOrder.Builder().addItem(createdItem1, 5).addItem(item2, 9).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
+        Order newOrder = new Order.Builder().addItem(createdItem1, 5).addItem(item2, 9).build();
 
         exceptionRule.expect(ItemDoesNotExist.class);
         exceptionRule.expectMessage("Item with id " + item2.getId() + " does not exist");
@@ -228,15 +228,15 @@ public class OrderPersistenceGrpcTest {
     @Test
     public void test_given_order_persisted_when_deleted_then_deleted() throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
         // Given
-        DomainItem item1 = new DomainItem.Builder().withName("PS4").withPrice(200).withStock(5).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
 
-        DomainItem createdItem1 = itemPersistenceStub.create(item1);
+        Item createdItem1 = itemPersistenceStub.create(item1);
 
-        DomainOrder order = new DomainOrder.Builder().addItem(createdItem1, 5).build();
-        DomainOrder createdOrder = orderPersistenceStub.create(order);
+        Order order = new Order.Builder().addItem(createdItem1, 5).build();
+        Order createdOrder = orderPersistenceStub.create(order);
 
         // When
-        DomainOrder deletedOrder = grpcClient.delete(createdOrder.getId());
+        Order deletedOrder = grpcClient.delete(createdOrder.getId());
 
         // Then
         assertThat(deletedOrder, equalTo(createdOrder));

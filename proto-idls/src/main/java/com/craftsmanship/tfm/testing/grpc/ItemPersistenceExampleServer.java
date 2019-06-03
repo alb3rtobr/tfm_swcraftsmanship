@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.craftsmanship.tfm.grpc.services.ItemPersistenceService;
 import com.craftsmanship.tfm.testing.persistence.ItemPersistenceStub;
-import com.craftsmanship.tfm.utils.DomainConversion;
+import com.craftsmanship.tfm.utils.ConversionLogic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class ItemPersistenceExampleServer {
   private int port;
   private Server server;
   private ItemPersistenceStub itemPersistenceStub;
-  private DomainConversion domainConversion;
+  private ConversionLogic domainConversion;
 
   public ItemPersistenceExampleServer(int port) {
     this.port = port;
@@ -26,7 +26,7 @@ public class ItemPersistenceExampleServer {
   public void start() throws IOException {
     // create the items persistence stub
     itemPersistenceStub = new ItemPersistenceStub();
-    domainConversion = new DomainConversion();
+    domainConversion = new ConversionLogic();
 
     server = ServerBuilder.forPort(this.port)
             .addService(new ItemPersistenceService(itemPersistenceStub, domainConversion))
