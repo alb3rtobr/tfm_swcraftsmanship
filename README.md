@@ -209,6 +209,7 @@ $> minikube addons enable ingress
 #### Version 0.3
 
 *Under development*
+
 ### Prometheus
 
 Prometheus is am open-source tool used mainly in cloud applications for monitoring and alerting purposes.
@@ -296,6 +297,84 @@ prometheus-operator:
           metrics_path: '/actuator/prometheus'
           static_configs:
             - targets: ['tfm-almacar-restapi:8080']
+```
+
+#### Custom Metrics
+
+In addition to the metrics provided by Actuator, it is possible to create our own Custom Metrics. Micrometer allow us to use the MeterRegistry to store in memory all the counters needed. Thanks to the magic of Spring, Micrometer will autoconfigure the MeterRegistry depending on the dependencies we used in our project. As we are using `micrometer-registry-prometheus` as dependency, the registry will be compatible with Prometheus.
+
+For the purpose of this project we have decided to create two counters in the DAL service to measure when each of the gRPC Services are called:
+
+* item_grpc_request_total: Number of requests to Item gRPC service
+* order_grpc_request_total: Number of requests to Order gRPC service
+
+In order to prepare the DAL microservice to increment these counters when a gRPC request comes, we just need to provide to the gRPC services an instance of the MeterRegistry class:
+
+```java
+@Configuration
+public class DalConfig {
+[...]
+
+    @Autowired
+    MeterRegistry meterRegistry;
+
+    @Bean
+    public GrpcServer grpcServer() {
+
+        [...]
+
+        ItemPersistenceService itemService = new ItemPersistenceService(itemDAO, entityConversion, meterRegistry);
+        OrderPersistenceService orderService = new OrderPersistenceService(orderDAO, entityConversion, meterRegistry);
+
+        List<BindableService> services = new ArrayList<BindableService>();
+        services.add(itemService);
+        services.add(orderService);
+
+        GrpcServer grpcServer = new GrpcServer(services);
+        return grpcServer;
+    }
+
+}
+```
+
+So, each of the gRPC services will have available the MetricRegistry, injected by constructor:
+
+```java
+public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceService.class);
+
+    private ItemDAO itemPersistence;
+    private EntityConversion conversionLogic;
+    private final Counter itemGrpcRequestCounter;
+
+    public ItemPersistenceService(ItemDAO itemsPersistence, EntityConversion conversionLogic, MeterRegistry registry) {
+        this.itemPersistence = itemsPersistence;
+        this.conversionLogic = conversionLogic;
+        itemGrpcRequestCounter = Counter
+            .builder("item_grpc_request")
+            .description("Number of requests to Item gRPC service")
+            .register(registry);
+    }
+
+    [...]
+}
+```
+
+Thus, we only just have to increase the counter when a gRPC method is called from the service. For example, when we create an Item:
+
+```java
+public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
+    [...]
+
+    @Override
+    public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
+        itemGrpcRequestCounter.increment();
+
+        [...]
+    }
+
+    [...]
+}
 ```
 
 ### Deployment

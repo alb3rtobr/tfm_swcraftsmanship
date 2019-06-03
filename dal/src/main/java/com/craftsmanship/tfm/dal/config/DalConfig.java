@@ -15,6 +15,7 @@ import com.craftsmanship.tfm.dal.model.ItemDAO;
 import com.craftsmanship.tfm.dal.model.OrderDAO;
 
 import io.grpc.BindableService;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
 public class DalConfig {
@@ -25,13 +26,16 @@ public class DalConfig {
     @Autowired
     OrderDAO orderDAO;
 
+    @Autowired
+    MeterRegistry meterRegistry;
+
     @Bean
     public GrpcServer grpcServer() {
 
         EntityConversion entityConversion = new EntityConversion();
 
-        ItemPersistenceService itemService = new ItemPersistenceService(itemDAO, entityConversion);
-        OrderPersistenceService orderService = new OrderPersistenceService(orderDAO, entityConversion);
+        ItemPersistenceService itemService = new ItemPersistenceService(itemDAO, entityConversion, meterRegistry);
+        OrderPersistenceService orderService = new OrderPersistenceService(orderDAO, entityConversion, meterRegistry);
 
         List<BindableService> services = new ArrayList<BindableService>();
         services.add(itemService);
