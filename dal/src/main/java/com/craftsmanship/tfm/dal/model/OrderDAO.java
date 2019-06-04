@@ -28,13 +28,16 @@ public class OrderDAO {
     @Autowired
     private OrderRepository orderRepository;
 
-    public EntityOrder create(EntityOrder order) throws ItemDoesNotExist {
-        LOGGER.info("Check if items exist");
+    public EntityOrder create(EntityOrder order) throws ItemDoesNotExist, ItemWithNoStockAvailable {
         checkItemsExists(order);
-        LOGGER.info("All the items exist");
+        checkItemsStocks(order);
+        
         EntityOrder newOrder = orderRepository.saveAndFlush(new EntityOrder());
         saveOrderItems(order, newOrder);
         LOGGER.info("All order items saved");
+
+        decreaseStocks(order);
+
         return orderRepository.saveAndFlush(newOrder);
     }
 
@@ -55,6 +58,7 @@ public class OrderDAO {
         }
         checkItemsExists(order);
         updateOrderItems(id, order);
+        decreaseStocks(order);
         return orderRepository.save(order);
     }
 
@@ -63,17 +67,49 @@ public class OrderDAO {
             throw new OrderDoesNotExist(id);
         }
         EntityOrder deletedOrder = orderRepository.findById(id).get();
-        orderRepository.delete((EntityOrder) deletedOrder);
+        orderRepository.delete(deletedOrder);
         deleteOrderItems(deletedOrder);
         return deletedOrder;
     }
 
     private void checkItemsExists(EntityOrder order) throws ItemDoesNotExist {
+        LOGGER.info("Check items exist");
         for (OrderItem itemPurchase : order.getOrderItems()) {
             if (!itemRepository.existsById(itemPurchase.getItem().getId())) {
                 throw new ItemDoesNotExist("Item does not exist");
             }
         }
+        LOGGER.info("All the items exist");
+    }
+
+    private void checkItemsStocks(EntityOrder order) throws ItemWithNoStockAvailable {
+        LOGGER.info("Checking stocks");
+        for (OrderItem itemPurchase : order.getOrderItems()) {
+            EntityItem item = itemPurchase.getItem();
+            if (itemPurchase.getQuantity() > item.getStock()) {
+                throw new ItemWithNoStockAvailable(item, itemPurchase.getQuantity());
+            }
+        }
+        LOGGER.info("Stocks are ok");
+    }
+
+    private void decreaseStocks(EntityOrder order) {
+        LOGGER.info("Decreasing stocks");
+        for (OrderItem itemPurchase : order.getOrderItems()) {
+            EntityItem item = itemPurchase.getItem();
+            decreaseItemStock(item, itemPurchase.getQuantity());
+        }
+        LOGGER.info("Decreasing stocks was ok");
+    }
+
+    private void decreaseItemStock(EntityItem item, int quantity) {
+        item.setStock(item.getStock() - quantity);
+        itemRepository.save(item);
+    }
+
+    private void increaseItemStock(EntityItem item, int quantity) {
+        item.setStock(item.getStock() + quantity);
+        itemRepository.save(item);
     }
 
     private void saveOrderItems(EntityOrder order, EntityOrder createdOrder) {
@@ -98,7 +134,8 @@ public class OrderDAO {
 
     private void deleteOrderItems(EntityOrder order) {
         for (OrderItem itemPurchase : order.getOrderItems()) {
-            orderItemRepository.save((OrderItem) itemPurchase);
+            //increaseItemStock(itemPurchase.getItem(), itemPurchase.getQuantity());
+            orderItemRepository.delete(itemPurchase);
         }
     }
 
