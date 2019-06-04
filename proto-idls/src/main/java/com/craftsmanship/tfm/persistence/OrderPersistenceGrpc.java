@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.craftsmanship.tfm.models.DomainOrder;
 import com.craftsmanship.tfm.models.Order;
 
 import org.slf4j.Logger;
@@ -36,8 +35,8 @@ public class OrderPersistenceGrpc implements OrderPersistence {
     }
 
     @Override
-    public DomainOrder create(Order order) throws ItemDoesNotExist {
-        return grpcClient.create((DomainOrder) order);
+    public Order create(Order order) throws ItemDoesNotExist {
+        return grpcClient.create(order);
     }
 
     @Override
@@ -46,17 +45,17 @@ public class OrderPersistenceGrpc implements OrderPersistence {
     }
 
     @Override
-    public DomainOrder get(Long id) throws OrderDoesNotExist {
+    public Order get(Long id) throws OrderDoesNotExist {
         return grpcClient.get(id);
     }
 
     @Override
-    public DomainOrder update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
-        return grpcClient.update(id, (DomainOrder) order);
+    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
+        return grpcClient.update(id, order);
     }
 
     @Override
-    public DomainOrder delete(Long id) throws OrderDoesNotExist {
+    public Order delete(Long id) throws OrderDoesNotExist {
         return grpcClient.delete(id);
     }
 

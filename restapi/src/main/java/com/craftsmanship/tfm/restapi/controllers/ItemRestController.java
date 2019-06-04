@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
-import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.OperationType;
@@ -38,7 +37,7 @@ public class ItemRestController {
     }
 
     @RequestMapping(value = "/items", method = RequestMethod.POST)
-    public Item create(@RequestBody DomainItem item) throws ItemAlreadyExists {
+    public Item create(@RequestBody Item item) throws ItemAlreadyExists {
         LOGGER.info("Creating item");
 
         // Create item
@@ -64,7 +63,7 @@ public class ItemRestController {
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.PUT)
-    public Item edit(@PathVariable Long id, @RequestBody DomainItem item) throws ItemDoesNotExist {
+    public Item edit(@PathVariable Long id, @RequestBody Item item) throws ItemDoesNotExist {
         LOGGER.info("Edit item with id: " + id);
         return itemPersistence.update(id, item);
     }

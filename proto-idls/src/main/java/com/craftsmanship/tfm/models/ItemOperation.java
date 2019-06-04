@@ -19,7 +19,7 @@ public class ItemOperation {
         return this.item;
     }
 
-    public void setItem(DomainItem item) {
+    public void setItem(Item item) {
         this.item = item;
     }
 

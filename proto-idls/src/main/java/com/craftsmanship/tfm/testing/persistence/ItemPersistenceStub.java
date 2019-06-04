@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
-import com.craftsmanship.tfm.models.DomainItem;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
 
@@ -16,16 +15,16 @@ import org.slf4j.LoggerFactory;
 
 public class ItemPersistenceStub implements ItemPersistence {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceStub.class);
-    private Map<Long, DomainItem> items = new HashMap<Long, DomainItem>();
+    private Map<Long, Item> items = new HashMap<Long, Item>();
     private Long currentIndex = 1L;
 
     @Override
-    public DomainItem create(Item item) throws ItemAlreadyExists {
+    public Item create(Item item) throws ItemAlreadyExists {
         if (items.get(item.getId()) != null) {
             throw new ItemAlreadyExists(item.getName());
         }
 
-        DomainItem newItem = new DomainItem((DomainItem) item);
+        Item newItem = new Item(item);
 
         newItem.setId(currentIndex);
         items.put(currentIndex, newItem);
@@ -39,8 +38,8 @@ public class ItemPersistenceStub implements ItemPersistence {
     }
 
     @Override
-    public DomainItem get(Long id) throws ItemDoesNotExist {
-        DomainItem item = items.get(id);
+    public Item get(Long id) throws ItemDoesNotExist {
+        Item item = items.get(id);
 
         if (item == null) {
             throw new ItemDoesNotExist(id);
@@ -50,18 +49,18 @@ public class ItemPersistenceStub implements ItemPersistence {
     }
 
     @Override
-    public DomainItem update(Long id, Item item) throws ItemDoesNotExist {
+    public Item update(Long id, Item item) throws ItemDoesNotExist {
         if (items.get(id) == null) {
             throw new ItemDoesNotExist(id);
         }
 
         item.setId(id);
-        items.put(id, (DomainItem) item);
-        return (DomainItem) item;
+        items.put(id, item);
+        return item;
     }
 
     @Override
-    public DomainItem delete(Long id) throws ItemDoesNotExist {
+    public Item delete(Long id) throws ItemDoesNotExist {
         if (items.get(id) == null) {
             throw new ItemDoesNotExist(id);
         }

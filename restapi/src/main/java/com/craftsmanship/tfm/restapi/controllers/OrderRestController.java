@@ -7,9 +7,9 @@ import java.util.List;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.ItemOperation;
-import com.craftsmanship.tfm.models.DomainItemPurchase;
+import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.OperationType;
-import com.craftsmanship.tfm.models.DomainOrder;
+import com.craftsmanship.tfm.models.Order;
 import com.craftsmanship.tfm.persistence.OrderPersistence;
 import com.craftsmanship.tfm.restapi.kafka.service.ItemOperationService;
 
@@ -27,7 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("api/v1/")
 public class OrderRestController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemRestController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderRestController.class);
 
     // Persistence Handler
     @Autowired
@@ -41,25 +41,24 @@ public class OrderRestController {
         this.itemOperationService = itemOperationService;
     }
 
-    private void sendItemOperations(OperationType type, List<DomainItemPurchase> itemPurchases) {
-        for (DomainItemPurchase itemPurchase : itemPurchases) {
+    private void sendItemOperations(OperationType type, List<ItemPurchase> itemPurchases) {
+        for (ItemPurchase itemPurchase : itemPurchases) {
             itemOperationService.sendItemOperation(new ItemOperation(type, itemPurchase.getItem()));
         }
     }
 
     @RequestMapping(value = "/orders", method = RequestMethod.POST)
-    public DomainOrder create(@RequestBody DomainOrder order) {
+    public Order create(@RequestBody Order order) {
         LOGGER.info("Creating order");
 
         try {
-            DomainOrder orderResponse = (DomainOrder) orderPersistence.create(order);
+            Order orderResponse = (Order) orderPersistence.create(order);
 
             LOGGER.info("REST API orderResponse = " + orderResponse);
 
             // Send messages to Kafka topic
 
-            this.sendItemOperations(OperationType.CREATED, 
-                    (List <DomainItemPurchase>)(List)orderResponse.getItemPurchases());
+            this.sendItemOperations(OperationType.CREATED, orderResponse.getItemPurchases());
             return orderResponse;
         } catch (ItemDoesNotExist e) {
             throw new ResponseStatusException(
@@ -68,17 +67,17 @@ public class OrderRestController {
     }
 
     @RequestMapping(value = "/orders", method = RequestMethod.GET)
-    public List<DomainOrder> list() {
+    public List<Order> list() {
         LOGGER.info("List orders");
-        return (List<DomainOrder>)(List)orderPersistence.list();
+        return orderPersistence.list();
     }
 
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
-    public DomainOrder get(@PathVariable Long id) {
+    public Order get(@PathVariable Long id) {
         LOGGER.info("Get order with id: " + id);
 
         try {
-            return (DomainOrder) orderPersistence.get(id);
+            return (Order) orderPersistence.get(id);
         } catch (OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);
@@ -86,11 +85,11 @@ public class OrderRestController {
     }
 
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.PUT)
-    public DomainOrder edit(@PathVariable Long id, @RequestBody DomainOrder order) {
+    public Order edit(@PathVariable Long id, @RequestBody Order order) {
         LOGGER.info("Edit order with id: " + id);
 
         try {
-            return (DomainOrder) orderPersistence.update(id, order);
+            return (Order) orderPersistence.update(id, order);
         } catch (ItemDoesNotExist | OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);
@@ -98,11 +97,11 @@ public class OrderRestController {
     }
 
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.DELETE)
-    public DomainOrder delete(@PathVariable Long id) throws OrderDoesNotExist {
+    public Order delete(@PathVariable Long id) throws OrderDoesNotExist {
         LOGGER.info("Delete order with id: " + id);
 
         try {
-            return (DomainOrder) orderPersistence.delete(id);
+            return (Order) orderPersistence.delete(id);
         } catch (OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);
