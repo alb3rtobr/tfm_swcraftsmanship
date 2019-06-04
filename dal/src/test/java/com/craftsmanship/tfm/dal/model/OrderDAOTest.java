@@ -176,6 +176,27 @@ public class OrderDAOTest {
     }
 
     @Test
+    public void given_persisted_order_when_updated_then_stock_items_updated() throws Exception {
+        int quantity1 = 10;
+        int quantity2 = 4;
+        int quantity3 = 1;
+        int expectedStock1 = getItem(1).getStock();
+        int expectedStock2 = getItem(2).getStock();
+        int expectedStock3 = getItem(3).getStock() - quantity3;
+        EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), quantity1).addItem(getItem(2), quantity2).build();
+
+        EntityOrder persistedOrder = dao.create(order);
+
+        EntityOrder newOrder = new EntityOrder.Builder().addItem(getItem(3), quantity3).build();
+
+        EntityOrder orderReceived = dao.update(persistedOrder.getId(), newOrder);
+
+        assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStock1));
+        assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStock2));
+        assertThat(itemRepository.getOne(getItem(3).getId()).getStock(), equalTo(expectedStock3));
+    }
+
+    @Test
     public void when_update_id_does_not_exist_then_exception() throws Exception {
         Long id = 1000L;
         exceptionRule.expect(OrderDoesNotExist.class);

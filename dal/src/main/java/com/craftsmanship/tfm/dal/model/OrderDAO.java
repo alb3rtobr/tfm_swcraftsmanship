@@ -58,7 +58,6 @@ public class OrderDAO {
         }
         checkItemsExists(order);
         updateOrderItems(id, order);
-        decreaseStocks(order);
         return orderRepository.save(order);
     }
 
@@ -122,6 +121,7 @@ public class OrderDAO {
     private void updateOrderItems(Long id, EntityOrder order) {
         EntityOrder orderToUpdate = orderRepository.findById(id).get();
         for (OrderItem orderItemToDelete : orderToUpdate.getOrderItems()) {
+            increaseItemStock(orderItemToDelete.getItem(), orderItemToDelete.getQuantity());
             orderItemRepository.delete(orderItemToDelete);
         }
         orderToUpdate.setOrderItems(new HashSet<OrderItem>());
@@ -129,6 +129,7 @@ public class OrderDAO {
         for (OrderItem orderItemToAdd : order.getOrderItems()) {
             orderItemToAdd.setOrder(orderToUpdate);
             orderToUpdate.add(orderItemRepository.save(orderItemToAdd));
+            decreaseItemStock(orderItemToAdd.getItem(), orderItemToAdd.getQuantity());
         }
     }
 
