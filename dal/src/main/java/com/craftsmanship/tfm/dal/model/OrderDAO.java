@@ -54,8 +54,8 @@ public class OrderDAO {
             throw new OrderDoesNotExist(id);
         }
         checkItemsExists(order);
-        saveOrderItems(order, order);
-        return orderRepository.save((EntityOrder) order);
+        updateOrderItems(id, order);
+        return orderRepository.save(order);
     }
 
     public EntityOrder delete(Long id) throws OrderDoesNotExist {
@@ -80,6 +80,19 @@ public class OrderDAO {
         for (OrderItem itemPurchase : order.getOrderItems()) {
             itemPurchase.setOrder(createdOrder);
             createdOrder.add(orderItemRepository.save(itemPurchase));
+        }
+    }
+
+    private void updateOrderItems(Long id, EntityOrder order) {
+        EntityOrder orderToUpdate = orderRepository.findById(id).get();
+        for (OrderItem orderItemToDelete : orderToUpdate.getOrderItems()) {
+            orderItemRepository.delete(orderItemToDelete);
+        }
+        orderToUpdate.setOrderItems(new HashSet<OrderItem>());
+        
+        for (OrderItem orderItemToAdd : order.getOrderItems()) {
+            orderItemToAdd.setOrder(orderToUpdate);
+            orderToUpdate.add(orderItemRepository.save(orderItemToAdd));
         }
     }
 
