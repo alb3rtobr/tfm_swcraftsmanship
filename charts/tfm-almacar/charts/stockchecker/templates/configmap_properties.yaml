@@ -22,3 +22,9 @@ data:
         host: {{ .Values.global.stockchecker.rest.host }}
         port: {{ .Values.global.stockchecker.rest.port }}
         endpoint: {{ .Values.global.stockchecker.rest.endpoint }}
+
+    management:
+      endpoints:
+          web:
+            exposure:
+              include: prometheus

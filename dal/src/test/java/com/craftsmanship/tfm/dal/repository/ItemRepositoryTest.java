@@ -9,7 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
@@ -17,6 +20,7 @@ import com.craftsmanship.tfm.dal.model.EntityItem;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@Import({MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
 public class ItemRepositoryTest {
 
 	@Autowired 

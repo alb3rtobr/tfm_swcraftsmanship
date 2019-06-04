@@ -210,6 +210,173 @@ $> minikube addons enable ingress
 
 *Under development*
 
+### Prometheus
+
+Prometheus is am open-source tool used mainly in cloud applications for monitoring and alerting purposes.
+
+The following diagram illustrates the architecure of Prometheus and some of its more important components:
+
+![architecture draft extended](./images/prometheus-architecture.png "Prometheus architecture")
+
+Prometheus scrapes metrics from instrumented jobs, directly or via push gateway. It stores all the obtained metrics locally and offers the posibility of execute rules over the stored data or generate alerts. Even, this data may be graphicaly represented using tools as *Grafana*, also used in the development of this project.
+
+For the aim of this project only the monitoring part of Prometheus was used but it could be adapted in the future to take advantage of the Alert system.
+
+#### Deployment in Kubernetes
+
+TBD
+
+NOTE: Here we have to explain we have used Prometheus Operator Chart:
+
+* Explain what is Prometheus Chart
+* How to get the chart
+* How to provide the configuration to Prometheus
+
+#### Preparing the services to expose metrics
+
+Each of the services that take part of our deployments need to be adaptaed in order to generate and expose metrics. Thanks of the use of Spring framework we can take advantage of Actuator. This library provided by Spring framework provide us the posibility of exposing operational information about the running application (health, metrics, dump, info, etc.). It uses HTTP endpoints or JMX beans to enable us to interact with it.
+
+If we want to configure Actuator in one of our services, we only have to add a new dependency in the `pom.xml` file:
+
+```xml
+        <!-- Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+```
+
+With Spring boot 2.0, adding Prometheus support to Spring boot became a lot easier thanks to the integration of Micrometer. Micrometer can be compared to what slf4j does for logging, but for monitoring in stead. It provides a clean API that can be accessed, and has a bridge to many monitoring platforms, including Prometheus.
+
+To be able to monitor our application within Spring boot, we need to add the following dependency (in addition of Spring Actuator one):
+
+```xml
+        <!-- Metrics and Prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+```
+
+By default, the Prometheis endpoint provided by Actuator is not available and must be exposed via configuration. For this, in the `application.properties` file of the application it is needed to add the following lines:
+
+```yaml
+    management:
+      endpoints:
+          web:
+            exposure:
+              include: prometheus
+```
+
+If we run the aplication and access the url `http://<service_ip>:<service_port>/actuator` we will get all the exposed Actuator endpoints:
+
+```json
+{
+   "_links":{
+      "self":{
+         "href":"http://10.105.135.202:8080/actuator",
+         "templated":false
+      },
+      "prometheus":{
+         "href":"http://10.105.135.202:8080/actuator/prometheus",
+         "templated":false
+      }
+   }
+}
+```
+
+And, finally, it is needed to configure Prometheus in order to know where to scrape the metrics. We will need to add one job per service to be scraped.
+
+```yaml
+prometheus-operator:
+  prometheus:
+    prometheusSpec:
+      additionalScrapeConfigs:
+        - job_name: 'restapi-service'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['tfm-almacar-restapi:8080']
+```
+
+#### Custom Metrics
+
+In addition to the metrics provided by Actuator, it is possible to create our own Custom Metrics. Micrometer allow us to use the MeterRegistry to store in memory all the counters needed. Thanks to the magic of Spring, Micrometer will autoconfigure the MeterRegistry depending on the dependencies we used in our project. As we are using `micrometer-registry-prometheus` as dependency, the registry will be compatible with Prometheus.
+
+For the purpose of this project we have decided to create two counters in the DAL service to measure when each of the gRPC Services are called:
+
+* item_grpc_request_total: Number of requests to Item gRPC service
+* order_grpc_request_total: Number of requests to Order gRPC service
+
+In order to prepare the DAL microservice to increment these counters when a gRPC request comes, we just need to provide to the gRPC services an instance of the MeterRegistry class:
+
+```java
+@Configuration
+public class DalConfig {
+[...]
+
+    @Autowired
+    MeterRegistry meterRegistry;
+
+    @Bean
+    public GrpcServer grpcServer() {
+
+        [...]
+
+        ItemPersistenceService itemService = new ItemPersistenceService(itemDAO, entityConversion, meterRegistry);
+        OrderPersistenceService orderService = new OrderPersistenceService(orderDAO, entityConversion, meterRegistry);
+
+        List<BindableService> services = new ArrayList<BindableService>();
+        services.add(itemService);
+        services.add(orderService);
+
+        GrpcServer grpcServer = new GrpcServer(services);
+        return grpcServer;
+    }
+
+}
+```
+
+So, each of the gRPC services will have available the MetricRegistry, injected by constructor:
+
+```java
+public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceService.class);
+
+    private ItemDAO itemPersistence;
+    private EntityConversion conversionLogic;
+    private final Counter itemGrpcRequestCounter;
+
+    public ItemPersistenceService(ItemDAO itemsPersistence, EntityConversion conversionLogic, MeterRegistry registry) {
+        this.itemPersistence = itemsPersistence;
+        this.conversionLogic = conversionLogic;
+        itemGrpcRequestCounter = Counter
+            .builder("item_grpc_request")
+            .description("Number of requests to Item gRPC service")
+            .register(registry);
+    }
+
+    [...]
+}
+```
+
+Thus, we only just have to increase the counter when a gRPC method is called from the service. For example, when we create an Item:
+
+```java
+public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
+    [...]
+
+    @Override
+    public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
+        itemGrpcRequestCounter.increment();
+
+        [...]
+    }
+
+    [...]
+}
+```
+
 ### Deployment
 
 #### Installation

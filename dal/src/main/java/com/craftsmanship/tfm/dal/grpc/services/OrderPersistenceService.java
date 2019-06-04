@@ -24,21 +24,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.Status;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderPersistenceService.class);
 
     private OrderDAO orderPersistence;
     private EntityConversion conversionLogic;
+    private final Counter orderGrpcRequestCounter;
 
-    public OrderPersistenceService(OrderDAO orderPersistenceStub, EntityConversion conversionLogic) {
+    public OrderPersistenceService(OrderDAO orderPersistenceStub, EntityConversion conversionLogic, MeterRegistry registry) {
         this.orderPersistence = orderPersistenceStub;
         this.conversionLogic = conversionLogic;
+        orderGrpcRequestCounter = Counter
+            .builder("order_grpc_request")
+            .description("Number of requests to Order gRPC service")
+            .register(registry);
     }
 
     @Override
     public void create(CreateOrderRequest request, io.grpc.stub.StreamObserver<CreateOrderResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
+        orderGrpcRequestCounter.increment();
+
         GrpcOrder grpcOrder = request.getOrder();
         EntityOrder order = conversionLogic.getOrderFromGrpcOrder(grpcOrder);
 
@@ -60,6 +69,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     @Override
     public void list(Empty request, io.grpc.stub.StreamObserver<ListOrderResponse> responseObserver) {
         LOGGER.info("LIST RPC CALLED");
+        orderGrpcRequestCounter.increment();
 
         Builder responseBuilder = ListOrderResponse.newBuilder();
         for (EntityOrder order : orderPersistence.list()) {
@@ -75,6 +85,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     @Override
     public void get(GetOrderRequest request, io.grpc.stub.StreamObserver<GetOrderResponse> responseObserver) {
         LOGGER.info("GET RPC CALLED");
+        orderGrpcRequestCounter.increment();
 
         try {
             EntityOrder order = orderPersistence.get(request.getId());
@@ -91,6 +102,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     @Override
     public void update(UpdateOrderRequest request, io.grpc.stub.StreamObserver<UpdateOrderResponse> responseObserver) {
         LOGGER.info("UPDATE RPC CALLED");
+        orderGrpcRequestCounter.increment();
 
         try {
             orderPersistence.get(request.getId());
@@ -117,6 +129,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
     @Override
     public void delete(DeleteOrderRequest request, io.grpc.stub.StreamObserver<DeleteOrderResponse> responseObserver) {
         LOGGER.info("DELETE RPC CALLED");
+        orderGrpcRequestCounter.increment();
 
         try {
             EntityOrder deletedOrder = orderPersistence.delete(request.getId());

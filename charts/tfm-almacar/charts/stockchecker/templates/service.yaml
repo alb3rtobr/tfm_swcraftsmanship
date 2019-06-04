@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stockchecker.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "stockchecker.fullname" . }}
+    app.kubernetes.io/component: {{ include "stockchecker.fullname" . }}
+    app.kubernetes.io/part-of: {{ .Values.global.appname }}
+    {{- range .Values.global.labels }}
+    {{ .name }}: {{ .value }}
+    {{- end }}
+spec:
+  selector:
+    app.kubernetes.io/component: {{ include "stockchecker.fullname" . }}
+  ports:
+  - port: {{ .Values.global.stockchecker.port }}

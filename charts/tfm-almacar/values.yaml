@@ -8,6 +8,7 @@ global:
   dal:
     host: tfm-almacar-dal
     port: 50057
+    portmetrics: 8080
     jvm:
       startheapmemory: 128m
       maxheapmemory: 256m
@@ -23,6 +24,8 @@ global:
     port: 3306
   stockchecker:
     threshold: 2
+    host: tfm-almacar-stockchecker
+    port: 8080
     rest:
       host: localhost
       port: 8082
@@ -60,6 +63,13 @@ kafka:
     #servicePort: '19092'
   zookeeper:
     replicaCount: 1
+  prometheus:
+    operator:
+      enabled: true
+      serviceMonitor:
+        namespace: "default"
+    jmx:
+      enabled: true
 
 restapi:
   replicaCount: 1
@@ -72,3 +82,45 @@ dal:
 
 stockchecker:
   replicaCount: 1
+
+prometheus-operator:
+  prometheus:
+    prometheusSpec:
+      additionalScrapeConfigs:
+        - job_name: 'prometheus'
+          scrape_interval: 1m
+          static_configs:
+            - targets: ['localhost:9090']
+        - job_name: 'restapi-service'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['tfm-almacar-restapi:8080']
+        - job_name: 'stockchecker-service'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['tfm-almacar-stockchecker:8080']
+        - job_name: 'dal-service'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['tfm-almacar-dal:8080']
+        - job_name: 'kafka'
+          scrape_interval: 1m
+          metrics_path: '/'
+          static_configs:
+            - targets: ['tfm-almacar-kafka:5555']
+        - job_name: 'grafana'
+          scrape_interval: 1m
+          metrics_path: '/metrics'
+          static_configs:
+            - targets: ['tfm-almacar-grafana:3000']
+  grafana:
+    adminPassword: 'adminadmin'
+    service:
+      type: NodePort
+      port: 3000
+      targetPort: 3000
+
+

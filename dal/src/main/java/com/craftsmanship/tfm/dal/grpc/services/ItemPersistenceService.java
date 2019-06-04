@@ -18,29 +18,35 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemRequest;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.UpdateItemResponse;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.ListItemResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.ItemPersistenceServiceGrpc.ItemPersistenceServiceImplBase;
-import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.persistence.ItemPersistence;
-import com.craftsmanship.tfm.utils.ConversionLogic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.Status;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemPersistenceService.class);
 
     private ItemDAO itemPersistence;
     private EntityConversion conversionLogic;
+    private final Counter itemGrpcRequestCounter;
 
-    public ItemPersistenceService(ItemDAO itemsPersistence, EntityConversion conversionLogic) {
+    public ItemPersistenceService(ItemDAO itemsPersistence, EntityConversion conversionLogic, MeterRegistry registry) {
         this.itemPersistence = itemsPersistence;
         this.conversionLogic = conversionLogic;
+        itemGrpcRequestCounter = Counter
+            .builder("item_grpc_request")
+            .description("Number of requests to Item gRPC service")
+            .register(registry);
     }
 
     @Override
     public void create(CreateItemRequest request, io.grpc.stub.StreamObserver<CreateItemResponse> responseObserver) {
         LOGGER.info("CREATE RPC CALLED");
+        itemGrpcRequestCounter.increment();
+
         GrpcItem grpcItem = request.getItem();
         EntityItem item = conversionLogic.getItemFromGrpcItem(grpcItem);
 
@@ -62,6 +68,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     @Override
     public void list(Empty request, io.grpc.stub.StreamObserver<ListItemResponse> responseObserver) {
         LOGGER.info("LIST RPC CALLED");
+        itemGrpcRequestCounter.increment();
 
         Builder responseBuilder = ListItemResponse.newBuilder();
         for (EntityItem item : itemPersistence.list()) {
@@ -77,6 +84,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     @Override
     public void get(GetItemRequest request, io.grpc.stub.StreamObserver<GetItemResponse> responseObserver) {
         LOGGER.info("GET RPC CALLED");
+        itemGrpcRequestCounter.increment();
 
         try {
             EntityItem item = itemPersistence.get(request.getId());
@@ -93,6 +101,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     @Override
     public void update(UpdateItemRequest request, io.grpc.stub.StreamObserver<UpdateItemResponse> responseObserver) {
         LOGGER.info("UPDATE RPC CALLED");
+        itemGrpcRequestCounter.increment();
 
         try {
             // first check if the item does not exist
@@ -116,6 +125,7 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
     @Override
     public void delete(DeleteItemRequest request, io.grpc.stub.StreamObserver<DeleteItemResponse> responseObserver) {
         LOGGER.info("DELETE RPC CALLED");
+        itemGrpcRequestCounter.increment();
 
         try {
             EntityItem deletedItem = itemPersistence.delete(request.getId());

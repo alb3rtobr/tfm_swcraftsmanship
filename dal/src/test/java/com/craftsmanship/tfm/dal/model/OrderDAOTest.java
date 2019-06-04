@@ -6,10 +6,8 @@ import static org.hamcrest.Matchers.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import com.craftsmanship.tfm.dal.grpc.server.GrpcServer;
 import com.craftsmanship.tfm.dal.repository.ItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
@@ -25,11 +23,15 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@Import({MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
 public class OrderDAOTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderDAOTest.class);

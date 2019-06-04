@@ -14,3 +14,6 @@ spec:
     app.kubernetes.io/component: {{ include "dal.fullname" . }}
   ports:
   - port: {{ .Values.global.dal.port }}
+    name: grpc-port
+  - port: {{ .Values.global.dal.portmetrics }}
+    name: metrics-port
