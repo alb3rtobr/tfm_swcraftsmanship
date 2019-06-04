@@ -1,8 +1,7 @@
 package com.craftsmanship.tfm.dal.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +32,14 @@ public class OrderDAO {
         LOGGER.info("Check if items exist");
         checkItemsExists(order);
         LOGGER.info("All the items exist");
-        saveOrderItems(order);
+        EntityOrder newOrder = orderRepository.saveAndFlush(new EntityOrder());
+        saveOrderItems(order, newOrder);
         LOGGER.info("All order items saved");
-        return orderRepository.save(order);
+        return orderRepository.saveAndFlush(newOrder);
     }
 
-    public List<EntityOrder> list() {
-        return new ArrayList<EntityOrder>(orderRepository.findAll());
+    public Set<EntityOrder> list() {
+        return new HashSet<EntityOrder>(orderRepository.findAll());
     }
 
     public EntityOrder get(Long id) throws OrderDoesNotExist {
@@ -54,7 +54,7 @@ public class OrderDAO {
             throw new OrderDoesNotExist(id);
         }
         checkItemsExists(order);
-        saveOrderItems(order);
+        saveOrderItems(order, order);
         return orderRepository.save((EntityOrder) order);
     }
 
@@ -69,21 +69,17 @@ public class OrderDAO {
     }
 
     private void checkItemsExists(EntityOrder order) throws ItemDoesNotExist {
-        LOGGER.info("Checking ItemPurchases: " + order.getOrderItems());
         for (OrderItem itemPurchase : order.getOrderItems()) {
-            LOGGER.info("Checking ItemPurchase: " + itemPurchase);
-            LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
-
             if (!itemRepository.existsById(itemPurchase.getItem().getId())) {
                 throw new ItemDoesNotExist("Item does not exist");
             }
         }
     }
-    
-    private void saveOrderItems(EntityOrder order) {
-        LOGGER.info("Saving order items: " + order.getOrderItems());
+
+    private void saveOrderItems(EntityOrder order, EntityOrder createdOrder) {
         for (OrderItem itemPurchase : order.getOrderItems()) {
-            orderItemRepository.save((OrderItem) itemPurchase);
+            itemPurchase.setOrder(createdOrder);
+            createdOrder.add(orderItemRepository.save(itemPurchase));
         }
     }
 

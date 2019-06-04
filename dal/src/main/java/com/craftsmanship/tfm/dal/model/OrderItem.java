@@ -7,9 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.transaction.Transactional;
 
-@Transactional
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
@@ -61,7 +59,7 @@ public class OrderItem {
     @Override
     public String toString() {
         return "OrderItem [id=" + this.id + ", quantity=" + this.quantity + 
-                ", item=" + this.item + ", entityOrder=" + this.entityOrder
+                ", item=" + this.item + ", entityOrder=" + this.entityOrder.getId()
                 + "]";
     }
 
