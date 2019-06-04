@@ -2,6 +2,7 @@ package com.craftsmanship.tfm.dal.grpc.services;
 
 import com.craftsmanship.tfm.dal.grpc.server.EntityConversion;
 import com.craftsmanship.tfm.dal.model.EntityOrder;
+import com.craftsmanship.tfm.dal.model.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.dal.model.OrderDAO;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
@@ -51,6 +52,8 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
             responseObserver.onCompleted();
         } catch (ItemDoesNotExist e) {
             responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+        } catch (ItemWithNoStockAvailable e) {
+            responseObserver.onError(Status.FAILED_PRECONDITION.withDescription(e.getMessage()).asRuntimeException());
         }
     }
 

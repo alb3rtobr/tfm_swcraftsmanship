@@ -63,13 +63,13 @@ public class OrderDAOTest {
     }
 
     private void createSomeItems() {
-        EntityItem item1 = new EntityItem.Builder().withName("BMW").withPrice(200000).withStock(1).build();
-        EntityItem item2 = new EntityItem.Builder().withName("Porsche").withPrice(33330).withStock(7).build();
-        EntityItem item3 = new EntityItem.Builder().withName("Lamborghini").withPrice(800000).withStock(3).build();
+        EntityItem item1 = new EntityItem.Builder().withName("BMW").withPrice(200000).withStock(1000).build();
+        EntityItem item2 = new EntityItem.Builder().withName("Porsche").withPrice(33330).withStock(7000).build();
+        EntityItem item3 = new EntityItem.Builder().withName("Lamborghini").withPrice(800000).withStock(3000).build();
 
         this.items.add(0, itemRepository.save(item1));
         this.items.add(1, itemRepository.save(item2));
-        this.items.add(2,  itemRepository.save(item3));
+        this.items.add(2, itemRepository.save(item3));
         itemRepository.flush();
     }
 
@@ -87,6 +87,20 @@ public class OrderDAOTest {
     }
 
     @Test
+    public void given_order_when_created_then_items_stock_decrease() throws Exception {
+        int quantity1 = 10;
+        int quantity2 = 4;
+        int expectedStock1 = getItem(1).getStock() - quantity1;
+        int expectedStock2 = getItem(2).getStock() - quantity2;
+        EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), quantity1).addItem(getItem(2), quantity2).build();
+
+        dao.create(order);
+
+        assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStock1));
+        assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStock2));
+    }
+
+    @Test
     public void given_order_with_non_persisted_item_when_created_then_exception() throws Exception {
         EntityItem nonPersistedItem = new EntityItem.Builder().withName("Seat").withPrice(200).withStock(1).build();
         EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(nonPersistedItem, 4).build();
@@ -100,6 +114,18 @@ public class OrderDAOTest {
     @Test
     public void given_order_with_no_items_when_created_then_exception() {
         // TODO: it this allowed? or exception?
+    }
+
+    @Test
+    public void given_order_requesting_item_with_no_enough_stock_when_created_then_exception() throws Exception {
+        EntityItem itemWithLowStock = new EntityItem.Builder().withName("Seat").withPrice(200).withStock(1).build();
+        EntityItem savedItem = itemRepository.saveAndFlush(itemWithLowStock);
+
+        EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(savedItem, 4).build();
+
+        exceptionRule.expect(ItemWithNoStockAvailable.class);
+
+        dao.create(order);
     }
 
     @Test
@@ -150,6 +176,27 @@ public class OrderDAOTest {
     }
 
     @Test
+    public void given_persisted_order_when_updated_then_stock_items_updated() throws Exception {
+        int quantity1 = 10;
+        int quantity2 = 4;
+        int quantity3 = 1;
+        int expectedStock1 = getItem(1).getStock();
+        int expectedStock2 = getItem(2).getStock();
+        int expectedStock3 = getItem(3).getStock() - quantity3;
+        EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), quantity1).addItem(getItem(2), quantity2).build();
+
+        EntityOrder persistedOrder = dao.create(order);
+
+        EntityOrder newOrder = new EntityOrder.Builder().addItem(getItem(3), quantity3).build();
+
+        EntityOrder orderReceived = dao.update(persistedOrder.getId(), newOrder);
+
+        assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStock1));
+        assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStock2));
+        assertThat(itemRepository.getOne(getItem(3).getId()).getStock(), equalTo(expectedStock3));
+    }
+
+    @Test
     public void when_update_id_does_not_exist_then_exception() throws Exception {
         Long id = 1000L;
         exceptionRule.expect(OrderDoesNotExist.class);
@@ -177,12 +224,33 @@ public class OrderDAOTest {
     public void given_persisted_order_when_deleted_then_order_is_deleted() throws Exception {
         Long expectedOrders = orderRepository.count();
         EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
-        EntityOrder persistedOrder = orderRepository.save(order);
+        EntityOrder persistedOrder = dao.create(order);
 
-        EntityOrder deletedOrder = dao.delete(persistedOrder.getId());
+        EntityOrder deletedOrder = dao.delete(persistedOrder.getId());  
 
         assertThat(deletedOrder, equalTo(persistedOrder));
         assertThat(orderRepository.count(), equalTo(expectedOrders));
+    }
+
+    @Test
+    public void given_persisted_order_when_deleted_then_item_stocks_are_updated() throws Exception {
+        int quantity1 = 10;
+        int quantity2 = 4;
+        int expectedStock1 = getItem(1).getStock() - quantity1;
+        int expectedStock2 = getItem(2).getStock() - quantity2;
+        int expectedStockDeleted1 = getItem(1).getStock();
+        int expectedStockDeleted2 = getItem(2).getStock();
+
+        EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), quantity1).addItem(getItem(2), quantity2).build();
+        EntityOrder persistedOrder = dao.create(order);
+
+        assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStock1));
+        assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStock2));
+
+        dao.delete(persistedOrder.getId());
+
+        assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStockDeleted1));
+        assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStockDeleted2));
     }
 
     @Test
