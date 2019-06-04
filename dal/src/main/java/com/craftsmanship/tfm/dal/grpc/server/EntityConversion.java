@@ -7,12 +7,6 @@ import com.craftsmanship.tfm.idls.v2.ItemPersistence.GrpcItem;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcItemPurchase;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.GrpcOrder.Builder;
-import com.craftsmanship.tfm.models.Item;
-import com.craftsmanship.tfm.models.ItemPurchase;
-import com.craftsmanship.tfm.models.Order;
-import com.craftsmanship.tfm.models.DomainItemPurchase;
-import com.craftsmanship.tfm.models.DomainOrder;
-import com.craftsmanship.tfm.utils.ConversionLogic;
 
 public class EntityConversion {
 
@@ -27,7 +21,6 @@ public class EntityConversion {
     }
 
     public EntityOrder getOrderFromGrpcOrder(GrpcOrder grpcOrder) {
-        
         EntityOrder order = new EntityOrder.Builder().withId(grpcOrder.getId()).build();
         for (GrpcItemPurchase purchase : grpcOrder.getListOfItemPurchasesList()) {
             

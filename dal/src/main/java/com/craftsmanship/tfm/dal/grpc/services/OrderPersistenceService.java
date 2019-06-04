@@ -18,10 +18,6 @@ import com.craftsmanship.tfm.idls.v2.OrderPersistence.UpdateOrderRequest;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.UpdateOrderResponse;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.ListOrderResponse.Builder;
 import com.craftsmanship.tfm.idls.v2.OrderPersistenceServiceGrpc.OrderPersistenceServiceImplBase;
-import com.craftsmanship.tfm.models.DomainOrder;
-import com.craftsmanship.tfm.models.Order;
-import com.craftsmanship.tfm.persistence.OrderPersistence;
-import com.craftsmanship.tfm.utils.ConversionLogic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
