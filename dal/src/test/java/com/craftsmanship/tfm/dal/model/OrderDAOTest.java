@@ -203,34 +203,34 @@ public class OrderDAOTest {
     public void given_persisted_order_when_deleted_then_order_is_deleted() throws Exception {
         Long expectedOrders = orderRepository.count();
         EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), 10).addItem(getItem(2), 4).build();
-        EntityOrder persistedOrder = orderRepository.save(order);
+        EntityOrder persistedOrder = dao.create(order);
 
-        EntityOrder deletedOrder = dao.delete(persistedOrder.getId());
+        EntityOrder deletedOrder = dao.delete(persistedOrder.getId());  
 
         assertThat(deletedOrder, equalTo(persistedOrder));
         assertThat(orderRepository.count(), equalTo(expectedOrders));
     }
 
-    // @Test
-    // public void given_persisted_order_when_deleted_then_item_stocks_are_updated() throws Exception {
-    //     int quantity1 = 10;
-    //     int quantity2 = 4;
-    //     int expectedStock1 = getItem(1).getStock() - quantity1;
-    //     int expectedStock2 = getItem(2).getStock() - quantity2;
-    //     int expectedStockDeleted1 = getItem(1).getStock();
-    //     int expectedStockDeleted2 = getItem(2).getStock();
+    @Test
+    public void given_persisted_order_when_deleted_then_item_stocks_are_updated() throws Exception {
+        int quantity1 = 10;
+        int quantity2 = 4;
+        int expectedStock1 = getItem(1).getStock() - quantity1;
+        int expectedStock2 = getItem(2).getStock() - quantity2;
+        int expectedStockDeleted1 = getItem(1).getStock();
+        int expectedStockDeleted2 = getItem(2).getStock();
 
-    //     EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), quantity1).addItem(getItem(2), quantity2).build();
-    //     EntityOrder persistedOrder = dao.create(order);
+        EntityOrder order = new EntityOrder.Builder().addItem(getItem(1), quantity1).addItem(getItem(2), quantity2).build();
+        EntityOrder persistedOrder = dao.create(order);
 
-    //     assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStock1));
-    //     assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStock2));
+        assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStock1));
+        assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStock2));
 
-    //     dao.delete(persistedOrder.getId());
+        dao.delete(persistedOrder.getId());
 
-    //     assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStockDeleted1));
-    //     assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStockDeleted2));
-    // }
+        assertThat(itemRepository.getOne(getItem(1).getId()).getStock(), equalTo(expectedStockDeleted1));
+        assertThat(itemRepository.getOne(getItem(2).getId()).getStock(), equalTo(expectedStockDeleted2));
+    }
 
     @Test
     public void when_delete_id_does_not_exist_then_exception() throws Exception {

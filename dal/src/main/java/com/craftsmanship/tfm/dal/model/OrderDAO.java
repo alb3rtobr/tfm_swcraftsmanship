@@ -67,8 +67,8 @@ public class OrderDAO {
             throw new OrderDoesNotExist(id);
         }
         EntityOrder deletedOrder = orderRepository.findById(id).get();
-        orderRepository.delete(deletedOrder);
         deleteOrderItems(deletedOrder);
+        orderRepository.delete(deletedOrder);
         return deletedOrder;
     }
 
@@ -134,7 +134,7 @@ public class OrderDAO {
 
     private void deleteOrderItems(EntityOrder order) {
         for (OrderItem itemPurchase : order.getOrderItems()) {
-            //increaseItemStock(itemPurchase.getItem(), itemPurchase.getQuantity());
+            increaseItemStock(itemPurchase.getItem(), itemPurchase.getQuantity());
             orderItemRepository.delete(itemPurchase);
         }
     }
