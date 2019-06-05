@@ -8,6 +8,20 @@
 	3. [Motivation](#motivation)
 2. [Theoretical framework](#theoretical-framework)
 3. [State of the art](#state-of-the-art)
+  1. [Kubernetes](#kubernetes)
+		1. [Minikube](#minikube)
+		2. [Helm](#helm)
+  2. [Microservice communication](#microservice-communication)
+		1. [REST](#rest)
+		2. [gRPC](#grpc)
+		3. [Apache Kafka](#apache-kafka)
+	3. [Persistence](#persistence)
+		1. [JPA & Hibernate](#jpa-&-hibernate)
+		2. [H2 & MySQL](#h2-&-mysql)
+	4. [Metrics](#metrics)
+		1. [Prometheus](#prometheus)
+		2. [Grafana](#grafana)
+	5. [Spring framework](#spring-framework)
 4. [Project development](#project-development)
 	1. [Methodology](#methodology)
 	2. [Analysis](#analysis)
@@ -59,13 +73,23 @@ On the other hand, these architectures also introduces several problems or issue
 
 ## State of the art
 
+### Kubernetes
 Microservice architecture is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Kubernetes. First, Docker popularized the usage of containers for implementation, testing, and distribution of applications, which contributed to the design of microservice applications. As commented in previous chapter, coordination of microservices (containers) was an issue to solve, and Kubernetes was the Google's answer: "Kubernetes is an open source system for managing containerized applications across multiple hosts; providing basic mechanisms for deployment, maintenance, and scaling of applications."[[3](#3)]
 The first version was released by Google in 2014. After that, Google donated the product to the Linux Foundation, which created the Cloud Native Computing Foundation setting Kubernetes as the main technology behind. Actually, Kubernetes is the most used container orchestration tool and could being consider the de facto standard.
 
+#### Minikube
 For implementing our project we have used Minikube, a tool that allows to run Kubernetes locally on our laptops. This tool starts a minimum Kubernetes cluster, which fits perfectly for testing purposes or small applications.
 
+#### Helm
+We also named the management of the different services as a drawback of microservices architectures. Helm is a package manager that is used to define and manage services that run on Kubernetes. Applications and its resources are defined using yaml files called Helm charts. Our application include its own Helm charts since the first version.
+
+
+### Microservices communication
+
+#### REST
 We have already mentioned microservice communication is done through lightweight protocols. REST (Representational State Transfer) is the most used and we are using it too in this project. Services that follow this approach are called RESTful Web Services (RWS), and they provide an API to manipulate web resources.
 
+#### gRPC
 In our project we are also using other communication framework, called gRPC (Google Remote Procedure Call). It allows a client to call methods on a server application located on a different host transparently, as it is was a local object in the same machine. After defining the interface of the service to be implemented, the implementation of that interface has to be run in a host which will handle external client calls using a gRPC server.
 The clients then can use a stub which provides the same interface, and it will be in charge to communicate with the gRPC server.
 Server and client applications could be written in different languages, but they will communicate thanks to sharing the same interface.
@@ -74,11 +98,24 @@ Server and client applications could be written in different languages, but they
 
 *gRPC server and clients. (gRPC official site)*
 
-By default, gRPC uses `protocol buffers` as mechanism to serialize structured data. With the specification of how your the data will be structured, it is possible to automatically generate source code to write and read that from different data streams and using different languages. `Protocol buffers` uses `.proto` files to define messages in its interface definition language (IDL), representing your data. Our `proto` file is located in the `proto-idls` project in the source repository.
+By default, gRPC uses `protocol buffers` as mechanism to serialize structured data. With the specification of how your the data will be structured, it is possible to automatically generate source code to write and read that from different data streams and using different languages. `Protocol buffers` uses `.proto` files to define messages in its interface definition language (IDL), representing your data.
 
-A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. In our case, we implmented a producer-consumer model using Kafka as communication tool. Kafka works as a microservice in the Kubernetes cluster.
+#### Apache Kafka
+A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. In our case, we implemented a producer-consumer model using Kafka as communication tool. Kafka works as a microservice in the Kubernetes cluster.
 
-We also named the management of the different services as a drawback of microservices architectures. Helm is a package manager that is used to define and manage services that run on Kubernetes. Applications and its resources are defined using yaml files called Helm charts. Our application include its own Helm charts since the first version.
+### Persistence
+
+#### JPA & Hibernate
+
+#### H2 & MySQL
+
+### Metrics
+
+#### Prometheus
+
+#### Grafana
+
+### Spring framework
 
 ## Project development
 
