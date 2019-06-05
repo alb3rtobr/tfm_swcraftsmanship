@@ -29,7 +29,7 @@
 ### Project description
 The current project aims to explore the development of a Kubernetes native application using Spring Cloud framework and study different alternatives for the problems identified.
 We have implemented a simple application with the following requirements:
-* REST API that expose the allowed operations
+* REST API that exposes the allowed operations.
 * Data Abstraction Layer service to access the data base via gRPC.
 * Monitoring component who reacts to the operations performed in the data base.
 
@@ -50,7 +50,7 @@ From the different topics we have covered during the Master, we found that Kuber
 
 ## Theoretical framework
 
-As starting point to understand our project theoretical environment, it is necessary to talk about microservices. A simple introductory definition would say that "Microservices are small, autonomous services that work together."[[1](#1)]. A software project that follows a microservices architecture is design in such way that its functionality is divided into smaller, loosely coupled components called services. Each service can be treated as a separate application, running its own process or processes. Services needs to communicate with each other, and they use lightweight protocols, being REST the most used.
+As starting point to understand our project theoretical environment, it is necessary to talk about microservices. A simple introductory definition would say that "Microservices are small, autonomous services that work together."[[1](#1)]. A software project that follows a microservices architecture is designed in such a way that its functionality is divided into smaller, loosely coupled components called services. Each service can be treated as a separate application, running its own process or processes. Services needs to communicate with each other, and they use lightweight protocols, being REST the most used.
 
 This architecture has different advantages: reinforces modularity, it improves the reutilization of code, as services can be used in more than one application. Also, the codification of each service can be paralelized, reducing the implementation time of the whole application. Each service can use different programming languages or framework, so we can chose the solution that fits most with the service functionality, without being attached to a specific language.
 
@@ -59,14 +59,14 @@ On the other hand, these architectures also introduces several problems or issue
 
 ## State of the art
 
-Microservice architectures is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Kubernetes. First, Docker popularized the usage of containers for implementation, testing, and distribution of applications, which contributed to the design of microservice applications. As commented in previous chapter, coordination of microservices (containers) was an issue to solve, and Kubernetes was the Google's answer: "Kubernetes is an open source system for managing containerized applications across multiple hosts; providing basic mechanisms for deployment, maintenance, and scaling of applications."[[3](#3)]
+Microservice architecture is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Kubernetes. First, Docker popularized the usage of containers for implementation, testing, and distribution of applications, which contributed to the design of microservice applications. As commented in previous chapter, coordination of microservices (containers) was an issue to solve, and Kubernetes was the Google's answer: "Kubernetes is an open source system for managing containerized applications across multiple hosts; providing basic mechanisms for deployment, maintenance, and scaling of applications."[[3](#3)]
 The first version was released by Google in 2014. After that, Google donated the product to the Linux Foundation, which created the Cloud Native Computing Foundation setting Kubernetes as the main technology behind. Actually, Kubernetes is the most used container orchestration tool and could being consider the de facto standard.
 
-For implementing our project we have use Minikube, a tool that allows to run Kubernetes locally on our laptops. This tool starts a minimum Kubernetes cluster, which fits perfectly for testing purposes or small applications.
+For implementing our project we have used Minikube, a tool that allows to run Kubernetes locally on our laptops. This tool starts a minimum Kubernetes cluster, which fits perfectly for testing purposes or small applications.
 
 We have already mentioned microservice communication is done through lightweight protocols. REST (Representational State Transfer) is the most used and we are using it too in this project. Services that follow this approach are called RESTful Web Services (RWS), and they provide an API to manipulate web resources.
 
-In our project we are also using other communication framework, called gRPC (Google Remote Procedure Call). It allows a client to call methods on a server application located on a different host transparently, as it is was a local object in the same machine. After defining the interface of the service to be implemented, the implementation of that interface has to be stored in a host which will handle external client calls using a gRPC server.
+In our project we are also using other communication framework, called gRPC (Google Remote Procedure Call). It allows a client to call methods on a server application located on a different host transparently, as it is was a local object in the same machine. After defining the interface of the service to be implemented, the implementation of that interface has to be run in a host which will handle external client calls using a gRPC server.
 The clients then can use a stub which provides the same interface, and it will be in charge to communicate with the gRPC server.
 Server and client applications could be written in different languages, but they will communicate thanks to sharing the same interface.
 
@@ -76,7 +76,7 @@ Server and client applications could be written in different languages, but they
 
 By default, gRPC uses `protocol buffers` as mechanism to serialize structured data. With the specification of how your the data will be structured, it is possible to automatically generate source code to write and read that from different data streams and using different languages. `Protocol buffers` uses `.proto` files to define messages in its interface definition language (IDL), representing your data. Our `proto` file is located in the `proto-idls` project in the source repository.
 
-A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. In our case, we implmented a produced-consumer model using Kafka as communication tool. Kafka works as a microservice in the Kubernetes cluster.
+A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. In our case, we implmented a producer-consumer model using Kafka as communication tool. Kafka works as a microservice in the Kubernetes cluster.
 
 We also named the management of the different services as a drawback of microservices architectures. Helm is a package manager that is used to define and manage services that run on Kubernetes. Applications and its resources are defined using yaml files called Helm charts. Our application include its own Helm charts since the first version.
 
@@ -84,7 +84,7 @@ We also named the management of the different services as a drawback of microser
 
 ### Methodology
 
-Cloud technologies evolve so fast and there are so many alternatives available, that when we were defining the scope of this project we elaborated a huge list of "nice-to-have" features. We decided that the best approach to develop our application was following an incremental approach, and it would allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we forced us not to start to many issues at the same time, and focus on finishing the open ones. This approach has resulted to be very useful for us, because although it was clear that we were not going to finish all the items of our first list, we are releasing an application that at least can provide some functionality.
+Cloud technologies evolve so fast and there are so many alternatives available, that when we were defining the scope of this project we elaborated a huge list of "nice-to-have" features. We decided that the best approach to develop our application was following an incremental approach, and it would allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we forced us not to start too many issues at the same time, and focus on finishing the open ones. This approach has resulted to be very useful for us, because although it was clear that we were not going to finish all the items of our first list, we are releasing an application that at least can provide some functionality.
 
 Trying to take advantage of all the learning opportunities during the development of this project, we decided to use two tools that are widely used in software development, but we are not familiar with: Slack & GitHub.
 
@@ -113,7 +113,7 @@ This is the base architecture we decided to develop:
 We decided to have the following components/services:
 * `Gateway` : handling cluster access.
 * `Application server` : main logic of the application.
-* `Monitor` : in charge of monitor the server activity, and send a notification to an external end point if a given condition is fulfilled.
+* `Monitor` : in charge of monitoring the server activity, and send a notification to an external end point if a given condition is fulfilled.
 * `Message bus` : communication mechanism used by the server to publish events, and used by the monitor to consume those events.
 * `DAL` : data abstraction layer to isolate the business model from the persistence of the model itself.
 * `Data base` : the persistence of the model.
@@ -131,7 +131,7 @@ The application is composed of the following services:
 * `API gateway` : we used Kubernetes Ingress functionality as first approach.
 * `restapi` : in charge of offering our application functionality via REST API.
 * `dal` : using gRPC to access the model
-* `stockchecker` : whenever an item is solved, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
+* `stockchecker` : whenever an item is sold, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
 
 ### Implementation and tests
 
@@ -146,9 +146,9 @@ Main characteristics:
 * ConfigMaps
 * Automatic test execution for every commit
 
-In this first version of the application we setup the Github repository, and the different projects. The application can be started using Helm charts, and configured using configmaps. ConfigMaps are a Kubernetes utility that allows inject the containers configuration, splitting the services definition and the values used for configuration.
+In this first version of the application we setup the Github repository, and the different projects. The application can be started using Helm charts, and configured using configmaps. ConfigMaps are a Kubernetes resource that allows to inject configuratioin to the running containers, splitting the services definition and the values used for configuration.
 
-An important we solved was the Kafka configuration to communicate the `restapi` & `stockchecker` services. Thanks to Helm, the configuration of the Kafka cluster was very straightforward, but we spent quite some time with the setup of the both services to use Kafka.
+An important issue we solved was the Kafka configuration to communicate the `restapi` & `stockchecker` services. Thanks to Helm, the configuration of the Kafka cluster was very straightforward, but we spent quite some time with the setup of the both services to use Kafka.
 
 At this stage of the application development, the model is very simple, containing just one entity, `Item`, which has an `id` and a `description` as attributes.
 
@@ -191,9 +191,9 @@ The `restapi` component offers the same operations than previous version for `It
 * PUT `api/v2/orders/{id}` : update an order
 * DELETE `api/v2/orders/{id}` : delete an order
 
-In this version it is possible to create orders of item
+In this version it is possible to create orders of items.
 
-We also implemented a quick improvement for the API gateway. In previous version, access to `restapi` was performed using the `NodePort` option available in Kubernetes services. This automatically creates an IP which is accessed from outside the Kubernetes cluster, and together with the `NodePort` provides access to the `restapi` service. In version 0.2 we complemented this by configuring `Ingress`, a Kubernetes functionality that manages external access to the cluster services, and provides load balancing.
+We also implemented a quick improvement for the API gateway. In previous version, access to `restapi` was performed using the `NodePort` option available in Kubernetes services. This automatically creates an IP which is accessed from outside the Kubernetes cluster, and together with the `NodePort` provides access to the `restapi` service. In version 0.2 we complemented this by configuring `Ingress`, a Kubernetes resource that manages external access to the cluster services, and provides load balancing.
 
 Before configuring ingress, it is necessary to configure an ingress controller. In our case, we used Nginx Ingress Controller. It can be installed using Helm:
 ```
@@ -212,7 +212,7 @@ $> minikube addons enable ingress
 
 ### Prometheus
 
-Prometheus is am open-source tool used mainly in cloud applications for monitoring and alerting purposes.
+Prometheus is an open-source tool used mainly in cloud applications for monitoring and alerting purposes.
 
 The following diagram illustrates the architecure of Prometheus and some of its more important components:
 
@@ -234,7 +234,7 @@ NOTE: Here we have to explain we have used Prometheus Operator Chart:
 
 #### Preparing the services to expose metrics
 
-Each of the services that take part of our deployments need to be adaptaed in order to generate and expose metrics. Thanks of the use of Spring framework we can take advantage of Actuator. This library provided by Spring framework provide us the posibility of exposing operational information about the running application (health, metrics, dump, info, etc.). It uses HTTP endpoints or JMX beans to enable us to interact with it.
+Each of the services that take part of our deployments need to be adapted in order to generate and expose metrics. Thanks to the use of Spring framework we can take advantage of Actuator. This library provided by Spring framework provide us the posibility of exposing operational information about the running application (health, metrics, dump, info, etc.). It uses HTTP endpoints or JMX beans to enable us to interact with it.
 
 If we want to configure Actuator in one of our services, we only have to add a new dependency in the `pom.xml` file:
 
@@ -246,7 +246,7 @@ If we want to configure Actuator in one of our services, we only have to add a n
         </dependency>
 ```
 
-With Spring boot 2.0, adding Prometheus support to Spring boot became a lot easier thanks to the integration of Micrometer. Micrometer can be compared to what slf4j does for logging, but for monitoring in stead. It provides a clean API that can be accessed, and has a bridge to many monitoring platforms, including Prometheus.
+With Spring boot 2.0, adding Prometheus support to Spring boot became a lot easier thanks to the integration of Micrometer. Micrometer can be compared to what slf4j does for logging, but for monitoring instead. It provides a clean API that can be accessed, and has a bridge to many monitoring platforms, including Prometheus.
 
 To be able to monitor our application within Spring boot, we need to add the following dependency (in addition of Spring Actuator one):
 
