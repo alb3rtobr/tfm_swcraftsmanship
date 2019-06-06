@@ -1,46 +1,52 @@
 [![Build Status](https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship.svg?branch=master)](https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship)
 
-# Master Thesis: Microservice app development with Spring Cloud Kubernetes
+- [1. Introduction](#1-introduction)
+  - [1.1. Project description](#11-project-description)
+  - [1.2. Goals](#12-goals)
+  - [1.3. Motivation](#13-motivation)
+- [2. Theoretical framework](#2-theoretical-framework)
+- [3. State of the art](#3-state-of-the-art)
+  - [3.1. Kubernetes](#31-kubernetes)
+    - [3.1.1. Minikube](#311-minikube)
+    - [3.1.2. Helm](#312-helm)
+  - [3.2. Microservices communication](#32-microservices-communication)
+    - [3.2.1. REST](#321-rest)
+    - [3.2.2. gRPC](#322-grpc)
+    - [3.2.3. Apache Kafka](#323-apache-kafka)
+  - [3.3. Persistence](#33-persistence)
+    - [3.3.1. JPA & Hibernate](#331-jpa--hibernate)
+    - [3.3.2. H2 & MySQL](#332-h2--mysql)
+  - [3.4. Monitoring](#34-monitoring)
+    - [3.4.1. Logging](#341-logging)
+    - [3.4.2. Metrics](#342-metrics)
+    - [3.4.3. Tracing](#343-tracing)
+  - [3.5. Spring framework](#35-spring-framework)
+- [4. Project development](#4-project-development)
+  - [4.1. Methodology](#41-methodology)
+  - [4.2. Analysis](#42-analysis)
+  - [4.3. Design](#43-design)
+  - [4.4. Implementation and tests](#44-implementation-and-tests)
+    - [4.4.1. Version 0.1](#441-version-01)
+    - [4.4.2. Version 0.2](#442-version-02)
+    - [4.4.3. Version 0.3](#443-version-03)
+  - [4.5. Prometheus](#45-prometheus)
+    - [4.5.1. Deployment in Kubernetes](#451-deployment-in-kubernetes)
+    - [4.5.2. Preparing the services to expose metrics](#452-preparing-the-services-to-expose-metrics)
+    - [4.5.3. Custom Metrics](#453-custom-metrics)
+  - [4.6. Deployment](#46-deployment)
+    - [4.6.1. Installation](#461-installation)
+      - [4.6.1.1. Docker image preparation](#4611-docker-image-preparation)
+      - [4.6.1.2. Helm dependencies](#4612-helm-dependencies)
+      - [4.6.1.3. Deployment](#4613-deployment)
+      - [4.6.1.4. Delete the deployment](#4614-delete-the-deployment)
+- [5. Results](#5-results)
+- [6. Conclusions and future work](#6-conclusions-and-future-work)
+- [7. References](#7-references)
 
-1. [Introduction](#introduction)
-	1. [Project description](#project-description)
-	2. [Goals](#goals)
-	3. [Motivation](#motivation)
-2. [Theoretical framework](#theoretical-framework)
-3. [State of the art](#state-of-the-art)
-  1. [Kubernetes](#kubernetes)
-		1. [Minikube](#minikube)
-		2. [Helm](#helm)
-  2. [Microservice communication](#microservice-communication)
-		1. [REST](#rest)
-		2. [gRPC](#grpc)
-		3. [Apache Kafka](#apache-kafka)
-	3. [Persistence](#persistence)
-		1. [JPA & Hibernate](#jpa-&-hibernate)
-		2. [H2 & MySQL](#h2-&-mysql)
-	4. [Metrics](#metrics)
-		1. [Prometheus](#prometheus)
-		2. [Grafana](#grafana)
-	5. [Spring framework](#spring-framework)
-4. [Project development](#project-development)
-	1. [Methodology](#methodology)
-	2. [Analysis](#analysis)
-	3. [Design](#design)
-	4. [Implementation & tests](#implementation-and-tests)
-	5. [Deployment](#deployment)
-		1. [Installation](#installation)
-		2. [Docker image preparation](#docker-image-preparation)
-		3. [Helm dependencies](#helm-dependencies)
-		4. [Application deployment](#application-deployment)
-		5. [Delete the deployment](#delete-the-deployment)
-5. [Results](#results)
-6. [Conclusions and future work](#conclusions-and-future-work)
-7. [References](#references)
+# 1. Introduction
 
+## 1.1. Project description
 
-## Introduction
-
-### Project description
 The current project aims to explore the development of a Kubernetes native application using Spring Cloud framework and study different alternatives for the problems identified.
 We have implemented a simple application with the following requirements:
 * REST API that exposes the allowed operations.
@@ -49,8 +55,8 @@ We have implemented a simple application with the following requirements:
 
 Our application is a draft of a stock system that could be found on a shop or a warehouse. The application allows CRUD operations over generic items, create orders with items in stock, and it automatically performs order of new items to an external end point when the stock of an item is below a given threshold.
 
+## 1.2. Goals
 
-### Goals
 * **Implement a cloud native application from scratch, offering a REST API.**
 
 * **Allow communication between microservices using a message bus service.**
@@ -59,10 +65,11 @@ Our application is a draft of a stock system that could be found on a shop or a 
 
 * **Develop our application in an incremental way, having functional versions after each iteration.**
 
-### Motivation
+## 1.3. Motivation
+
 From the different topics we have covered during the Master, we found that Kubernetes and cloud applications were quite interesting. We also started working on cloud-related issues in our jobs, so we decided it would be very appropiate to explore this topic in our Master Thesis and take advantage of the learning opportunities we could find.
 
-## Theoretical framework
+# 2. Theoretical framework
 
 As starting point to understand our project theoretical environment, it is necessary to talk about microservices. A simple introductory definition would say that "Microservices are small, autonomous services that work together."[[1](#1)]. A software project that follows a microservices architecture is designed in such a way that its functionality is divided into smaller, loosely coupled components called services. Each service can be treated as a separate application, running its own process or processes. Services needs to communicate with each other, and they use lightweight protocols, being REST the most used.
 
@@ -70,26 +77,29 @@ This architecture has different advantages: reinforces modularity, it improves t
 
 On the other hand, these architectures also introduces several problems or issues that have to be addressed for a correct implementation of a microservices application. Distributed systems introduce complexity: the more services the application has, the harder is to coordinate all of them. As Martin Fowler points out, "Microservice proponents like to point out that since each service is smaller it's easier to understand. But the danger is that complexity isn't eliminated, it's merely shifted around to the interconnections between services."[[2](#2)]. Communication between services is key, so interfaces has to be well design, and infrastructure has to guarantee the appropriate latency in the message interchange process. The communication issue can impacts also in the delay of the transactions to be performed in the application: a given operation could need the answer for a bunch of microservices to be considered as done. If this process is not fast enough it can lead to a poor user experience.
 
+# 3. State of the art
 
-## State of the art
+## 3.1. Kubernetes
 
-### Kubernetes
 Microservice architecture is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Kubernetes. First, Docker popularized the usage of containers for implementation, testing, and distribution of applications, which contributed to the design of microservice applications. As commented in previous chapter, coordination of microservices (containers) was an issue to solve, and Kubernetes was the Google's answer: "Kubernetes is an open source system for managing containerized applications across multiple hosts; providing basic mechanisms for deployment, maintenance, and scaling of applications."[[3](#3)]
 The first version was released by Google in 2014. After that, Google donated the product to the Linux Foundation, which created the Cloud Native Computing Foundation setting Kubernetes as the main technology behind. Actually, Kubernetes is the most used container orchestration tool and could being consider the de facto standard.
 
-#### Minikube
+### 3.1.1. Minikube
+
 For implementing our project we have used Minikube, a tool that allows to run Kubernetes locally on our laptops. This tool starts a minimum Kubernetes cluster, which fits perfectly for testing purposes or small applications.
 
-#### Helm
+### 3.1.2. Helm
+
 We also named the management of the different services as a drawback of microservices architectures. Helm is a package manager that is used to define and manage services that run on Kubernetes. Applications and its resources are defined using yaml files called Helm charts. Our application include its own Helm charts since the first version.
 
+## 3.2. Microservices communication
 
-### Microservices communication
+### 3.2.1. REST
 
-#### REST
 We have already mentioned microservice communication is done through lightweight protocols. REST (Representational State Transfer) is the most used and we are using it too in this project. Services that follow this approach are called RESTful Web Services (RWS), and they provide an API to manipulate web resources.
 
-#### gRPC
+### 3.2.2. gRPC
+
 In our project we are also using other communication framework, called gRPC (Google Remote Procedure Call). It allows a client to call methods on a server application located on a different host transparently, as it is was a local object in the same machine. After defining the interface of the service to be implemented, the implementation of that interface has to be run in a host which will handle external client calls using a gRPC server.
 The clients then can use a stub which provides the same interface, and it will be in charge to communicate with the gRPC server.
 Server and client applications could be written in different languages, but they will communicate thanks to sharing the same interface.
@@ -100,26 +110,41 @@ Server and client applications could be written in different languages, but they
 
 By default, gRPC uses `protocol buffers` as mechanism to serialize structured data. With the specification of how your the data will be structured, it is possible to automatically generate source code to write and read that from different data streams and using different languages. `Protocol buffers` uses `.proto` files to define messages in its interface definition language (IDL), representing your data.
 
-#### Apache Kafka
+### 3.2.3. Apache Kafka
+
 A third communication mechanism we are using in our project is Apache Kafka, an open source distributed streaming platform. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. It can be used to build real-time streaming pipelines to collect data between different microservices. In our case, we implemented a producer-consumer model using Kafka as communication tool. Kafka works as a microservice in the Kubernetes cluster.
 
-### Persistence
+## 3.3. Persistence
 
-#### JPA & Hibernate
+### 3.3.1. JPA & Hibernate
 
-#### H2 & MySQL
+### 3.3.2. H2 & MySQL
 
-### Metrics
+## 3.4. Monitoring
 
-#### Prometheus
+The transition to cloud native applications has meant an important change in the architecture and the way these new applications are deployed. The logic of an application deployed in a cloud system might be distributed among several services, each of them with several replicas and, even, each replica could be hosted in a volatile container through the infrastructure.
 
-#### Grafana
+This new way of application deployment provides multitude of advantages. However it also increases the complexity in other areas, such the monitoring. Due to an application can be composed by several microservices, the integration between them increases considerably and the possibility of bottlenecks through the service chain is increased also, maybe due to the own microservice logic or even because of problems in the infrastructure. That is why it was needed to reinvent the paradigm about how to monitor Cloud Native Applications.
 
-### Spring framework
+A Cloud Native Application could be monitored in two ways: following the *black box* or *white box* approaches. The first one, as its name implies, consists in querying the application from outside as it will be a black box and monitoring the results. The *white box* approach implies to monitor the application from inside, taking into account each of the elements of the application and infrastructure. There are several aspects that may help us to monitor a Cloud Native Application as a *white box*:
 
-## Project development
+* Logging
+* Metrics
+* Tracing
 
-### Methodology
+### 3.4.1. Logging
+
+### 3.4.2. Metrics
+
+TODO: Prometheus and Grafana
+
+### 3.4.3. Tracing
+
+## 3.5. Spring framework
+
+# 4. Project development
+
+## 4.1. Methodology
 
 Cloud technologies evolve so fast and there are so many alternatives available, that when we were defining the scope of this project we elaborated a huge list of "nice-to-have" features. We decided that the best approach to develop our application was following an incremental approach, and it would allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we forced us not to start too many issues at the same time, and focus on finishing the open ones. This approach has resulted to be very useful for us, because although it was clear that we were not going to finish all the items of our first list, we are releasing an application that at least can provide some functionality.
 
@@ -141,7 +166,7 @@ We also took advantage of the different Slack plugins: we integrated both our Gi
 We defined a base architecture to be evolved. We added the required tasks as GitHub issues, and organized them in milestones.
 When an issue was assigned, the developer worked on a separate branch, and once he was done, a pull request was opened in order to review the code before merging it to master branch.
 
-### Analysis
+## 4.2. Analysis
 
 This is the base architecture we decided to develop:
 
@@ -158,7 +183,7 @@ We decided to have the following components/services:
 At this phase, we draft our main use case as follows:
 ![base use case](./uml/analysis-usecase.png "analysis base use case")
 
-### Design
+## 4.3. Design
 
 After prioritize which technologies we were interested on, the architecture draft was completed to look as follows:
 
@@ -170,11 +195,11 @@ The application is composed of the following services:
 * `dal` : using gRPC to access the model
 * `stockchecker` : whenever an item is sold, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
 
-### Implementation and tests
+## 4.4. Implementation and tests
 
 We have implemented our application on a incremental way.
 
-#### Version 0.1
+### 4.4.1. Version 0.1
 
 Main characteristics:
 * Basic functionality of all the components
@@ -206,7 +231,7 @@ Although our `stockchecker` is able to send external REST notifications, taking 
 
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit. Our Travis dashboard can be found in `https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship`.
 
-#### Version 0.2
+### 4.4.2. Version 0.2
 
 Main characteristics:
 * Model extension to include more than one relation
@@ -241,13 +266,11 @@ In case of using Minikube, as it was our case, it is necessary to enable ingress
 $> minikube addons enable ingress
 ```
 
-
-
-#### Version 0.3
+### 4.4.3. Version 0.3
 
 *Under development*
 
-### Prometheus
+## 4.5. Prometheus
 
 Prometheus is an open-source tool used mainly in cloud applications for monitoring and alerting purposes.
 
@@ -259,7 +282,7 @@ Prometheus scrapes metrics from instrumented jobs, directly or via push gateway.
 
 For the aim of this project only the monitoring part of Prometheus was used but it could be adapted in the future to take advantage of the Alert system.
 
-#### Deployment in Kubernetes
+### 4.5.1. Deployment in Kubernetes
 
 TBD
 
@@ -269,7 +292,7 @@ NOTE: Here we have to explain we have used Prometheus Operator Chart:
 * How to get the chart
 * How to provide the configuration to Prometheus
 
-#### Preparing the services to expose metrics
+### 4.5.2. Preparing the services to expose metrics
 
 Each of the services that take part of our deployments need to be adapted in order to generate and expose metrics. Thanks to the use of Spring framework we can take advantage of Actuator. This library provided by Spring framework provide us the posibility of exposing operational information about the running application (health, metrics, dump, info, etc.). It uses HTTP endpoints or JMX beans to enable us to interact with it.
 
@@ -336,7 +359,7 @@ prometheus-operator:
             - targets: ['tfm-almacar-restapi:8080']
 ```
 
-#### Custom Metrics
+### 4.5.3. Custom Metrics
 
 In addition to the metrics provided by Actuator, it is possible to create our own Custom Metrics. Micrometer allow us to use the MeterRegistry to store in memory all the counters needed. Thanks to the magic of Spring, Micrometer will autoconfigure the MeterRegistry depending on the dependencies we used in our project. As we are using `micrometer-registry-prometheus` as dependency, the registry will be compatible with Prometheus.
 
@@ -414,11 +437,11 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 }
 ```
 
-### Deployment
+## 4.6. Deployment
 
-#### Installation
+### 4.6.1. Installation
 
-##### Docker image preparation
+#### 4.6.1.1. Docker image preparation
 
 `build.sh` script can be used to compile all the services and generate the Docker images.
 When executed, the following steps are performed:
@@ -427,7 +450,7 @@ When executed, the following steps are performed:
 * Build `stockchecker` project & generate Docker image
 * Build `dal` project & generate Docker image
 
-##### Helm dependencies
+#### 4.6.1.2. Helm dependencies
 
 The application chart has dependendecies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
 
@@ -454,9 +477,7 @@ Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleap
 Deleting outdated charts
 ```
 
-
-
-##### Deployment
+#### 4.6.1.3. Deployment
 
 ```bash
 $ cd $GIT_REPO/charts
@@ -503,21 +524,21 @@ statefulset.apps/tfm-almacar-zookeeper   3/3     23h
 
 ```
 
-##### Delete the deployment
+#### 4.6.1.4. Delete the deployment
 
 ```bash
 $ helm del --purge tfm-almacar
 ```
 
-## Results
+# 5. Results
 
 *TBD*
 
-## Conclusions and future work
+# 6. Conclusions and future work
 
 *TBD*
 
-## References
+# 7. References
 
 * [1]: "Building Microservices", Sam Newman, O'Reilly Media
 * [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
