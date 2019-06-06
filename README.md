@@ -18,6 +18,10 @@
     - [3.3.2. H2 & MySQL](#332-h2--mysql)
   - [3.4. Monitoring](#34-monitoring)
     - [3.4.1. Logging](#341-logging)
+      - [Elastic Stack](#elastic-stack)
+        - [Data ingestion: Logstash & Beats](#data-ingestion-logstash--beats)
+        - [Data storage, index and analysis: Elasticsearch](#data-storage-index-and-analysis-elasticsearch)
+        - [User interface: Kibana](#user-interface-kibana)
     - [3.4.2. Metrics](#342-metrics)
     - [3.4.3. Tracing](#343-tracing)
   - [3.5. Spring framework](#35-spring-framework)
@@ -81,6 +85,26 @@ On the other hand, these architectures also introduces several problems or issue
 
 Microservice architecture is not a new paradigm, but it has exponential importance specially due to the wide adoption of technologies such as Kubernetes. First, Docker popularized the usage of containers for implementation, testing, and distribution of applications, which contributed to the design of microservice applications. As commented in previous chapter, coordination of microservices (containers) was an issue to solve, and Kubernetes was the Google's answer: "Kubernetes is an open source system for managing containerized applications across multiple hosts; providing basic mechanisms for deployment, maintenance, and scaling of applications."[[3](#3)]
 The first version was released by Google in 2014. After that, Google donated the product to the Linux Foundation, which created the Cloud Native Computing Foundation setting Kubernetes as the main technology behind. Actually, Kubernetes is the most used container orchestration tool and could being consider the de facto standard.
+
+Kubernetes architecture is based on a set of components that are deployed in several machines as depicted in next diagram.
+
+![kubernetes basic architecture](./images/k8s.png)
+
+*Basic Architecture of Kubernetes*
+
+Distributed application code run in the containers that are deployed inside the kubernetes PODs.
+
+Application is deployed in the kubernetes cluster defining a set of resources specified via .yaml files. Every resource is then handled by kubernetes system.
+
+Application components binaries are packed into docker images that will be used to start the containers.
+
+To expose this containers to the cluster (i.e. exposing ports for communication) a *service* resouce type must be defined.
+
+Other important kubernetes resources are the *persistent volumes* to be able to persist data in the kubernetes cluster.
+
+There are lots of resources types like *secrets, serviceaccounts, replicasets, jobs, ...*
+
+For a complete reference about kubernetes check [[Kubernetes](#Kubernetes)].
 
 ### 3.1.1. Minikube
 
