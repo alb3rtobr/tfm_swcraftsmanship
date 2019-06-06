@@ -126,7 +126,9 @@ The transition to cloud native applications has meant an important change in the
 
 This new way of application deployment provides multitude of advantages. However it also increases the complexity in other areas, such the monitoring. Due to an application can be composed by several microservices, the integration between them increases considerably and the possibility of bottlenecks through the service chain is increased also, maybe due to the own microservice logic or even because of problems in the infrastructure. That is why it was needed to reinvent the paradigm about how to monitor Cloud Native Applications.
 
-A Cloud Native Application could be monitored in two ways: following the *black box* or *white box* approaches. The first one, as its name implies, consists in querying the application from outside as it will be a black box and monitoring the results. The *white box* approach implies to monitor the application from inside, taking into account each of the elements of the application and infrastructure. There are several aspects that may help us to monitor a Cloud Native Application as a *white box*:
+A Cloud Native Application could be monitored in two ways: following the *blackbox* or *whitebox* approaches. The first one, as its name implies, refers to monitor the system treating it as a blackbox and examining it from the outside. The *whitebox* approach implies to monitor the application from inside, taking into account the information derived from the internals of the system.
+
+Due to the fact this project is oriented to Cloud Native Applications and one of the aims is to investigate and practice with current cloud technologies, we have decided to focus in the aspects that may help us to monitor a Cloud Native Application as a *whitebox*:
 
 * Logging
 * Metrics
@@ -136,7 +138,26 @@ A Cloud Native Application could be monitored in two ways: following the *black 
 
 ### 3.4.2. Metrics
 
-TODO: Prometheus and Grafana
+**Metrics** are just numbers that offers information about a particular process or activity. At the end they are numerical representations of our data, than can be used in mathematical modeling and to predict future behaviors of the application based in time intervals of the present.
+
+Due to a Cloud Native Application is composed of several microservices, it is logic to instrument each of them in order to gather statistics that, aggregated to the statistics of the rest of services of the application, will help us to detect possible future bottlenecks or issues in the logic.
+
+There are two models of metrics aggregation:
+
+- **Push**: the service publish its metrics in a metric service aggregator.
+- **Pull**: the metric service aggregator asks the service for the metrics.
+
+One of the most famous and most used metrics aggregator service in the cloud world is **Prometheus**. It is very easily integrated in Kubernetes and, the fact it is already used in the project we are currently working on, has facilitated us its election.
+
+Prometheus is an open-source tool used mainly in cloud applications for monitoring and alerting purposes.
+
+The following diagram illustrates the architecure of Prometheus and some of its more important components:
+
+![architecture draft extended](./images/prometheus-architecture.png "Prometheus architecture")
+
+Prometheus scrapes metrics from instrumented jobs, directly or via push gateway. It stores all the obtained metrics locally and offers the possibility of execute rules over the stored data or generate alerts. Even, this data may be graphically represented using tools as **Grafana**, also used in the development of this project.
+
+For the aim of this project only the monitoring part of Prometheus was used but it could be adapted in the future to take advantage of the Alert system.
 
 ### 3.4.3. Tracing
 
@@ -271,16 +292,6 @@ $> minikube addons enable ingress
 *Under development*
 
 ## 4.5. Prometheus
-
-Prometheus is an open-source tool used mainly in cloud applications for monitoring and alerting purposes.
-
-The following diagram illustrates the architecure of Prometheus and some of its more important components:
-
-![architecture draft extended](./images/prometheus-architecture.png "Prometheus architecture")
-
-Prometheus scrapes metrics from instrumented jobs, directly or via push gateway. It stores all the obtained metrics locally and offers the posibility of execute rules over the stored data or generate alerts. Even, this data may be graphicaly represented using tools as *Grafana*, also used in the development of this project.
-
-For the aim of this project only the monitoring part of Prometheus was used but it could be adapted in the future to take advantage of the Alert system.
 
 ### 4.5.1. Deployment in Kubernetes
 
