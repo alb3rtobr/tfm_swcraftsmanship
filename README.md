@@ -29,16 +29,14 @@
     - [4.4.1. Version 0.1](#441-version-01)
     - [4.4.2. Version 0.2](#442-version-02)
     - [4.4.3. Version 0.3](#443-version-03)
-  - [4.5. Prometheus](#45-prometheus)
-    - [4.5.1. Deployment in Kubernetes](#451-deployment-in-kubernetes)
-    - [4.5.2. Preparing the services to expose metrics](#452-preparing-the-services-to-expose-metrics)
-    - [4.5.3. Custom Metrics](#453-custom-metrics)
-  - [4.6. Deployment](#46-deployment)
-    - [4.6.1. Installation](#461-installation)
-      - [4.6.1.1. Docker image preparation](#4611-docker-image-preparation)
-      - [4.6.1.2. Helm dependencies](#4612-helm-dependencies)
-      - [4.6.1.3. Deployment](#4613-deployment)
-      - [4.6.1.4. Delete the deployment](#4614-delete-the-deployment)
+      - [4.4.3.1. Prometheus](#4431-prometheus)
+      - [4.4.3.2. Grafana](#4432-grafana)
+  - [4.5. Deployment](#45-deployment)
+    - [4.5.1. Installation](#451-installation)
+      - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
+      - [4.5.1.2. Helm dependencies](#4512-helm-dependencies)
+      - [4.5.1.3. Deployment](#4513-deployment)
+      - [4.5.1.4. Delete the deployment](#4514-delete-the-deployment)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -299,21 +297,46 @@ $> minikube addons enable ingress
 
 *Under development*
 
-## 4.5. Prometheus
+#### 4.4.3.1. Prometheus
 
-### 4.5.1. Deployment in Kubernetes
+**Deployment in Kubernetes**
 
-TBD
+There are several ways to deploy Prometheus in a Kubernetes cluster. The easiest way is to take advantage of the already made charts by de community. As we did with Kafka, we used an already prepared chart developed by CoreOS called **Prometheus Operator** (https://github.com/coreos/prometheus-operator). The chart is intended to suit monitoring a Kubernetes cluster the chart is deployed onto. The default installation will deploy **Prometheus**, **Alert Manager**, **Node Exporter**, **Kube State Metrics**, **Grafana** and service monitors to scrape internal Kubernetes components.
 
-NOTE: Here we have to explain we have used Prometheus Operator Chart:
+To make use of the chart it was needed to add it as a requirement of our umbrella chart:
 
-* Explain what is Prometheus Chart
-* How to get the chart
-* How to provide the configuration to Prometheus
+```yaml
+# charts/tfm-almacar/requirements.yaml 
+dependencies:
+  - name: prometheus-operator
+    version: 5.10.4
+    repository: https://kubernetes-charts.storage.googleapis.com/
+```
 
-### 4.5.2. Preparing the services to expose metrics
+This chart is fully configurable, so we override some default values in our `values.xml` file to set the number of replicas of some components, another values and disable Alert Manager that will not be used.
 
-Each of the services that take part of our deployments need to be adapted in order to generate and expose metrics. Thanks to the use of Spring framework we can take advantage of Actuator. This library provided by Spring framework provide us the posibility of exposing operational information about the running application (health, metrics, dump, info, etc.). It uses HTTP endpoints or JMX beans to enable us to interact with it.
+```yaml
+prometheus-operator:
+  prometheusOperator:
+    enabled: true
+  prometheus:
+    enabled: true
+    prometheusSpec:
+      replicas: 1
+  grafana:
+    enabled: true
+    adminPassword: 'adminadmin'
+    service:
+      type: NodePort
+      port: 3000
+      targetPort: 3000
+  alertmanager:
+    enabled: false
+```
+
+**Preparing the services to expose metrics**
+
+Each of the services that take part of our deployments need to be adapted in order to generate and expose metrics. Thanks to the use of Spring Framework we can take advantage of **Actuator**. This library provide us the possibility of exposing operational information about the running application (health, metrics, dump, info, etc.). It uses HTTP endpoints or JMX beans to enable us to interact with it.
 
 If we want to configure Actuator in one of our services, we only have to add a new dependency in the `pom.xml` file:
 
@@ -325,7 +348,7 @@ If we want to configure Actuator in one of our services, we only have to add a n
         </dependency>
 ```
 
-With Spring boot 2.0, adding Prometheus support to Spring boot became a lot easier thanks to the integration of Micrometer. Micrometer can be compared to what slf4j does for logging, but for monitoring instead. It provides a clean API that can be accessed, and has a bridge to many monitoring platforms, including Prometheus.
+With Spring boot 2.0, adding **Prometheus support** to Spring boot became a lot easier thanks to the integration of **Micrometer**. Micrometer can be compared to what slf4j does for logging, but for monitoring instead. It provides a clean API that can be accessed, and has a bridge to many monitoring platforms, including Prometheus.
 
 To be able to monitor our application within Spring boot, we need to add the following dependency (in addition of Spring Actuator one):
 
@@ -337,7 +360,7 @@ To be able to monitor our application within Spring boot, we need to add the fol
         </dependency>
 ```
 
-By default, the Prometheis endpoint provided by Actuator is not available and must be exposed via configuration. For this, in the `application.properties` file of the application it is needed to add the following lines:
+By default, the Prometheus endpoint provided by Actuator is not available and must be exposed via configuration. For this, in the `application.properties` file of the application it is needed to add the following lines:
 
 ```yaml
     management:
@@ -347,7 +370,7 @@ By default, the Prometheis endpoint provided by Actuator is not available and mu
               include: prometheus
 ```
 
-If we run the aplication and access the url `http://<service_ip>:<service_port>/actuator` we will get all the exposed Actuator endpoints:
+If we run the application and access the url `http://<service_ip>:<service_port>/actuator` we will get all the exposed Actuator endpoints:
 
 ```json
 {
@@ -364,7 +387,7 @@ If we run the aplication and access the url `http://<service_ip>:<service_port>/
 }
 ```
 
-And, finally, it is needed to configure Prometheus in order to know where to scrape the metrics. We will need to add one job per service to be scraped.
+And, finally, it is needed to configure Prometheus in order to know where to scrape the metrics. The configuration of Prometheus may be done overwriting the chart values from the Prometheus Operator chart. We will need to add one job per service to be scraped. All this values are set in the umbrella chart `values.xml` file, for example:
 
 ```yaml
 prometheus-operator:
@@ -378,14 +401,14 @@ prometheus-operator:
             - targets: ['tfm-almacar-restapi:8080']
 ```
 
-### 4.5.3. Custom Metrics
+**Custom Metrics**
 
-In addition to the metrics provided by Actuator, it is possible to create our own Custom Metrics. Micrometer allow us to use the MeterRegistry to store in memory all the counters needed. Thanks to the magic of Spring, Micrometer will autoconfigure the MeterRegistry depending on the dependencies we used in our project. As we are using `micrometer-registry-prometheus` as dependency, the registry will be compatible with Prometheus.
+In addition to the metrics provided by Actuator, it is possible to create our own **Custom Metrics**. Micrometer allow us to use the **MeterRegistry** instance to store in memory all the counters needed. Thanks to the magic of Spring, Micrometer will auto configure the MeterRegistry depending on the dependencies we used in our project. As we are using `micrometer-registry-prometheus` as dependency, the registry will be compatible with Prometheus.
 
 For the purpose of this project we have decided to create two counters in the DAL service to measure when each of the gRPC Services are called:
 
-* item_grpc_request_total: Number of requests to Item gRPC service
-* order_grpc_request_total: Number of requests to Order gRPC service
+* **item_grpc_request_total**: Number of requests to Item gRPC service
+* **order_grpc_request_total**: Number of requests to Order gRPC service
 
 In order to prepare the DAL microservice to increment these counters when a gRPC request comes, we just need to provide to the gRPC services an instance of the MeterRegistry class:
 
@@ -456,11 +479,13 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 }
 ```
 
-## 4.6. Deployment
+#### 4.4.3.2. Grafana
 
-### 4.6.1. Installation
+## 4.5. Deployment
 
-#### 4.6.1.1. Docker image preparation
+### 4.5.1. Installation
+
+#### 4.5.1.1. Docker image preparation
 
 `build.sh` script can be used to compile all the services and generate the Docker images.
 When executed, the following steps are performed:
@@ -469,7 +494,7 @@ When executed, the following steps are performed:
 * Build `stockchecker` project & generate Docker image
 * Build `dal` project & generate Docker image
 
-#### 4.6.1.2. Helm dependencies
+#### 4.5.1.2. Helm dependencies
 
 The application chart has dependendecies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
 
@@ -496,7 +521,7 @@ Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleap
 Deleting outdated charts
 ```
 
-#### 4.6.1.3. Deployment
+#### 4.5.1.3. Deployment
 
 ```bash
 $ cd $GIT_REPO/charts
@@ -543,7 +568,7 @@ statefulset.apps/tfm-almacar-zookeeper   3/3     23h
 
 ```
 
-#### 4.6.1.4. Delete the deployment
+#### 4.5.1.4. Delete the deployment
 
 ```bash
 $ helm del --purge tfm-almacar
