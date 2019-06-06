@@ -161,6 +161,14 @@ For the aim of this project only the monitoring part of Prometheus was used but 
 
 ### 3.4.3. Tracing
 
+Another important aspect when speaking about Monitoring in a cloud deployment is the **Tracing**. When an application is composed by several microservices, sometimes it can be very easy to lost the perspective and to know what of those microservices are involved in each transaction. Thanks to Tracing it is possible to follow the flow of an incoming request to our cluster as it goes through each component until a response is returned. This is very useful when troubleshooting is needed.
+
+For Tracing to be effective, all the components of a cloud application should be adapted to propagate the tracing information (usually via HTTP headers) and report the spam information to a Tracing Server.
+
+There are many open-source tools in the market focused in request tracing, as can be **Jaeger** and **Zipkin**. With these kind of tools it is possible to monitor in a graphical way how a request goes through each of involved microservices and how much time they spend processing it. All this information could be very useful to detect bottlenecks in the service chain of our application.
+
+TODO: PICTURE?
+
 ## 3.5. Spring framework
 
 # 4. Project development
