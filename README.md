@@ -14,7 +14,7 @@
     - [3.2.2. gRPC](#322-grpc)
     - [3.2.3. Apache Kafka](#323-apache-kafka)
   - [3.3. Persistence](#33-persistence)
-    - [3.3.1. JPA & Hibernate](#331-jpa--hibernate)
+    - [3.3.1. JPA, Hibernate & Spring Data JPA](#331-jpa-hibernate--spring-data-jpa)
     - [3.3.2. H2 & MySQL](#332-h2--mysql)
   - [3.4. Monitoring](#34-monitoring)
     - [3.4.1. Logging](#341-logging)
@@ -114,9 +114,25 @@ A third communication mechanism we are using in our project is Apache Kafka, an 
 
 ## 3.3. Persistence
 
-### 3.3.1. JPA & Hibernate
+### 3.3.1. JPA, Hibernate & Spring Data JPA
+
+JPA (Java Persistence API) is a Java application programming interface specification that describes the management of relational data. This specification is implemented by several frameworks.
+
+Hibernate is a framework that implements this JPA specification, meaning that a Java application may use Hibernate framework to build a persistence layer based on the definitions and rules specified by JPA. Hibernate is not only JPA implementation, but this project made use of the JPA implementation part of Hibernate.
+Hibernate minimizes the amount of JDBC code to write for connecting to the database as it is done through configuration. It handles SQL sentences and provides the ORM(Object-to-Relational Mapping) to map Java classes to database tables.
+
+To easily build up the persistence functionality in this project, Spring Data JPA library was choosen.
+Spring Data JPA helps to improve the implementacion of data access layer reducing the effort needed. Application make use of repository interfaces (that even may be customized) and Spring provides the implementation automatically.
 
 ### 3.3.2. H2 & MySQL
+
+While designing the database functionality it was decided to make use of a simple in-memory database that could be easily use for testing purposes.
+H2 database is an in-memory opensource database that provides JDBC API to connect to java applications. Spring provides support for H2 database so it was taken as the database to be used when running automatic test cases.
+
+In order to deploy a database in the kubernetes cluster it was decided to deploy mysql as the persistence database. Main reason to use mysql was the support by Spring Data to easily integrate with mysql database. 
+
+As both H2 and mysql are relational databases providing SQL interface, they integrate easily with Hibernate framework.
+
 
 ## 3.4. Monitoring
 
