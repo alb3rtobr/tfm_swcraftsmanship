@@ -134,6 +134,35 @@ Due to the fact this project is oriented to Cloud Native Applications and one of
 
 ### 3.4.1. Logging
 
+We have seen that one idea behind microservice architecture is to divide a big applications into a set of smaller applications. This idea impacts in a basic component of a software system: logging. Instead of a having a unique centralized log file where all the application internals and operations could be checked in chronological order, now each microservice has it own log, making far more difficult to follow the execution flow.
+
+Three different problems could be highlighted:
+* Microservices may generate information in different and heterogeneous formats. It is needed to transform these input into a common format, to ease its storage and indexation.
+* A central information repository its needed to receive all the data, once its format is homogeneous. This end point for all the logs should be able to handle a big amount of incoming data, allowing index and search of information.
+* Too much data means too much noise: a tool is needed to visualize and filter the received data to get useful insights.
+
+#### Elastic Stack
+For addressing these problems, there are different alternatives, but the most used one, which could be considered the de facto standard is what is called Elastic Stack, which is the sum of four applications called Kibana, Elastisearch, Logstash & Beats.
+
+![Elastic Stack](./images/elasticstack.png)
+
+These applications are open source and developed by Elastic NV. Although they can be used separatedly (except Kibana which is a plugin for Elasticsearch) its common to see applications using them at the same time, this is why they are refered as "a stack".
+
+The Elastic Stack is composed by three levels, each one addressing one of the three problems we have mentioned.
+
+##### Data ingestion: Logstash & Beats
+Logstash is at the lower level of the stack. It is in charge of ingesting data from a variety of inputs: JMX, Log4j, Kafka, TCP or Unix sockets, syslog messages, rabbitMQ... Logstash parses each message or event it receives, identify each field of information, and transform it to a common format. Use cases of this application includes, for example, geo coordinates decipher from an IP address, data anonimization or exclusion of sensitive fields.
+
+For ease the sending of information to Logstash, Elastic NV also developed Beats, which is also included at the lower level of the stack. While Logstash is a server application, Beats run together with each microservice or application, acting as data shippers. It includes a set of plugins that can be used according to the It may send information both to Logstash, or to Elasticsearch, in the next level of the stack.
+
+##### Data storage, index and analysis: Elasticsearch
+Elasticsearch is a distributed, and highly scalable search and analytics engine. Due to it can be applied to solve a wide variety of use cases (logging, security analytics, metrics...), its the most common information indexing and searching engine. Its able to store petabytes of data and offers different kind of searches (structure, unustructured, geographical...). As it is RESTful, applications can interact with Elastisearch in many programing languages, making easier its integration.
+
+##### User interface: Kibana
+Kibana is at the top of the stack, acting as user interface. It is a browser-based visualization plugin for Elasticsearch. It is used to search, view and interact with data stored in Elasticsearch. It allows to generate different kinds of graphics (scatter plot, lines, pie charts...) from large volumes of data.
+
+![Kibana dashboard example](./images/kibana-example.png)
+
 ### 3.4.2. Metrics
 
 **Metrics** are just numbers that offers information about a particular process or activity. At the end they are numerical representations of our data, than can be used in mathematical modeling and to predict future behaviors of the application based in time intervals of the present.
