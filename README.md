@@ -18,10 +18,10 @@
     - [3.3.2. H2 & MySQL](#332-h2--mysql)
   - [3.4. Monitoring](#34-monitoring)
     - [3.4.1. Logging](#341-logging)
-      - [Elastic Stack](#elastic-stack)
-        - [Data ingestion: Logstash & Beats](#data-ingestion-logstash--beats)
-        - [Data storage, index and analysis: Elasticsearch](#data-storage-index-and-analysis-elasticsearch)
-        - [User interface: Kibana](#user-interface-kibana)
+      - [3.4.1.1. Elastic Stack](#3411-elastic-stack)
+        - [3.4.1.1.1. Data ingestion: Logstash & Beats](#34111-data-ingestion-logstash--beats)
+        - [3.4.1.1.2. Data storage, index and analysis: Elasticsearch](#34112-data-storage-index-and-analysis-elasticsearch)
+        - [3.4.1.1.3. User interface: Kibana](#34113-user-interface-kibana)
     - [3.4.2. Metrics](#342-metrics)
     - [3.4.3. Tracing](#343-tracing)
   - [3.5. Spring framework](#35-spring-framework)
@@ -29,18 +29,40 @@
   - [4.1. Methodology](#41-methodology)
   - [4.2. Analysis](#42-analysis)
   - [4.3. Design](#43-design)
-  - [4.4. Implementation and tests](#44-implementation-and-tests)
+  - [4.4. Iterations](#44-iterations)
     - [4.4.1. Version 0.1](#441-version-01)
+      - [4.4.1.1. Analysis and Design](#4411-analysis-and-design)
+        - [4.4.1.1.1. Use cases](#44111-use-cases)
+        - [4.4.1.1.2. Data Model](#44112-data-model)
+        - [4.4.1.1.3. Class Diagrams?](#44113-class-diagrams)
+        - [4.4.1.1.4. Sequence Diagrams?](#44114-sequence-diagrams)
+      - [4.4.1.2. Implementation and Deployment](#4412-implementation-and-deployment)
     - [4.4.2. Version 0.2](#442-version-02)
+      - [4.4.2.1. Analysis and Design](#4421-analysis-and-design)
+        - [4.4.2.1.1. Use cases](#44211-use-cases)
+        - [4.4.2.1.2. Data Model](#44212-data-model)
+        - [4.4.2.1.3. Class Diagrams?](#44213-class-diagrams)
+        - [4.4.2.1.4. Sequence Diagrams?](#44214-sequence-diagrams)
+      - [4.4.2.2. Implementation and Deployment](#4422-implementation-and-deployment)
     - [4.4.3. Version 0.3](#443-version-03)
-      - [4.4.3.1. Prometheus](#4431-prometheus)
-      - [4.4.3.2. Grafana](#4432-grafana)
-  - [4.5. Deployment](#45-deployment)
-    - [4.5.1. Installation](#451-installation)
-      - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
-      - [4.5.1.2. Helm dependencies](#4512-helm-dependencies)
-      - [4.5.1.3. Deployment](#4513-deployment)
-      - [4.5.1.4. Delete the deployment](#4514-delete-the-deployment)
+      - [4.4.3.1. Analysis and Design](#4431-analysis-and-design)
+        - [4.4.3.1.1. Use cases](#44311-use-cases)
+        - [4.4.3.1.2. Data Model](#44312-data-model)
+        - [4.4.3.1.3. Class Diagrams?](#44313-class-diagrams)
+        - [4.4.3.1.4. Sequence Diagrams?](#44314-sequence-diagrams)
+      - [4.4.3.2. Implementation and Deployment](#4432-implementation-and-deployment)
+  - [4.5. Implementation and tests](#45-implementation-and-tests)
+    - [4.5.1. Version 0.1](#451-version-01)
+    - [4.5.2. Version 0.2](#452-version-02)
+    - [4.5.3. Version 0.3](#453-version-03)
+      - [4.5.3.1. Prometheus](#4531-prometheus)
+      - [4.5.3.2. Grafana](#4532-grafana)
+  - [4.6. Deployment](#46-deployment)
+    - [4.6.1. Installation](#461-installation)
+      - [4.6.1.1. Docker image preparation](#4611-docker-image-preparation)
+      - [4.6.1.2. Helm dependencies](#4612-helm-dependencies)
+      - [4.6.1.3. Deployment](#4613-deployment)
+      - [4.6.1.4. Delete the deployment](#4614-delete-the-deployment)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -193,7 +215,7 @@ Three different problems could be highlighted:
 - A central information repository its needed to receive all the data, once its format is homogeneous. This end point for all the logs should be able to handle a big amount of incoming data, allowing index and search of information.
 - Too much data means too much noise: a tool is needed to visualize and filter the received data to get useful insights.
 
-#### Elastic Stack
+#### 3.4.1.1. Elastic Stack
 
 For addressing these problems, there are different alternatives, but the most used one, which could be considered the de facto standard is what is called Elastic Stack, which is the sum of four applications called Kibana, Elastisearch, Logstash & Beats.
 
@@ -203,17 +225,17 @@ These applications are open source and developed by Elastic NV. Although they ca
 
 The Elastic Stack is composed by three levels, each one addressing one of the three problems we have mentioned.
 
-##### Data ingestion: Logstash & Beats
+##### 3.4.1.1.1. Data ingestion: Logstash & Beats
 
 Logstash is at the lower level of the stack. It is in charge of ingesting data from a variety of inputs: JMX, Log4j, Kafka, TCP or Unix sockets, syslog messages, rabbitMQ... Logstash parses each message or event it receives, identify each field of information, and transform it to a common format. Use cases of this application includes, for example, geo coordinates decipher from an IP address, data anonimization or exclusion of sensitive fields.
 
 For ease the sending of information to Logstash, Elastic NV also developed Beats, which is also included at the lower level of the stack. While Logstash is a server application, Beats run together with each microservice or application, acting as data shippers. It includes a set of plugins that can be used according to the It may send information both to Logstash, or to Elasticsearch, in the next level of the stack.
 
-##### Data storage, index and analysis: Elasticsearch
+##### 3.4.1.1.2. Data storage, index and analysis: Elasticsearch
 
 Elasticsearch is a distributed, and highly scalable search and analytics engine. Due to it can be applied to solve a wide variety of use cases (logging, security analytics, metrics...), its the most common information indexing and searching engine. Its able to store petabytes of data and offers different kind of searches (structure, unustructured, geographical...). As it is RESTful, applications can interact with Elastisearch in many programing languages, making easier its integration.
 
-##### User interface: Kibana
+##### 3.4.1.1.3. User interface: Kibana
 
 Kibana is at the top of the stack, acting as user interface. It is a browser-based visualization plugin for Elasticsearch. It is used to search, view and interact with data stored in Elasticsearch. It allows to generate different kinds of graphics (scatter plot, lines, pie charts...) from large volumes of data.
 
@@ -327,11 +349,112 @@ The application is composed of the following services:
 * `dal` : using gRPC to access the model
 * `stockchecker` : whenever an item is sold, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
 
-## 4.4. Implementation and tests
+## 4.4. Iterations
+
+### 4.4.1. Version 0.1
+
+The first release pretended to be a first contact with most of the technologies we planned to use during the lifetime of the project, providing a very easy application logic, focusing in the integration of all the services and the deployment in the minikube cluster.
+
+Main characteristics:
+
+- Basic functionality of all the components
+  - Basic model with only one entity.
+  - Providing REST API as input point with all needed CRUD operations.
+  - Communication between services using gRPC.
+  - Communication between services using message bus Kafka.
+  - Accessing to database.
+- Kafka setup
+- Helm charts
+- ConfigMaps
+- Automatic test execution for every commit
+
+TODO: Meter un dibujo con la arquitectura deseada o es demasiado repetir?
+
+#### 4.4.1.1. Analysis and Design
+
+##### 4.4.1.1.1. Use cases
+
+TODO: Meter aquí un UML con los casos de uso (básicamente los CRUD de Item)
+
+##### 4.4.1.1.2. Data Model
+
+TODO: Meter aquí un UML con Item
+
+##### 4.4.1.1.3. Class Diagrams?
+
+TODO: Meter un diagrama que muestre gRPC?
+
+##### 4.4.1.1.4. Sequence Diagrams?
+
+TODO: Meter un diagrama de secuencia entre servicios que muestre la interacción entre ellos.
+
+#### 4.4.1.2. Implementation and Deployment
+
+Yo aquí metería:
+ - RESTAPI de Item
+ - Todos los IDLs de gRPC
+   - Creación de servicios, server and clients.
+ - Cómo se ha implementado la persistencia de Item
+ - Integración de los servicios con Kafka
+ - Todo lo relacionado con Kubernetes (dockerfiles, charts, etc)
+
+### 4.4.2. Version 0.2
+
+#### 4.4.2.1. Analysis and Design
+
+##### 4.4.2.1.1. Use cases
+
+TODO: Meter aquí un UML con los casos de uso (básicamente los CRUD de Order)
+
+##### 4.4.2.1.2. Data Model
+
+TODO: Meter aquí un UML con Order e Item
+
+##### 4.4.2.1.3. Class Diagrams?
+
+TODO: Meter aquí un UML con Order e Item
+
+##### 4.4.2.1.4. Sequence Diagrams?
+
+TODO: Meter aquí un UML que explique un poco la parte de persistencia?
+
+#### 4.4.2.2. Implementation and Deployment
+
+Yo aquí metería:
+ - RESTAPI de Order
+ - Todos los IDLs de gRPC
+   - Creación de servicios, server and clients.
+ - Cómo se ha implementado la persistencia de Order
+
+### 4.4.3. Version 0.3
+
+#### 4.4.3.1. Analysis and Design
+
+##### 4.4.3.1.1. Use cases
+
+TODO: N/A
+
+##### 4.4.3.1.2. Data Model
+
+TODO: N/A
+
+##### 4.4.3.1.3. Class Diagrams?
+
+TODO: N/A
+
+##### 4.4.3.1.4. Sequence Diagrams?
+
+TODO: N/A
+
+#### 4.4.3.2. Implementation and Deployment
+
+Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
+
+## 4.5. Implementation and tests
 
 We have implemented our application on a incremental way.
 
-### 4.4.1. Version 0.1
+### 4.5.1. Version 0.1
 
 The first release pretended to be a first contact with most of the technologies we planned to use during the lifetime of the project, providing a very easy application logic, focusing in the integration of all the services and the deployment in the minikube cluster.
 
@@ -371,7 +494,7 @@ Although our `stockchecker` is able to send external REST notifications, taking 
 
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit. Our Travis dashboard can be found in `https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship`.
 
-### 4.4.2. Version 0.2
+### 4.5.2. Version 0.2
 
 Main characteristics:
 * Model extension to include more than one relation
@@ -406,11 +529,11 @@ In case of using Minikube, as it was our case, it is necessary to enable ingress
 $> minikube addons enable ingress
 ```
 
-### 4.4.3. Version 0.3
+### 4.5.3. Version 0.3
 
 *Under development*
 
-#### 4.4.3.1. Prometheus
+#### 4.5.3.1. Prometheus
 
 **Deployment in Kubernetes**
 
@@ -656,13 +779,13 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 }
 ```
 
-#### 4.4.3.2. Grafana
+#### 4.5.3.2. Grafana
 
-## 4.5. Deployment
+## 4.6. Deployment
 
-### 4.5.1. Installation
+### 4.6.1. Installation
 
-#### 4.5.1.1. Docker image preparation
+#### 4.6.1.1. Docker image preparation
 
 `build.sh` script can be used to compile all the services and generate the Docker images.
 When executed, the following steps are performed:
@@ -671,7 +794,7 @@ When executed, the following steps are performed:
 * Build `stockchecker` project & generate Docker image
 * Build `dal` project & generate Docker image
 
-#### 4.5.1.2. Helm dependencies
+#### 4.6.1.2. Helm dependencies
 
 The application chart has dependendecies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
 
@@ -698,7 +821,7 @@ Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleap
 Deleting outdated charts
 ```
 
-#### 4.5.1.3. Deployment
+#### 4.6.1.3. Deployment
 
 ```bash
 $ cd $GIT_REPO/charts
@@ -745,7 +868,7 @@ statefulset.apps/tfm-almacar-zookeeper   3/3     23h
 
 ```
 
-#### 4.5.1.4. Delete the deployment
+#### 4.6.1.4. Delete the deployment
 
 ```bash
 $ helm del --purge tfm-almacar
