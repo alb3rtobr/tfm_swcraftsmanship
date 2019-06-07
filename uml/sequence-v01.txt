@@ -1,11 +1,6 @@
 @startuml
 Actor User
 
-participant restapi
-box "gRPC interface" #LightBlue
-	participant dal
-end box
-
 User -> restapi: Http Request
 restapi -> dal : CRUD operation
 dal -> DB : db transaction
@@ -13,7 +8,7 @@ DB -> dal : response
 dal -> restapi : response
 restapi -> Kafka : publish notification
 Kafka -> stockchecker : receives notification
-stockchecker -> dal : enough stock?
+stockchecker -> dal : get item stock
 dal -> DB : db transaction
 DB -> dal : response
 dal -> stockchecker : response

@@ -473,11 +473,11 @@ message CountItemResponse {
 }
 ```
 
-TODO: Describe how to configure project to compile protobuf files?
-TODO: Describe gRPC client and servers?
-TODO: Describe how we did persistence
-TODO: Describe how restapi and stockcker were integrated with Kafka
-TODO: K8s stuff (dockerfiles, charts, etc)
+- TODO: Describe how to configure project to compile protobuf files?
+- TODO: Describe gRPC client and servers?
+- TODO: Describe how we did persistence
+- TODO: Describe how restapi and stockcker were integrated with Kafka
+- TODO: K8s stuff (dockerfiles, charts, etc)
 
 ### 4.4.2. Version 0.2
 
