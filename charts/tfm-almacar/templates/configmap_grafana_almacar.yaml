@@ -38,7 +38,7 @@ data:
       "editable": true,
       "gnetId": 4701,
       "graphTooltip": 1,
-      "iteration": 1559932329651,
+      "iteration": 1559933148556,
       "links": [],
       "panels": [
         {
@@ -417,6 +417,187 @@ data:
             "x": 0,
             "y": 4
           },
+          "id": 147,
+          "panels": [],
+          "title": "REST",
+          "type": "row"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "fill": 1,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 5
+          },
+          "id": 145,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "http_server_requests_seconds_count{exception=\"None\", job=\"restapi-service\", outcome=\"SUCCESS\", uri=\"/api/v1/items\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "HTTP 200 {{ "{{" }}method{{ "}}" }}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "HTTP Success",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "fill": 1,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 5
+          },
+          "id": 149,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "http_server_requests_seconds_count{job=\"restapi-service\", outcome!=\"SUCCESS\", uri=\"/api/v1/items\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "STATUS {{ "{{" }}status{{ "}}" }}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "HTTP Errors",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 13
+          },
           "id": 139,
           "panels": [],
           "title": "Miscellanea",
@@ -432,7 +613,7 @@ data:
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 5
+            "y": 14
           },
           "id": 141,
           "legend": {
@@ -461,12 +642,14 @@ data:
               "expr": "item_grpc_request_total{application=\"$application\", instance=\"$instance\"}",
               "format": "time_series",
               "intervalFactor": 1,
+              "legendFormat": "item_grpc_request_total",
               "refId": "A"
             },
             {
               "expr": "order_grpc_request_total{application=\"$application\", instance=\"$instance\"}",
               "format": "time_series",
               "intervalFactor": 1,
+              "legendFormat": "order_grpc_request_total",
               "refId": "B"
             }
           ],
@@ -521,7 +704,7 @@ data:
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 5
+            "y": 14
           },
           "id": 143,
           "legend": {
@@ -550,6 +733,7 @@ data:
               "expr": "sum without(instance)(rate(kafka_server_brokertopicmetrics_messagesinpersec_count{job=\"kafka\",topic!=\"\"}[5m]))",
               "format": "time_series",
               "intervalFactor": 1,
+              "legendFormat": "{{ "{{" }}topic{{ "}}" }}",
               "refId": "A"
             }
           ],
@@ -600,7 +784,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 13
+            "y": 22
           },
           "id": 126,
           "panels": [],
@@ -619,7 +803,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 0,
-            "y": 14
+            "y": 23
           },
           "id": 111,
           "legend": {
@@ -708,7 +892,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 6,
-            "y": 14
+            "y": 23
           },
           "id": 112,
           "legend": {
@@ -794,7 +978,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 12,
-            "y": 14
+            "y": 23
           },
           "id": 113,
           "legend": {
@@ -889,7 +1073,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 18,
-            "y": 14
+            "y": 23
           },
           "id": 119,
           "legend": {
@@ -1007,7 +1191,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 21
+            "y": 30
           },
           "id": 127,
           "panels": [],
@@ -1036,7 +1220,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 0,
-            "y": 22
+            "y": 31
           },
           "id": 24,
           "legend": {
@@ -1156,7 +1340,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 6,
-            "y": 22
+            "y": 31
           },
           "id": 25,
           "legend": {
@@ -1277,7 +1461,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 12,
-            "y": 22
+            "y": 31
           },
           "id": 26,
           "legend": {
@@ -1398,7 +1582,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 18,
-            "y": 22
+            "y": 31
           },
           "id": 86,
           "legend": {
@@ -1523,7 +1707,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 29
+            "y": 38
           },
           "id": 128,
           "panels": [],
@@ -1552,7 +1736,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 0,
-            "y": 30
+            "y": 39
           },
           "id": 106,
           "legend": {
@@ -1674,7 +1858,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 6,
-            "y": 30
+            "y": 39
           },
           "id": 93,
           "legend": {
@@ -1792,7 +1976,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 12,
-            "y": 30
+            "y": 39
           },
           "id": 32,
           "legend": {
@@ -1920,7 +2104,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 18,
-            "y": 30
+            "y": 39
           },
           "id": 124,
           "legend": {
