@@ -102,12 +102,14 @@ public class OrderDAO {
     }
 
     private void decreaseItemStock(EntityItem item, int quantity) {
-        item.setStock(item.getStock() - quantity);
+        EntityItem persistedItem = itemRepository.findById(item.getId()).get();
+        item.setStock(persistedItem.getStock() - quantity);
         itemRepository.save(item);
     }
 
     private void increaseItemStock(EntityItem item, int quantity) {
-        item.setStock(item.getStock() + quantity);
+        EntityItem persistedItem = itemRepository.findById(item.getId()).get();
+        item.setStock(persistedItem.getStock() + quantity);
         itemRepository.save(item);
     }
 
