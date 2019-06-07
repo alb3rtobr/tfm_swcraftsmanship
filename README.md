@@ -1050,6 +1050,7 @@ $ helm del --purge tfm-almacar
 # 6. Conclusions and future work
 
 *TBD*
+* Complete the integration of our application with the Elastic stack
 
 # 7. References
 
