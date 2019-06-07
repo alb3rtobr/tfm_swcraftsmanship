@@ -495,7 +495,7 @@ prometheus-operator:
 
 **Enabling metrics in Kafka**
 
-As it was commented previously this project uses a Chart developed by the Helm community. This chart may be configured overwriting some available values. Some of them may be set to enable metrics in Kafka. To do so, we need to set the following values in the `values.yaml` file of our umbrella chart:
+As it was commented previously this project uses a Chart developed by the Helm community in order to deploy Kafka in our application. This chart may be configured overwriting some available values, for example, some of them may be set to enable metrics in Kafka. To do so, we need to set the following values in the `values.yaml` file of our umbrella chart:
 
 ```yaml
 kafka:
@@ -508,9 +508,7 @@ kafka:
       enabled: true
 ```
 
-Setting this values we configure Kafka to know we are using Prometheus Operator in the `default` kubernetes namespace.
-
-In addition to this, it is necessary to create a resource of type `ServiceMonitor` that will be used to configure Prometheus Operator to know there is a service to scrape:
+Setting this values we configure Kafka to know we are using Prometheus Operator in the `default` kubernetes namespace. In addition to this, it is necessary to create a resource of type `ServiceMonitor` that will be used to configure Prometheus Operator to know there is a service to scrape:
 
 ```yaml
 # charts/tfm-almacar/templates/configmap_grafana_kafka_dashboard.yaml
@@ -534,7 +532,7 @@ spec:
     interval: 15s
 ```
 
-Finally, Prometheus has to be configures to get the metrics from Kafka:
+Finally, Prometheus has to be configured to get the metrics from Kafka:
 
 ```yaml
 # charts/tfm-almacar/values.yaml
