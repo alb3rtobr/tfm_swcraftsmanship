@@ -387,9 +387,9 @@ There are several ways to deploy Prometheus in a Kubernetes cluster. The easiest
 
 Before explaining how we integrated the chart in our Kubernetes deployment it is important to describe what is Prometheus Operator and how it works. The core idea of Operator is decouple Prometheus instances from the configuration of the entities they are monitoring. For this purpose this chart introduces two new third party resources: `Prometheus` and `ServiceMonitor`.
 
-The Operator assures that for each Prometheus resource there will be a Prometheus instance server with the desired configuration and the needed resources (persistent volumes, replicas, etc). Each of these servers will be associated with a configuration where the client may set whau is the component to scrape. ServiceMonitor resources are used to specify this configuration.
+The Operator assures that for each Prometheus resource there will be a Prometheus instance server with the desired configuration and the needed resources (persistent volumes, replicas, etc). Each of these servers will be associated with a configuration where the client may set what is the component to scrape. ServiceMonitor resources are used to specify this configuration.
 
-The main benefict of using Prometheus Operator is it encapsulates many of the Prometheus domain knowledge and allows the user to fight with aspects meaningful to the monitoring system.
+The main benefit of using Prometheus Operator is it encapsulates many of the Prometheus domain knowledge and allows the user to fight with aspects meaningful to the monitoring system.
 
 Next figure shows how is the Prometheus Operator architecture:
 
