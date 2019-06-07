@@ -34,8 +34,8 @@
       - [4.4.1.1. Analysis and Design](#4411-analysis-and-design)
         - [4.4.1.1.1. Use cases](#44111-use-cases)
         - [4.4.1.1.2. Data Model](#44112-data-model)
-        - [4.4.1.1.3. Class Diagrams?](#44113-class-diagrams)
-        - [4.4.1.1.4. Sequence Diagrams?](#44114-sequence-diagrams)
+        - [4.4.1.1.3. Class Diagrams](#44113-class-diagrams)
+        - [4.4.1.1.4. Sequence Diagrams](#44114-sequence-diagrams)
       - [4.4.1.2. Implementation and Deployment](#4412-implementation-and-deployment)
     - [4.4.2. Version 0.2](#442-version-02)
       - [4.4.2.1. Analysis and Design](#4421-analysis-and-design)
@@ -327,12 +327,13 @@ This is the base architecture we decided to develop:
 ![architecture draft](./images/architecture-draft.png "architecture draft")
 
 We decided to have the following components/services:
-* `Gateway` : handling cluster access.
-* `Application server` : main logic of the application.
-* `Monitor` : in charge of monitoring the server activity, and send a notification to an external end point if a given condition is fulfilled.
-* `Message bus` : communication mechanism used by the server to publish events, and used by the monitor to consume those events.
-* `DAL` : data abstraction layer to isolate the business model from the persistence of the model itself.
-* `Data base` : the persistence of the model.
+
+- `Gateway` : handling cluster access.
+- `Application server` : main logic of the application.
+- `Monitor` : in charge of monitoring the server activity, and send a notification to an external end point if a given condition is fulfilled.
+- `Message bus` : communication mechanism used by the server to publish events, and used by the monitor to consume those events.
+- `DAL` : data abstraction layer to isolate the business model from the persistence of the model itself.
+- `Data base` : the persistence of the model.
 
 At this phase, we draft our main use case as follows:
 ![base use case](./uml/analysis-usecase.png "analysis base use case")
@@ -344,10 +345,11 @@ After prioritize which technologies we were interested on, the architecture draf
 ![architecture draft extended](./images/architecture-draft-extended.png "architecture draft")
 
 The application is composed of the following services:
-* `API gateway` : we used Kubernetes Ingress functionality as first approach.
-* `restapi` : in charge of offering our application functionality via REST API.
-* `dal` : using gRPC to access the model
-* `stockchecker` : whenever an item is sold, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
+
+- `API gateway` : we used Kubernetes Ingress functionality as first approach.
+- `restapi` : in charge of offering our application functionality via REST API.
+- `dal` : using gRPC to access the model
+- `stockchecker` : whenever an item is sold, if the remaining stock is less than a given threshold, it will raise a notification to a external REST end point.
 
 ## 4.4. Iterations
 
@@ -358,7 +360,7 @@ The first release pretended to be a first contact with most of the technologies 
 Main characteristics:
 
 - Basic functionality of all the components
-  - Basic model with only one entity.
+  - Basic model with only one entity: **Item**
   - Providing REST API as input point with all needed CRUD operations.
   - Communication between services using gRPC.
   - Communication between services using message bus Kafka.
@@ -368,35 +370,114 @@ Main characteristics:
 - ConfigMaps
 - Automatic test execution for every commit
 
-TODO: Meter un dibujo con la arquitectura deseada o es demasiado repetir?
-
 #### 4.4.1.1. Analysis and Design
 
 ##### 4.4.1.1.1. Use cases
 
-TODO: Meter aquí un UML con los casos de uso (básicamente los CRUD de Item)
+Next diagram represents the use cases for this iteration:
+
+![Item use cases](./uml/uses_cases-v01.png "Item use cases")
 
 ##### 4.4.1.1.2. Data Model
 
-TODO: Meter aquí un UML con Item
+At this stage of the application development, the model is very simple, containing just one entity, `Item`, which has an `id` and a `description` as attributes.
 
-##### 4.4.1.1.3. Class Diagrams?
+![Model of version v0.1](./uml/model-v01.png "Model of version v0.1")
 
-TODO: Meter un diagrama que muestre gRPC?
+##### 4.4.1.1.3. Class Diagrams
 
-##### 4.4.1.1.4. Sequence Diagrams?
+TODO
 
-TODO: Meter un diagrama de secuencia entre servicios que muestre la interacción entre ellos.
+##### 4.4.1.1.4. Sequence Diagrams
+
+![Sequence of version v0.1](./uml/sequence-v01.png "Sequence of version v0.1")
 
 #### 4.4.1.2. Implementation and Deployment
 
-Yo aquí metería:
- - RESTAPI de Item
- - Todos los IDLs de gRPC
-   - Creación de servicios, server and clients.
- - Cómo se ha implementado la persistencia de Item
- - Integración de los servicios con Kafka
- - Todo lo relacionado con Kubernetes (dockerfiles, charts, etc)
+The `restapi` component offers CRUD operations via a REST API for `Item` model:
+
+- POST `api/v1/items` : create an item
+- GET `api/v1/items` : list all items
+- GET `api/v1/items/{id}` : get an item
+- PUT `api/v1/items/{id}` : update an item
+- DELETE `api/v1/items/{id}` : delete an item
+
+![Example of creating an Item](./images/postman-1.png "Example of creating an Item")
+
+*Screenshoot of Postman while creating an item*
+
+Each time the `restapi` or `stockcheker` services need to access the persistence, it must access the `dal` service via **gRPC** interface. For that we have designed an IDL interface (based in proto files) to define a gRPC service able to expose CRUD operations for the persistence of Item entity:
+
+```protobuf
+// proto-idls/src/main/proto/com/craftsmanship/tfm/idls/v1/ItemPersistence.proto
+syntax = "proto3";
+package com.craftsmanship.tfm.idls.v1;
+
+// Item Persistence Service
+service ItemPersistenceService {
+    rpc create (CreateItemRequest) returns (CreateItemResponse);
+    rpc list (Empty) returns (ListItemResponse);
+    rpc get (GetItemRequest) returns (GetItemResponse);
+    rpc update (UpdateItemRequest) returns (UpdateItemResponse);
+    rpc delete (DeleteItemRequest) returns (DeleteItemResponse);
+    rpc count (Empty) returns (CountItemResponse);
+}
+
+message Empty {
+}
+
+message GrpcItem {
+    int64 id = 1;
+    string description = 2;
+}
+
+message CreateItemRequest {
+    GrpcItem item = 1;
+}
+
+message CreateItemResponse {
+    GrpcItem item = 1;
+}
+
+message ListItemResponse {
+    repeated GrpcItem item = 1;
+}
+
+message GetItemRequest {
+    int64 id = 1;
+}
+
+message GetItemResponse {
+    GrpcItem item = 1;
+}
+
+message UpdateItemRequest {
+    int64 id = 1;
+    GrpcItem item = 2;
+}
+
+message UpdateItemResponse {
+    GrpcItem item = 1;
+}
+
+message DeleteItemRequest {
+    int64 id = 1;
+}
+
+message DeleteItemResponse {
+    GrpcItem item = 1;
+}
+
+message CountItemResponse {
+    int32 numberOfItems = 1;
+}
+```
+
+- TODO: Describe how to configure project to compile protobuf files?
+- TODO: Describe gRPC client and servers?
+- TODO: Describe how we did persistence
+- TODO: Describe how restapi and stockcker were integrated with Kafka
+- TODO: K8s stuff (dockerfiles, charts, etc)
 
 ### 4.4.2. Version 0.2
 
@@ -404,11 +485,10 @@ Yo aquí metería:
 
 ##### 4.4.2.1.1. Use cases
 
-TODO: Meter aquí un UML con los casos de uso (básicamente los CRUD de Order)
+![Item use cases](./uml/uses_cases-v01.png "Item use cases")
+![Order use cases](./uml/uses_cases-v02.png "Order use cases")
 
 ##### 4.4.2.1.2. Data Model
-
-TODO: Meter aquí un UML con Order e Item
 
 ##### 4.4.2.1.3. Class Diagrams?
 

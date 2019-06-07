@@ -1,0 +1,16 @@
+@startuml
+Actor User
+
+User -> restapi: Http Request
+restapi -> dal : CRUD operation
+dal -> DB : db transaction
+DB -> dal : response
+dal -> restapi : response
+restapi -> Kafka : publish notification
+Kafka -> stockchecker : receives notification
+stockchecker -> dal : get item stock
+dal -> DB : db transaction
+DB -> dal : response
+dal -> stockchecker : response
+stockchecker -> EndPoint : send notification (if condition fulfilled)
+@enduml
