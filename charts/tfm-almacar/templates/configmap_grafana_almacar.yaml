@@ -38,7 +38,7 @@ data:
       "editable": true,
       "gnetId": 4701,
       "graphTooltip": 1,
-      "iteration": 1559837663923,
+      "iteration": 1559932329651,
       "links": [],
       "panels": [
         {
@@ -419,7 +419,7 @@ data:
           },
           "id": 139,
           "panels": [],
-          "title": "gRPC",
+          "title": "Miscellanea",
           "type": "row"
         },
         {
@@ -429,8 +429,8 @@ data:
           "dashes": false,
           "fill": 1,
           "gridPos": {
-            "h": 7,
-            "w": 24,
+            "h": 8,
+            "w": 12,
             "x": 0,
             "y": 5
           },
@@ -512,12 +512,95 @@ data:
           }
         },
         {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "fill": 1,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 5
+          },
+          "id": 143,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "sum without(instance)(rate(kafka_server_brokertopicmetrics_messagesinpersec_count{job=\"kafka\",topic!=\"\"}[5m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Kafka Topics",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
           "collapsed": false,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 12
+            "y": 13
           },
           "id": 126,
           "panels": [],
@@ -536,7 +619,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 0,
-            "y": 13
+            "y": 14
           },
           "id": 111,
           "legend": {
@@ -625,7 +708,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 6,
-            "y": 13
+            "y": 14
           },
           "id": 112,
           "legend": {
@@ -711,7 +794,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 12,
-            "y": 13
+            "y": 14
           },
           "id": 113,
           "legend": {
@@ -806,7 +889,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 18,
-            "y": 13
+            "y": 14
           },
           "id": 119,
           "legend": {
@@ -924,7 +1007,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 20
+            "y": 21
           },
           "id": 127,
           "panels": [],
@@ -953,7 +1036,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 0,
-            "y": 21
+            "y": 22
           },
           "id": 24,
           "legend": {
@@ -1073,7 +1156,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 6,
-            "y": 21
+            "y": 22
           },
           "id": 25,
           "legend": {
@@ -1194,7 +1277,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 12,
-            "y": 21
+            "y": 22
           },
           "id": 26,
           "legend": {
@@ -1315,7 +1398,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 18,
-            "y": 21
+            "y": 22
           },
           "id": 86,
           "legend": {
@@ -1440,7 +1523,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 28
+            "y": 29
           },
           "id": 128,
           "panels": [],
@@ -1469,7 +1552,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 0,
-            "y": 29
+            "y": 30
           },
           "id": 106,
           "legend": {
@@ -1591,7 +1674,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 6,
-            "y": 29
+            "y": 30
           },
           "id": 93,
           "legend": {
@@ -1709,7 +1792,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 12,
-            "y": 29
+            "y": 30
           },
           "id": 32,
           "legend": {
@@ -1837,7 +1920,7 @@ data:
             "h": 7,
             "w": 6,
             "x": 18,
-            "y": 29
+            "y": 30
           },
           "id": 124,
           "legend": {
@@ -1950,7 +2033,6 @@ data:
             "allFormat": "glob",
             "allValue": null,
             "current": {
-              "selected": true,
               "text": "tfm-almacar-dal:8080",
               "value": "tfm-almacar-dal:8080"
             },
@@ -1978,7 +2060,6 @@ data:
             "allFormat": "glob",
             "allValue": null,
             "current": {
-              "selected": true,
               "text": "All",
               "value": "$__all"
             },
@@ -2006,7 +2087,6 @@ data:
             "allFormat": "glob",
             "allValue": null,
             "current": {
-              "selected": true,
               "text": "All",
               "value": "$__all"
             },
