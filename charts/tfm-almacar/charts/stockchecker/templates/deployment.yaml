@@ -33,6 +33,8 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.global.stockchecker.port}}
         env:
         - name: JAVA_OPTS
           value: "-Xmx{{ .Values.global.restapi.jvm.maxheapmemory }} -Xms{{ .Values.global.restapi.jvm.startheapmemory }}"
