@@ -134,9 +134,9 @@ By default, gRPC uses `protocol buffers` as mechanism to serialize structured da
 
 ### 3.2.3. Apache Kafka
 
-Apache Kafka is an open source distributed streaming platform software originally created by LinkedIn and later donated to the Apache Software Foundation. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. As it is fast, highly scalable and fault-tolerant, it is usually used to build real-time streaming pipelines to collect data between different microservices.
+**Apache Kafka** is an open source distributed streaming platform software originally created by LinkedIn and later donated to the Apache Software Foundation. Kafka allows services to publish and subscribe to stream of data, acting like a message queue. As it is fast, highly scalable and fault-tolerant, it is usually used to build real-time streaming pipelines to collect data between different microservices.
 
-Kafka is planned to be run as a cluster of one or more servers, called `brokers`, that can span multiple datacenters. It stores all the data into different partitions within different **topics**. Inside a partition, the messages are ordered by offsets and labeled with timestamps. This allows the clients to be able to know the history of the topic during some time window. Data written in Kafka is persisted in disk and replicated to other Kafka servers in order to assure fault-tolerance.
+Kafka is planned to be run as a cluster of one or more servers, called `brokers`, that can span multiple datacenters. It stores all the data into different **partitions** within different **topics**. Inside a partition, the messages are ordered by **offsets** and labeled with timestamps. This allows the clients to be able to know the history of the topic during some time window. Data written in Kafka is persisted in disk and replicated to other Kafka servers in order to assure fault-tolerance.
 
 Four APIs may be used in Kafka:
 
