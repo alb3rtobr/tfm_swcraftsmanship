@@ -1,0 +1,13 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor User
+
+rectangle Order {
+    User -- (Create)
+    User -- (Edit)
+    User -- (Get)
+    User -- (List)
+    User -- (Delete)
+}
+@enduml
