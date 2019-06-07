@@ -254,6 +254,26 @@ TODO: PICTURE?
 
 ## 3.5. Spring framework
 
+Finally, we want to introduce the framework we will use for the implementation of the microservices.
+
+Spring is a framework for application development on top of Java EE. It is based on two main concepts: dependency injection and aspect-oriented programming.
+With dependency injection, objects do not build their dependencies by their own, but they are provided by an external entity. This allows loose coupling, as object can be built knowing just the interface of its dependencies, not the implementation itself.
+In Spring, the objects that are part of an application and which dependencies are managed (instantiated and assembled) by the framework (using what it is called the Spring IoC container) are called beans.
+Aspect-oriented programming is used to extract common functionalities of different components of an application, and apply them from a global point of view, as layers of functionality. These layers can be applied declaratively in the your application in a flexible manner, in such a way the core application is agnostic about it. Aspect-oriented programming is an interesting concepts to keep aspects like security or logging separated from the main application logic.
+
+The main components of the Spring Framwork are:
+* Spring Core: the core of the framework, in charge of handle the dependency injection
+* Spring MVC: implementation of the Model-View-Controller architecture for creating Web applications.
+* Spring Web Flow: extension of the Spring MVC module, for defining the workflow between different pages of a web application.
+* Spring Context: provides a interface for the beans factory.
+* Spring ORM: used for accessing data from a database in an application.
+* Spring DAO: contains support for DAOs (Data Acess Objects), objects that provides an abstract interface to databases or other persistence mechanisms.
+* Spring AOP: in charge of allowing the implementation of aspects.
+
+Although Spring was created originally for Java EE application, several subprojects were started to provide the framework features to implement more specific Java applications. For example, Spring Boot, which is an opinionated view of Spring, to build applications in a simpler way. These subprojects could manage under its scope some other subprojects. That is the case of Spring Cloud,. which provides tools for common patterns on distributed systems (distributed anv versiones configuration, service discovery, load balancing, leader election...). Under Spring Cloud we can find specific versions, like Spring Cloud Azure, Spring Cloud AWS, Spring Cloud Zookeeper, or Spring Cloud Kubernetes.
+
+
+
 # 4. Project development
 
 ## 4.1. Methodology
