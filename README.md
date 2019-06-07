@@ -57,6 +57,7 @@
     - [4.5.3. Version 0.3](#453-version-03)
       - [4.5.3.1. Prometheus](#4531-prometheus)
       - [4.5.3.2. Grafana](#4532-grafana)
+      - [4.5.3.3. Elasticsearch](#4433-elasticsearch)
   - [4.6. Deployment](#46-deployment)
     - [4.6.1. Installation](#461-installation)
       - [4.6.1.1. Docker image preparation](#4611-docker-image-preparation)
@@ -186,7 +187,7 @@ Spring Data JPA helps to improve the implementacion of data access layer reducin
 While designing the database functionality it was decided to make use of a simple in-memory database that could be easily use for testing purposes.
 H2 database is an in-memory opensource database that provides JDBC API to connect to java applications. Spring provides support for H2 database so it was taken as the database to be used when running automatic test cases.
 
-In order to deploy a database in the kubernetes cluster it was decided to deploy mysql as the persistence database. Main reason to use mysql was the support by Spring Data to easily integrate with mysql database. 
+In order to deploy a database in the kubernetes cluster it was decided to deploy mysql as the persistence database. Main reason to use mysql was the support by Spring Data to easily integrate with mysql database.
 
 As both H2 and mysql are relational databases providing SQL interface, they integrate easily with Hibernate framework.
 
@@ -861,6 +862,94 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 
 #### 4.5.3.2. Grafana
 
+#### 4.5.3.3 Elasticsearch
+
+Sadly, we had to discard the integration of the Elastic stack due to lack of time. We wasted too much time debugging the deployment of Kibana, Elasticsearch and Logstash in our Minikube cluster. As we did with Kafka, we tried to use a Helm chart from the Helm repository. So first we added the dependency to `requirements.yaml`:
+```
+  - name: elastic-stack
+    version: 1.6.0
+    repository: https://kubernetes-charts.storage.googleapis.com/
+```
+And the correspondent configuration variables were added to `values.yaml`:
+```
+elastic-stack:
+  # Default values for elk.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+  elasticsearch:
+    enabled: true
+
+  kibana:
+    enabled: true
+    env:
+      ELASTICSEARCH_URL: http://tfm-almacar-elasticsearch-client:9200
+
+  logstash:
+    enabled: true
+    elasticsearch:
+      host: tfm-almacar-elasticsearch-client
+
+  filebeat:
+    enabled: false
+
+  fluentd:
+    enabled: false
+
+  fluent-bit:
+    enabled: false
+
+  fluentd-elasticsearch:
+    enabled: false
+
+  nginx-ldapauth-proxy:
+    enabled: false
+
+  elasticsearch-curator:
+    enabled: false
+
+  elasticsearch-exporter:
+    enabled: false
+```
+
+We were dealing with connectivity problems between Logstash and Kibana with Elasticsearch, and we finally discovered that the Helm chart we were using was wrong. Since Kibana 6.6, the variable used to introduce the Elasticsearch client service changed, and this chart was not updated. As the only requirement of this chart is to download a version newer than 2.2.0, Helm downloaded the latest one, the 6.7. As workaround for at least have the stack running, we had to extract the filea from the tgz chart archive, and then edit the Kibana `values.yaml` file, changing the variable `elasticsearch.url`:
+
+```
+files:
+  kibana.yml:
+    ## Default Kibana configuration from kibana-docker.
+    server.name: kibana
+    server.host: "0"
+    elasticsearch.url: http://elasticsearch-client:9200
+```
+
+by this:
+
+```
+files:
+  kibana.yml:
+    ## Default Kibana configuration from kibana-docker.
+    server.name: kibana
+    server.host: "0"
+    elasticsearch.url: http://tfm-almacar-elasticsearch-client:9200
+```
+
+And also, for allowing Logstash to connect with the Elasticsearch client, the correspondent `values.yaml` file was modified, changing the default `host` of `elasticsearch`:
+
+```
+elasticsearch:
+  host: elasticsearch-client.default.svc.cluster.local
+  port: 9200
+```
+
+by this:
+
+```
+elasticsearch:
+  host: tfm-almacar-elasticsearch-client
+  port: 9200
+```
+We reported this issue in the Github Helm repository [[5](#5)], but we have not received any comment so far.
+
 ## 4.6. Deployment
 
 ### 4.6.1. Installation
@@ -968,6 +1057,7 @@ $ helm del --purge tfm-almacar
 * [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
 * [3]: [Kubernetes Github repository](https://github.com/kubernetes/kubernetes)
 * [3]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
+* [5]: [elastic-stack issue opened during the project](https://github.com/helm/charts/issues/14445)
 
 Reference sites:
 * [Kubernetes](https://kubernetes.io/)
