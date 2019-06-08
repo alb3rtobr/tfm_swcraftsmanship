@@ -408,7 +408,7 @@ At this stage of the application development, the model is very simple, containi
 
 ##### 4.4.1.1.3. Class Diagrams
 
-TODO
+![Class Diagram v0.1](./uml/class_diagram-v01.png "Class Diagram v0.1")
 
 ##### 4.4.1.1.4. Sequence Diagrams
 
@@ -495,7 +495,66 @@ message CountItemResponse {
 }
 ```
 
+As it was commented in the 'State of the Art' chapter, proto files are IDLs that define a interface. This proto files must be transformed to real code using special tools. For example, as we are using Java in our Spring services, we decided to use **java-grpc** for this purpose.
+
+In order to generate Java code from proto files it is needed to add the following dependencies in the `pom.xml` file of our maven project:
+
+```xml
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <version>1.19.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>1.19.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>1.19.0</version>
+    </dependency>
+```
+
+In addition it is needed to put our proto files inside `src/main/proto` directory and configure Maven to use the `Maven Protocol Buffers Plugin` to generate the Java code from the proto files:
+
+```xml
+<build>
+  <extensions>
+    <extension>
+      <groupId>kr.motd.maven</groupId>
+      <artifactId>os-maven-plugin</artifactId>
+      <version>1.5.0.Final</version>
+    </extension>
+  </extensions>
+  <plugins>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.5.1</version>
+        <configuration>
+          <protocArtifact>com.google.protobuf:protoc:3.6.1:exe:${os.detected.classifier}</protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.19.0:exe:${os.detected.classifier}</pluginArtifact>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+  </plugins>
+</build>
+```
+
+Once the Java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
+
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
+
 ```
 language: java
 jobs:
@@ -523,7 +582,6 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 *Travis CI reports in Slack.*
 
 
-- TODO: Describe how to configure project to compile protobuf files?
 - TODO: Describe gRPC client and servers?
 - TODO: Describe how we did persistence
 - TODO: Describe how restapi and stockcker were integrated with Kafka
@@ -1103,27 +1161,35 @@ $ helm del --purge tfm-almacar
 
 # 7. References
 
-* [1]: "Building Microservices", Sam Newman, O'Reilly Media
-* [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
-* [3]: [Kubernetes Github repository](https://github.com/kubernetes/kubernetes)
-* [3]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
-* [5]: [elastic-stack issue opened during the project](https://github.com/helm/charts/issues/14445)
+- [1]: "Building Microservices", Sam Newman, O'Reilly Media
+- [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
+- [3]: [Kubernetes Github repository](https://github.com/kubernetes/kubernetes)
+- [3]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
+- [5]: [elastic-stack issue opened during the project](https://github.com/helm/charts/issues/14445)
 
 Reference sites:
-* [Kubernetes](https://kubernetes.io/)
-* [Spring Cloud](https://spring.io/projects/spring-cloud)
-* [gRPC](https://grpc.io/)
-* [Apache Kafka](https://kafka.apache.org/)
+
+- [Kubernetes](https://kubernetes.io/)
+- [Spring Cloud](https://spring.io/projects/spring-cloud)
+- [gRPC](https://grpc.io/)
+- [Apache Kafka](https://kafka.apache.org/)
 
 Spring Kafka related links:
-* [Spring Kafka - Spring Boot example](https://codenotfound.com/spring-kafka-boot-example.html)
-* [Spring Kafka Consumer-Producer example](https://codenotfound.com/spring-kafka-consumer-producer-example.html)
-* [Spring Kafka - JSON Serializer Deserializer Example](https://codenotfound.com/spring-kafka-json-serializer-deserializer-example.html)
-* [Spring Kafka Embedded Unit Test Example](https://codenotfound.com/spring-kafka-embedded-unit-test-example.html)
+
+- [Spring Kafka - Spring Boot example](https://codenotfound.com/spring-kafka-boot-example.html)
+- [Spring Kafka Consumer-Producer example](https://codenotfound.com/spring-kafka-consumer-producer-example.html)
+- [Spring Kafka - JSON Serializer Deserializer Example](https://codenotfound.com/spring-kafka-json-serializer-deserializer-example.html)
+- [Spring Kafka Embedded Unit Test Example](https://codenotfound.com/spring-kafka-embedded-unit-test-example.html)
+
+gRPC:
+- [gRPC](https://grpc.io/)
+- [gRPC-Java - An RPC library and framework](https://github.com/grpc/grpc-java)
+- [Maven Protocol Buffers Plugin](https://www.xolstice.org/protobuf-maven-plugin/)
 
 Prometheus and Grafana:
-* [Prometheus](https://prometheus.io/)
-* [Using Prometheus in Grafana](https://grafana.com/docs/features/datasources/prometheus/)
-* [Spring Boot Actuator: Production-ready Metrics](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-metrics.html)
-* [Prometheus Operator Chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator)
-* [The Prometheus Operator: Managed Prometheus setups for Kubernetes](https://coreos.com/blog/the-prometheus-operator.html)
+
+- [Prometheus](https://prometheus.io/)
+- [Using Prometheus in Grafana](https://grafana.com/docs/features/datasources/prometheus/)
+- [Spring Boot Actuator: Production-ready Metrics](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-metrics.html)
+- [Prometheus Operator Chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator)
+- [The Prometheus Operator: Managed Prometheus setups for Kubernetes](https://coreos.com/blog/the-prometheus-operator.html)
