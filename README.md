@@ -57,7 +57,7 @@
     - [4.5.3. Version 0.3](#453-version-03)
       - [4.5.3.1. Prometheus](#4531-prometheus)
       - [4.5.3.2. Grafana](#4532-grafana)
-      - [4.5.3.3. Elasticsearch](#4433-elasticsearch)
+      - [4.5.3.3 Elasticsearch](#4533-elasticsearch)
   - [4.6. Deployment](#46-deployment)
     - [4.6.1. Installation](#461-installation)
       - [4.6.1.1. Docker image preparation](#4611-docker-image-preparation)
@@ -123,19 +123,43 @@ Application components binaries are packed into docker images that will be used 
 
 To expose this containers to the cluster (i.e. exposing ports for communication) a *service* resouce type must be defined.
 
-Other important kubernetes resources are the *persistent volumes* to be able to persist data in the kubernetes cluster.
+Other important kubernetes resources are: 
 
-There are lots of resources types like *secrets, serviceaccounts, replicasets, jobs, ...*
+* **Volume**
+* **Deployment**
+* **Secrets**
+* **Service Accounts**
+* **Replica Sets**
+* **Jobs**
 
-For a complete reference about kubernetes check [[Kubernetes](#Kubernetes)].
+Managing the Kubernetes objects/resources is done through the *kubectl* command line tool. 
+
+For a complete reference about kubernetes check [Kubernetes](https://kubernetes.io/).
 
 ### 3.1.1. Minikube
 
 For implementing our project we have used Minikube, a tool that allows to run Kubernetes locally on our laptops. This tool starts a minimum Kubernetes cluster, which fits perfectly for testing purposes or small applications.
+Minikube runs a single-node Kubernetes cluster inside a Virtual Machine to be able to run it on a laptop.
+
+![minikube architecture](./images/minikube-architecture.jpg)
+
+*Architecture of minikube*
 
 ### 3.1.2. Helm
 
 We also named the management of the different services as a drawback of microservices architectures. Helm is a package manager that is used to define and manage services that run on Kubernetes. Applications and its resources are defined using yaml files called Helm charts. Our application include its own Helm charts since the first version.
+
+Helm is composed by two main components:
+
+* **The Helm Client**: command line client that allows the interaction with the server side running in the cluster (tiller). It allows to send charts to be installed, check the information about installations (called releases) and also may request the upgrade or unintallation of existing releases.
+
+* **The Tiller Server**: is the server side running inside the cluster, that interacts with the Helm client. It calls the Kubernetes API server to request the orders coming from the client. Tiller is able to read a chart to build a release. It also may upgrade and uninstall releases.
+
+As a summary, the client is reponsible for managing charts, and the server is responsible for managing releases.
+  
+![helm architecture](./images/helm-architecture.png)
+
+*Helm Architecture*
 
 ## 3.2. Microservices communication
 
