@@ -674,7 +674,43 @@ public void consume(ItemOperation payload) throws CustomException {
 
 ##### 4.4.1.2.4. Persistence
 
-TODO
+Persistence funtionality is composed by two services: `dal` and `mysql`.
+
+`dal` (Data Access Layer) is decoupling the services using persistency from the real database that in this case if offered by `mysl`.
+
+Services having the need to persist data use the gRPC interface offered by `dal` service, so database could be changed without affecting the clients.
+
+We have implemented `dal` service using Spring Data JPA framework adding a dependency in the `pom.xml`:
+
+```xml
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-data-jpa</artifactId>
+	</dependency>
+```
+
+To be able to run unit tests we included the `H2` in-memory database as dependency:
+
+```xml
+	<dependency>
+		<groupId>com.h2database</groupId>
+		<artifactId>h2</artifactId>
+		<scope>test</scope>
+	</dependency>
+```
+For real deployment as a microservice we included `myslq-connector` dependency:
+
+```xml
+  <dependency>
+    <groupId>mysql</groupId>
+   <artifactId>mysql-connector-java</artifactId>
+    <scope>runtime</scope>
+  </dependency>
+```
+
+Then, `dal` service is in charge of translating the *gRPC* orders received from other services to *mysql* sentences, but taking the advantge of the *mysql-connector* and facilities offered by *Spring Data JPA*, giving the results back to the clients.
+
+Inside `dal` we have decoupled the *gRPC* server implementation from the JPA Repository, so JPA could be changed without affecting the *gRPC* server implementation.
 
 ##### 4.4.1.2.5. Kubernetes
 
