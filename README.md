@@ -42,6 +42,7 @@
         - [4.4.1.2.3. Kafka](#44123-kafka)
         - [4.4.1.2.4. Persistence](#44124-persistence)
         - [4.4.1.2.5. Kubernetes](#44125-kubernetes)
+          - [Helm Charts](#helm-charts)
         - [4.4.1.2.6. Travis](#44126-travis)
     - [4.4.2. Version 0.2](#442-version-02)
       - [4.4.2.1. Analysis and Design](#4421-analysis-and-design)
@@ -728,6 +729,39 @@ And the image is created with the following command:
 ```bash
 docker build --tag=almacar_restapi:0.1 --rm=true .
 ```
+
+###### Helm Charts
+
+To creating objects/resources in Kubernetes we decided to use `Helm` package manager to handle the deployment of the application in the Kubernetes cluster.
+
+The set of files that a microservice define to be deployed in Kubernetes using Helm is called `Helm Chart`. It also allows to compress all the files in a .*tgz* file.
+
+Helm Charts can be organized hierarchically, so we created an structured that fulfill our needs:
+- Application umbrella chart
+  - dal chart
+  - restapi chart
+  - stockchecker chart
+  - dependencies to other external charts
+
+Every Helm Chart has the same structure:
+  - Helm Chart
+    - Chart.yaml
+    - values.yaml
+    - templates
+      - set of files for the different kubernetes objects to define
+
+The main application chart also defines the dependencies to other charts in the `requirements.yaml` file:
+
+```yaml
+dependencies:
+  - name: kafka
+    version: 0.14.4
+    repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+```
+
+To make this dependency effective `helm add repo` and `helm dependency update` commands must be executed before installing (explained in detail in the installation chapter).
+
+
 
 After this we used Helm Charts to describe all the Kubernetes resources needed to deploy the service in the cluster.
 
