@@ -310,10 +310,6 @@ Before this project, we were used to work with GitHub as source code repository,
 Slack ("Searchable Log of All Conversation and Knowledge" [[4](#4)]) is a team collaboration tool, useful to coordinate distributed teams. We create our own Slack workspace, and it was our main communication mechanism during the project. In our workspace, we create a separate channel to talk about each component, so all the discussions, questions, issues... were properly organized.
 We also took advantage of the different Slack plugins: we integrated both our GitHub repository and our continuous integration mechanism, so every activity generated in any of both platform was reported in its associated channel in Slack. This has proven to be very useful in a team which members are not working in the same physical place and not even at the same hours.
 
-![slack and travis integration](./images/travis-in-slack.png)
-
-*Travis CI reports in Slack.*
-
 ![slack and github integration](./images/github-in-slack.png "Slack and Github integration")
 
 *Github activity reports in Slack.*
@@ -474,6 +470,34 @@ message CountItemResponse {
 }
 ```
 
+Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
+```
+language: java
+jobs:
+  include:
+  - stage: test proto-idls
+    script: cd proto-idls;mvn clean test
+  - stage: test dal
+    script: cd proto-idls;mvn clean -DskipTests=true install;cd ..;cd dal; mvn clean test
+  - stage: test restapi
+    script: cd proto-idls;mvn clean -DskipTests=true install;cd ..;cd restapi;mvn clean test
+  - stage: test stockchecker
+    script: cd proto-idls;mvn clean -DskipTests=true install;cd ..;cd stockchecker;mvn clean test
+notifications:
+  slack:
+    secure: <API token>
+```
+
+Our Travis dashboard can be found in `https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship`.
+![Travis dashboard](images/travis-dashboard.png)
+
+Once it was setup, we integrated Travis with Slack, to be notified automatically about the test results.
+
+![slack and travis integration](./images/travis-in-slack.png)
+
+*Travis CI reports in Slack.*
+
+
 - TODO: Describe how to configure project to compile protobuf files?
 - TODO: Describe gRPC client and servers?
 - TODO: Describe how we did persistence
@@ -573,7 +597,7 @@ At this stage of the application development, the model is very simple, containi
 
 Although our `stockchecker` is able to send external REST notifications, taking into account the return of time invested, we decided to configure it just to log the notifications. Otherwise it would force us to implement that external end point in our tests.
 
-Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit. Our Travis dashboard can be found in `https://travis-ci.org/alb3rtobr/tfm_swcraftsmanship`.
+
 
 ### 4.5.2. Version 0.2
 
