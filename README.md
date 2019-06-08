@@ -50,6 +50,10 @@
         - [4.4.2.1.3. Class Diagrams?](#44213-class-diagrams)
         - [4.4.2.1.4. Sequence Diagrams?](#44214-sequence-diagrams)
       - [4.4.2.2. Implementation and Deployment](#4422-implementation-and-deployment)
+        - [4.4.2.2.1. REST API](#44221-rest-api)
+        - [4.4.2.2.2. gRPC](#44222-grpc)
+        - [4.4.2.2.3. Persistence](#44223-persistence)
+        - [4.4.2.2.4. Kubernetes](#44224-kubernetes)
     - [4.4.3. Version 0.3](#443-version-03)
       - [4.4.3.1. Analysis and Design](#4431-analysis-and-design)
         - [4.4.3.1.1. Use cases](#44311-use-cases)
@@ -582,6 +586,8 @@ In addition it is needed to put our proto files inside `src/main/proto` director
 
 Once the Java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
 
+TODO: Talk more about order services and clients?
+
 ##### 4.4.1.2.3. Kafka
 
 One more thing it was developed in this iteration was the integration of some of the services with the selected Message Bus: **Kafka**. Kafka allows the services to publish and subscribe to streams of data so, in our project it has been used to communicate the services `restapi` (as producer) and `stockchecker` (as consumer).
@@ -727,7 +733,8 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 Main characteristics:
 
 - Model extension to include more than one relation
-- Many-to-many relationship between new entity Order and Item
+  - Edit Item model with more attributes
+  - Many-to-many relationship between new entity Order and Item
 - Ingress configuration
 
 #### 4.4.2.1. Analysis and Design
@@ -754,37 +761,179 @@ TODO: Meter aquí un UML que explique un poco la parte de persistencia?
 
 #### 4.4.2.2. Implementation and Deployment
 
-The `restapi` component offers the same operations than previous version for `Item` objects and new operations due to the new model:
-* POST `api/v2/items` : create an item
-* GET `api/v2/items` : list all items
-* GET `api/v2/items/{id}` : get an item
-* PUT `api/v2/items/{id}` : update an item
-* DELETE `api/v2/items/{id}` : delete an item
-* POST `api/v2/orders` : create a order (`DomainOrder`)
-* GET `api/v2/orders` : list all orders
-* GET `api/v2/orders/{id}` : list an orders
-* PUT `api/v2/orders/{id}` : update an order
-* DELETE `api/v2/orders/{id}` : delete an order
+##### 4.4.2.2.1. REST API
 
-In this version it is possible to create orders of items.
+In this iteration the `restapi` component offers the same operations than previous version for `Item` objects and new operations due to the new model `Order`:
+
+- POST `api/v2/items` : create an item
+- GET `api/v2/items` : list all items
+- GET `api/v2/items/{id}` : get an item
+- PUT `api/v2/items/{id}` : update an item
+- DELETE `api/v2/items/{id}` : delete an item
+- POST `api/v2/orders` : create a order
+- GET `api/v2/orders` : list all orders
+- GET `api/v2/orders/{id}` : list an orders
+- PUT `api/v2/orders/{id}` : update an order
+- DELETE `api/v2/orders/{id}` : delete an order
+
+TODO: Put here an image with the creation of an order
+
+##### 4.4.2.2.2. gRPC
+
+This new iteration offers a more complex Item with new attributes so, we were forced to modify the IDL for the `ItemPersistenceService` gRPC service:
+
+```protobuf
+syntax = "proto3";
+package com.craftsmanship.tfm.idls.v2;
+
+// Item Persistence Service
+service ItemPersistenceService {
+    rpc create (CreateItemRequest) returns (CreateItemResponse);
+    rpc list (Empty) returns (ListItemResponse);
+    rpc get (GetItemRequest) returns (GetItemResponse);
+    rpc update (UpdateItemRequest) returns (UpdateItemResponse);
+    rpc delete (DeleteItemRequest) returns (DeleteItemResponse);
+}
+
+message Empty {
+}
+
+message GrpcItem {
+    int64 id = 1;
+    string name = 2;
+    int64 price = 3;
+    int32 stock = 4;
+}
+
+message CreateItemRequest {
+    GrpcItem item = 1;
+}
+
+message CreateItemResponse {
+    GrpcItem item = 1;
+}
+
+message ListItemResponse {
+    repeated GrpcItem item = 1;
+}
+
+message GetItemRequest {
+    int64 id = 1;
+}
+
+message GetItemResponse {
+    GrpcItem item = 1;
+}
+
+message UpdateItemRequest {
+    int64 id = 1;
+    GrpcItem item = 2;
+}
+
+message UpdateItemResponse {
+    GrpcItem item = 1;
+}
+
+message DeleteItemRequest {
+    int64 id = 1;
+}
+
+message DeleteItemResponse {
+    GrpcItem item = 1;
+}
+
+```
+
+In the same way we did in the iteration v0.1 with the `Item` model, it was necessary to create a new gRPC service in the `dal` microservice to allow CRUD operations over the new `Order` model.
+
+This is the IDL made for this new service:
+
+```protobuf
+syntax = "proto3";
+package com.craftsmanship.tfm.idls.v2;
+
+import "com/craftsmanship/tfm/idls/v2/ItemPersistence.proto";
+
+// Order Persistence Service
+service OrderPersistenceService {
+    rpc create (CreateOrderRequest) returns (CreateOrderResponse);
+    rpc list (Empty) returns (ListOrderResponse);
+    rpc get (GetOrderRequest) returns (GetOrderResponse);
+    rpc update (UpdateOrderRequest) returns (UpdateOrderResponse);
+    rpc delete (DeleteOrderRequest) returns (DeleteOrderResponse);
+}
+
+message GrpcItemPurchase {
+    GrpcItem item = 1;
+    int32 quantity = 2;
+}
+
+message GrpcOrder {
+    int64 id = 1;
+    repeated GrpcItemPurchase listOfItemPurchases = 2;
+}
+
+message CreateOrderRequest {
+    GrpcOrder order = 1;
+}
+
+message CreateOrderResponse {
+    GrpcOrder order = 1;
+}
+
+message ListOrderResponse {
+    repeated GrpcOrder listOfOrders = 1;
+}
+
+message GetOrderRequest {
+    int64 id = 1;
+}
+
+message GetOrderResponse {
+    GrpcOrder order = 1;
+}
+
+message UpdateOrderRequest {
+    int64 id = 1;
+    GrpcOrder order = 2;
+}
+
+message UpdateOrderResponse {
+    GrpcOrder order = 1;
+}
+
+message DeleteOrderRequest {
+    int64 id = 1;
+}
+
+message DeleteOrderResponse {
+    GrpcOrder order = 1;
+}
+```
+
+The way to generate the Java code from the proto files is similar as comented in iteration 0.1.
+
+TODO: Talk more about order services and clients?
+
+##### 4.4.2.2.3. Persistence
+
+TODO
+
+##### 4.4.2.2.4. Kubernetes
 
 We also implemented a quick improvement for the API gateway. In previous version, access to `restapi` was performed using the `NodePort` option available in Kubernetes services. This automatically creates an IP which is accessed from outside the Kubernetes cluster, and together with the `NodePort` provides access to the `restapi` service. In version 0.2 we complemented this by configuring `Ingress`, a Kubernetes resource that manages external access to the cluster services, and provides load balancing.
 
 Before configuring ingress, it is necessary to configure an ingress controller. In our case, we used Nginx Ingress Controller. It can be installed using Helm:
-```
+
+```bash
 $> helm install --name nginx-ingress stable/nginx-ingress
 ```
+
 In case of using Minikube, as it was our case, it is necessary to enable ingress:
-```
+
+```bash
 $> minikube addons enable ingress
 ```
-
-
-Yo aquí metería:
- [x] RESTAPI de Order
- [] Todos los IDLs de gRPC
- [] Creación de servicios, server and clients.
- [] Cómo se ha implementado la persistencia de Order
 
 ### 4.4.3. Version 0.3
 
