@@ -553,6 +553,45 @@ In addition it is needed to put our proto files inside `src/main/proto` director
 
 Once the Java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
 
+One more thing it was developed in this iteration was the integration of some of the services with the selected Message Bus: **Kafka**. Kafka allows the services to publish and subscribe to streams of data so, in our project it has been used to communicate the services `restapi` (as producer) and `stockchecker` (as consumer).
+
+Each time a Item is modified (CREATED, UPDATED or DELETED), the `restapi` service produces a message in the topic `item_modified`. In this way the `stockchecker` is notified when an item is modified and it could determine if it is needed to ask for more stock. In order to achieve this, the `stockchecker` queries the `dal` to know what is the current stock of the modified item and, in case a threshold is exceeded, sends an external notification.
+
+In order to integrate our code with Kafka we have used **Spring for Apache Kafka** library. This library applies main Spring concepts to the development of Kafka based applications. It provides classes that facilitates the tasks of producing and consuming messages from the Kafka bus.
+
+For the **Producer**, we have implemented a Spring Service that makes use of the provided class `KafkaTemplate` to send messages to Kafka:
+
+```java
+@Service
+public class ItemOperationService {
+    private static final String ITEM_MODIFIED_TOPIC = "item_modified";
+
+    @Autowired
+    private KafkaTemplate<String, ItemOperation> kafkaTemplate;
+
+    public void sendItemOperation(ItemOperation operation) {
+             
+        ListenableFuture<SendResult<String, ItemOperation>> future = kafkaTemplate.send(ITEM_MODIFIED_TOPIC, operation);
+         
+        future.addCallback(new ListenableFutureCallback<SendResult<String, ItemOperation>>() {
+     
+            @Override
+            public void onSuccess(SendResult<String, ItemOperation> result) {
+                LOGGER.info("Sent operation=[" + operation + 
+                  "] with offset=[" + result.getRecordMetadata().offset() + "]");
+            }
+            @Override
+            public void onFailure(Throwable ex) {
+                LOGGER.error("Unable to send operation=["
+                  + operation + "] due to : " + ex.getMessage());
+            }
+        });
+    }
+}
+```
+
+For the **Consumer** TODO
+
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
 
 ```
@@ -582,7 +621,6 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 *Travis CI reports in Slack.*
 
 
-- TODO: Describe gRPC client and servers?
 - TODO: Describe how we did persistence
 - TODO: Describe how restapi and stockcker were integrated with Kafka
 - TODO: K8s stuff (dockerfiles, charts, etc)
@@ -1176,6 +1214,7 @@ Reference sites:
 
 Spring Kafka related links:
 
+- [Spring for Apache Kafka](https://spring.io/projects/spring-kafka)
 - [Spring Kafka - Spring Boot example](https://codenotfound.com/spring-kafka-boot-example.html)
 - [Spring Kafka Consumer-Producer example](https://codenotfound.com/spring-kafka-consumer-producer-example.html)
 - [Spring Kafka - JSON Serializer Deserializer Example](https://codenotfound.com/spring-kafka-json-serializer-deserializer-example.html)
