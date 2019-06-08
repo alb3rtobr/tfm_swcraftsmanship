@@ -7,8 +7,6 @@ server:
 
 kafka:
   bootstrap-servers: localhost
-  topic:
-    receiver: receiver.t
 
 dal:
   host: localhost

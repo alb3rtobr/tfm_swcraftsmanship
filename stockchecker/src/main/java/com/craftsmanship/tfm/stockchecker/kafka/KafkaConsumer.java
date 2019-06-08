@@ -8,14 +8,13 @@ import org.springframework.kafka.annotation.KafkaListener;
 
 import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
-import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.persistence.ItemPersistence;
 import com.craftsmanship.tfm.stockchecker.rest.RestClient;
 
 public class KafkaConsumer {
 
-	private final String TOPIC_NAME = "mytopic";
+	private final String TOPIC_NAME = "item_modified";
 
 	@Autowired
 	private ItemPersistence itemsPersistence;

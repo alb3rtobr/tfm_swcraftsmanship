@@ -42,7 +42,7 @@ public class PurchaseOrderClientTest {
 	@Autowired
 	private RestClient client;
 
-	private final static String RECEIVER_TOPIC = "mytopic";
+	private final static String RECEIVER_TOPIC = "item_modified";
 
 	@ClassRule
 	public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, RECEIVER_TOPIC);

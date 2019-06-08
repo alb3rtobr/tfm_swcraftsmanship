@@ -66,7 +66,7 @@ import org.springframework.web.client.RestTemplate;
 public class OrderRestControllerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderRestControllerTest.class);
 
-    private static String SENDER_TOPIC = "mytopic";
+    private static String SENDER_TOPIC = "item_modified";
 
     @ClassRule
     public static EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1, true, SENDER_TOPIC);

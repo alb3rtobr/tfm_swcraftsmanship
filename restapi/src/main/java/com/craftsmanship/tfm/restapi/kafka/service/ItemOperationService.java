@@ -15,16 +15,16 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 public class ItemOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemOperationService.class);
 
-    private static final String MYTOPIC = "mytopic";
+    private static final String ITEM_MODIFIED_TOPIC = "item_modified";
 
     @Autowired
     private KafkaTemplate<String, ItemOperation> kafkaTemplate;
 
     public void sendItemOperation(ItemOperation operation) {
 
-        LOGGER.info("Sending Item Operation " + operation + " to topic " + MYTOPIC);
+        LOGGER.info("Sending Item Operation " + operation + " to topic " + ITEM_MODIFIED_TOPIC);
              
-        ListenableFuture<SendResult<String, ItemOperation>> future = kafkaTemplate.send(MYTOPIC, operation);
+        ListenableFuture<SendResult<String, ItemOperation>> future = kafkaTemplate.send(ITEM_MODIFIED_TOPIC, operation);
          
         future.addCallback(new ListenableFutureCallback<SendResult<String, ItemOperation>>() {
      
