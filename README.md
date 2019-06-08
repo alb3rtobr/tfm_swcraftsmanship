@@ -273,7 +273,8 @@ For Tracing to be effective, all the components of a cloud application should be
 
 There are many open-source tools in the market focused in request tracing, as can be **Jaeger** and **Zipkin**. With these kind of tools it is possible to monitor in a graphical way how a request goes through each of involved microservices and how much time they spend processing it. All this information could be very useful to detect bottlenecks in the service chain of our application.
 
-TODO: PICTURE?
+![Zipkin example](./images/zipkin-example.png)
+*Zipkin example*
 
 ## 3.5. Spring framework
 
