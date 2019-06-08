@@ -37,12 +37,12 @@
         - [4.4.1.1.3. Class Diagrams](#44113-class-diagrams)
         - [4.4.1.1.4. Sequence Diagrams](#44114-sequence-diagrams)
       - [4.4.1.2. Implementation and Deployment](#4412-implementation-and-deployment)
-        - [REST API](#rest-api)
-        - [gRPC](#grpc)
-        - [Kafka](#kafka)
-        - [Persistence](#persistence)
-        - [Kubernetes](#kubernetes)
-        - [Travis](#travis)
+        - [4.4.1.2.1. REST API](#44121-rest-api)
+        - [4.4.1.2.2. gRPC](#44122-grpc)
+        - [4.4.1.2.3. Kafka](#44123-kafka)
+        - [4.4.1.2.4. Persistence](#44124-persistence)
+        - [4.4.1.2.5. Kubernetes](#44125-kubernetes)
+        - [4.4.1.2.6. Travis](#44126-travis)
     - [4.4.2. Version 0.2](#442-version-02)
       - [4.4.2.1. Analysis and Design](#4421-analysis-and-design)
         - [4.4.2.1.1. Use cases](#44211-use-cases)
@@ -57,9 +57,9 @@
         - [4.4.3.1.3. Class Diagrams?](#44313-class-diagrams)
         - [4.4.3.1.4. Sequence Diagrams?](#44314-sequence-diagrams)
       - [4.4.3.2. Implementation and Deployment](#4432-implementation-and-deployment)
-      - [4.4.3.2.1 Prometheus](#44321-prometheus)
-      - [4.4.3.2.2 Grafana](#44322-grafana)
-      - [4.4.3.2.3 Elasticsearch](#44323-elasticsearch)
+      - [4.4.3.3. Prometheus](#4433-prometheus)
+      - [4.4.3.4. Grafana](#4434-grafana)
+      - [4.4.3.5. Elasticsearch](#4435-elasticsearch)
   - [4.5. User guide](#45-user-guide)
     - [4.5.1. Installation](#451-installation)
       - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
@@ -422,7 +422,7 @@ At this stage of the application development, the model is very simple, containi
 
 #### 4.4.1.2. Implementation and Deployment
 
-##### REST API
+##### 4.4.1.2.1. REST API
 
 The `restapi` component offers CRUD operations via a REST API for `Item` model:
 
@@ -436,7 +436,7 @@ The `restapi` component offers CRUD operations via a REST API for `Item` model:
 
 *Screenshoot of Postman while creating an item*
 
-##### gRPC
+##### 4.4.1.2.2. gRPC
 
 Each time the `restapi` or `stockcheker` services need to access the persistence, it must access the `dal` service via **gRPC** interface. For that we have designed an IDL interface (based in proto files) to define a gRPC service able to expose CRUD operations for the persistence of Item entity:
 
@@ -563,7 +563,7 @@ In addition it is needed to put our proto files inside `src/main/proto` director
 
 Once the Java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
 
-##### Kafka
+##### 4.4.1.2.3. Kafka
 
 One more thing it was developed in this iteration was the integration of some of the services with the selected Message Bus: **Kafka**. Kafka allows the services to publish and subscribe to streams of data so, in our project it has been used to communicate the services `restapi` (as producer) and `stockchecker` (as consumer).
 
@@ -604,11 +604,11 @@ public class ItemOperationService {
 
 For the **Consumer** TODO
 
-##### Persistence
+##### 4.4.1.2.4. Persistence
 
 TODO
 
-##### Kubernetes
+##### 4.4.1.2.5. Kubernetes
 
 Once the code of all the services were done, we started its integration with **Kubernetes**. The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile`used to create the image for the `restapi` service:
 
@@ -629,7 +629,7 @@ After this we used Helm Charts to describe all the Kubernetes resources needed t
 
 TODO: Should we put here all the chart files or just comment the most important ones?
 
-##### Travis
+##### 4.4.1.2.6. Travis
 
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
 
@@ -752,7 +752,7 @@ TODO: N/A
 
 Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
 
-#### 4.4.3.2.1 Prometheus
+#### 4.4.3.3. Prometheus
 
 **Deployment in Kubernetes**
 
@@ -998,9 +998,9 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 }
 ```
 
-#### 4.4.3.2.2 Grafana
+#### 4.4.3.4. Grafana
 
-#### 4.4.3.2.3 Elasticsearch
+#### 4.4.3.5. Elasticsearch
 
 Sadly, we had to discard the integration of the Elastic stack due to lack of time. We wasted too much time debugging the deployment of Kibana, Elasticsearch and Logstash in our Minikube cluster. As we did with Kafka, we tried to use a Helm chart from the Helm repository. So first we added the dependency to `requirements.yaml`:
 ```
