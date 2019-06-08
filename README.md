@@ -1434,12 +1434,25 @@ $ helm del --purge tfm-almacar
 
 # 5. Results
 
-*TBD*
+TODO
+
+We have been able to implement a cloud application using several technologies in a limited amount of time.
 
 # 6. Conclusions and future work
 
-*TBD*
-* Complete the integration of our application with the Elastic stack
+TODO
+
+Conclusions:
+* Difficult to work locally when the app is big. Minikube is enough for small projects, but we had resources problems when trying to adapt Elastic, although we have just one replica per deployment.
+* Easy to divide microservices among several teams or developers, as it was our case.
+* Persistence was more difficult than we thought.
+* We increased our knowledge about several cloud technologies than when we started the development.
+
+Next steps that could be done to improve this application would include:
+
+* Improve data model, providing more attributes or relatioships that could be useful taking into account the possible users.
+* Complete the integration of our application with the Elastic stack to have a centralized logging system.
+* Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
 
 # 7. References
 
