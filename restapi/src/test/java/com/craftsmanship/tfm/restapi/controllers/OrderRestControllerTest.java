@@ -232,8 +232,7 @@ public class OrderRestControllerTest {
         assertThat(storedOrder, equalTo(order));
 
         // check that the Kafka message was received
-        checkKafkaMessages(OperationType.CREATED, 
-                (List <ItemPurchase>)(List)order.getItemPurchases());
+        checkKafkaMessages(OperationType.EDITED, order.getItemPurchases());
     }
 
     @Test
@@ -314,6 +313,9 @@ public class OrderRestControllerTest {
         // Then
         newOrder.setId(orderCreated.getId());
         assertThat(editedOrder, equalTo(newOrder));
+
+        // check that the Kafka message was received
+        checkKafkaMessages(OperationType.EDITED, order.getItemPurchases());
     }
 
     @Test

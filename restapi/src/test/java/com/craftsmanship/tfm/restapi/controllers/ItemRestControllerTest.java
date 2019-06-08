@@ -265,7 +265,7 @@ public class ItemRestControllerTest {
     }
 
     @Test
-    public void test_given_item_when_edit_mapping_then_edited_item_is_returned() throws ItemAlreadyExists, ItemDoesNotExist {
+    public void test_given_item_when_edit_mapping_then_edited_item_is_returned() throws ItemAlreadyExists, ItemDoesNotExist, InterruptedException {
         // Given
         Item item1 = new Item.Builder().withName("item1").build();
         Item item2 = new Item.Builder().withName("item2").build();
@@ -287,6 +287,11 @@ public class ItemRestControllerTest {
         updatedItem.setId(id);
         assertThat(responseItem, equalTo(updatedItem));
         assertThat(responseItem, equalTo(itemPersistence.get(id)));
+
+        // check that the Kafka message was received
+        ConsumerRecord<String, ItemOperation> received = records.poll(10, TimeUnit.SECONDS);
+        ItemOperation expectedOperation = new ItemOperation(OperationType.EDITED, responseItem);
+        assertThat(received, hasValue(expectedOperation));
     }
 
     @Test
