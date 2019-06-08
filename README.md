@@ -576,14 +576,14 @@ public class ItemOperationService {
     private KafkaTemplate<String, ItemOperation> kafkaTemplate;
 
     public void sendItemOperation(ItemOperation operation) {
-             
+
         ListenableFuture<SendResult<String, ItemOperation>> future = kafkaTemplate.send(ITEM_MODIFIED_TOPIC, operation);
-         
+
         future.addCallback(new ListenableFutureCallback<SendResult<String, ItemOperation>>() {
-     
+
             @Override
             public void onSuccess(SendResult<String, ItemOperation> result) {
-                LOGGER.info("Sent operation=[" + operation + 
+                LOGGER.info("Sent operation=[" + operation +
                   "] with offset=[" + result.getRecordMetadata().offset() + "]");
             }
             @Override
@@ -596,7 +596,50 @@ public class ItemOperationService {
 }
 ```
 
-For the **Consumer** TODO
+For the **Consumer** we implemented a `KafkaConsumer` class which handles incoming messages, and a `KafkaConsumerConfig` class containing the logic to build the consumer:
+
+```java
+@Configuration
+@EnableAutoConfiguration
+@ConfigurationProperties(prefix = "kafka")
+@EnableKafka
+public class KafkaConsumerConfig {
+
+  //Code not included for simplicity
+  @Bean
+  public ConsumerFactory<String, ItemOperation> consumerFactory() {
+    return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
+            new JsonDeserializer<>(ItemOperation.class));
+  }
+
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, ItemOperation> kafkaListenerContainerFactory() {
+    ConcurrentKafkaListenerContainerFactory<String, ItemOperation> factory =
+        new ConcurrentKafkaListenerContainerFactory<>();
+    factory.setConsumerFactory(consumerFactory());
+
+    return factory;
+  }
+
+
+  @Bean
+  public KafkaConsumer kafkaConsumer() {
+    return new KafkaConsumer();
+  }
+
+```
+
+The `EnableKafka` annotation allows the creation of Kafka listener endpoints. For that, it is needed to provide a `ConcurrentKafkaListenerContainerFactory`. Finally, the `KafkaConsumer` is created, and the method to consume the message is as simple as follows due to we set to other class the resposibility of sending the message to the external REST API end point:
+
+```java
+@KafkaListener(topics = TOPIC_NAME)
+public void consume(ItemOperation payload) throws CustomException {
+  LOGGER.info("received payload='{}'", payload.toString());
+  restClient.sendPurchaseOrder(payload.getItem(),itemsPersistence.count());
+  latch.countDown();
+}
+```
 
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
 
