@@ -693,33 +693,6 @@ TODO: Should we put here all the chart files or just comment the most important 
 
 ##### 4.4.1.2.6. Travis
 
-##### 4.4.1.2.4. Persistence
-
-TODO
-
-##### 4.4.1.2.5. Kubernetes
-
-Once the code of all the services were done, we started its integration with **Kubernetes**. The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile`used to create the image for the `restapi` service:
-
-```
-FROM openjdk:8-jre
-COPY /target/*.jar /usr/app/app.jar
-WORKDIR /usr/app
-CMD java $JAVA_OPTS -jar app.jar
-```
-
-And the image is created with the following command:
-
-```bash
-docker build --tag=almacar_restapi:0.1 --rm=true .
-```
-
-After this we used Helm Charts to describe all the Kubernetes resources needed to deploy the service in the cluster.
-
-TODO: Should we put here all the chart files or just comment the most important ones?
-
-##### 4.4.1.2.6. Travis
-
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
 
 ```
