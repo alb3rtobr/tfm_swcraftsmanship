@@ -473,7 +473,7 @@ message CountItemResponse {
 
 As it was commented in the 'State of the Art' chapter, proto files are IDLs that define a interface. This proto files must be generated to real code using special tools. For example, as we are using Java in our Spring services, we decided to use **java-grpc** for this purpose.
 
-In order to generate proto files to Java code it is needed to add the following dependencies in the `pom.xml` file of our maven project:
+In order to generate Java code from proto files it is needed to add the following dependencies in the `pom.xml` file of our maven project:
 
 ```xml
     <dependency>
@@ -493,7 +493,7 @@ In order to generate proto files to Java code it is needed to add the following 
     </dependency>
 ```
 
-In addition it is needed to put our proto files inside `src/main/proto` directory and configure Maven to use the `Maven Protocol Buffers Plugin` to generate the java code from the proto files:
+In addition it is needed to put our proto files inside `src/main/proto` directory and configure Maven to use the `Maven Protocol Buffers Plugin` to generate the Java code from the proto files:
 
 ```xml
 <build>
@@ -527,7 +527,7 @@ In addition it is needed to put our proto files inside `src/main/proto` director
 </build>
 ```
 
-Once the java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
+Once the Java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
 
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
 
