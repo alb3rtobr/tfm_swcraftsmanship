@@ -61,9 +61,9 @@
         - [4.4.3.1.3. Class Diagrams?](#44313-class-diagrams)
         - [4.4.3.1.4. Sequence Diagrams?](#44314-sequence-diagrams)
       - [4.4.3.2. Implementation and Deployment](#4432-implementation-and-deployment)
-      - [4.4.3.3. Prometheus](#4433-prometheus)
-      - [4.4.3.4. Grafana](#4434-grafana)
-      - [4.4.3.5. Elasticsearch](#4435-elasticsearch)
+        - [4.4.3.2.1. Prometheus](#44321-prometheus)
+        - [4.4.3.2.2. Grafana](#44322-grafana)
+        - [4.4.3.2.3. Elasticsearch](#44323-elasticsearch)
   - [4.5. User guide](#45-user-guide)
     - [4.5.1. Installation](#451-installation)
       - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
@@ -959,7 +959,7 @@ TODO: N/A
 
 Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
 
-#### 4.4.3.3. Prometheus
+##### 4.4.3.2.1. Prometheus
 
 **Deployment in Kubernetes**
 
@@ -1205,18 +1205,23 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 }
 ```
 
-#### 4.4.3.4. Grafana
+##### 4.4.3.2.2. Grafana
 
-#### 4.4.3.5. Elasticsearch
+TODO
+
+##### 4.4.3.2.3. Elasticsearch
 
 Sadly, we had to discard the integration of the Elastic stack due to lack of time. We wasted too much time debugging the deployment of Kibana, Elasticsearch and Logstash in our Minikube cluster. As we did with Kafka, we tried to use a Helm chart from the Helm repository. So first we added the dependency to `requirements.yaml`:
-```
+
+```yaml
   - name: elastic-stack
     version: 1.6.0
     repository: https://kubernetes-charts.storage.googleapis.com/
 ```
+
 And the correspondent configuration variables were added to `values.yaml`:
-```
+
+```yaml
 elastic-stack:
   # Default values for elk.
   # This is a YAML-formatted file.
@@ -1258,7 +1263,7 @@ elastic-stack:
 
 We were dealing with connectivity problems between Logstash and Kibana with Elasticsearch, and we finally discovered that the Helm chart we were using was wrong. Since Kibana 6.6, the variable used to introduce the Elasticsearch client service changed, and this chart was not updated. As the only requirement of this chart is to download a version newer than 2.2.0, Helm downloaded the latest one, the 6.7. As workaround for at least have the stack running, we had to extract the filea from the tgz chart archive, and then edit the Kibana `values.yaml` file, changing the variable `elasticsearch.url`:
 
-```
+```yaml
 files:
   kibana.yml:
     ## Default Kibana configuration from kibana-docker.
@@ -1269,7 +1274,7 @@ files:
 
 by this:
 
-```
+```yaml
 files:
   kibana.yml:
     ## Default Kibana configuration from kibana-docker.
@@ -1280,7 +1285,7 @@ files:
 
 And also, for allowing Logstash to connect with the Elasticsearch client, the correspondent `values.yaml` file was modified, changing the default `host` of `elasticsearch`:
 
-```
+```yaml
 elasticsearch:
   host: elasticsearch-client.default.svc.cluster.local
   port: 9200
@@ -1288,14 +1293,13 @@ elasticsearch:
 
 by this:
 
-```
+```yaml
 elasticsearch:
   host: tfm-almacar-elasticsearch-client
   port: 9200
 ```
+
 We reported this issue in the Github Helm repository [[5](#5)], but we have not received any comment so far.
-
-
 
 ## 4.5. User guide
 
