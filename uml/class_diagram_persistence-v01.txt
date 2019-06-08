@@ -1,0 +1,6 @@
+@startuml
+ItemPersistence <|-- ItemPersistenceGrpc
+ItemPersistence <|-- ItemPersistenceStub
+
+ItemPersistenceGrpc --> "uses" ItemPersistenceGrpcClient
+@enduml
