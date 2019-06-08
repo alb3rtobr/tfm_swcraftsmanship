@@ -6,11 +6,13 @@ restapi -> dal : CRUD operation
 dal -> DB : db transaction
 DB -> dal : response
 dal -> restapi : response
-restapi -> Kafka : publish notification
-Kafka -> stockchecker : receives notification
-stockchecker -> dal : get item stock
-dal -> DB : db transaction
-DB -> dal : response
-dal -> stockchecker : response
-stockchecker -> EndPoint : send notification (if condition fulfilled)
+alt only create, edit and update item
+    restapi -> Kafka : publish notification
+    Kafka -> stockchecker : receives notification
+    stockchecker -> dal : get item stock
+    dal -> DB : db transaction
+    DB -> dal : response
+    dal -> stockchecker : response
+    stockchecker -> EndPoint : send notification (if condition fulfilled)
+end
 @enduml
