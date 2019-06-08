@@ -58,12 +58,12 @@
       - [4.5.3.1. Prometheus](#4531-prometheus)
       - [4.5.3.2. Grafana](#4532-grafana)
       - [4.5.3.3 Elasticsearch](#4533-elasticsearch)
-  - [4.6. Deployment](#46-deployment)
-    - [4.6.1. Installation](#461-installation)
-      - [4.6.1.1. Docker image preparation](#4611-docker-image-preparation)
-      - [4.6.1.2. Helm dependencies](#4612-helm-dependencies)
-      - [4.6.1.3. Deployment](#4613-deployment)
-      - [4.6.1.4. Delete the deployment](#4614-delete-the-deployment)
+  - [4.5. User guide](#45-userguide)
+    - [4.5.1. Installation](#451-installation)
+      - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
+      - [4.5.1.2. Helm dependencies](#4512-helm-dependencies)
+      - [4.5.1.3. Deployment](#4513-deployment)
+      - [4.5.1.4. Delete the deployment](#4514-delete-the-deployment)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -123,7 +123,7 @@ Application components binaries are packed into docker images that will be used 
 
 To expose this containers to the cluster (i.e. exposing ports for communication) a *service* resouce type must be defined.
 
-Other important kubernetes resources are: 
+Other important kubernetes resources are:
 
 * **Volume**
 * **Deployment**
@@ -132,7 +132,7 @@ Other important kubernetes resources are:
 * **Replica Sets**
 * **Jobs**
 
-Managing the Kubernetes objects/resources is done through the *kubectl* command line tool. 
+Managing the Kubernetes objects/resources is done through the *kubectl* command line tool.
 
 For a complete reference about kubernetes check [Kubernetes](https://kubernetes.io/).
 
@@ -156,7 +156,7 @@ Helm is composed by two main components:
 * **The Tiller Server**: is the server side running inside the cluster, that interacts with the Helm client. It calls the Kubernetes API server to request the orders coming from the client. Tiller is able to read a chart to build a release. It also may upgrade and uninstall releases.
 
 As a summary, the client is reponsible for managing charts, and the server is responsible for managing releases.
-  
+
 ![helm architecture](./images/helm-architecture.png)
 
 *Helm Architecture*
@@ -392,6 +392,10 @@ Main characteristics:
 - ConfigMaps
 - Automatic test execution for every commit
 
+In this first version of the application we setup the Github repository and the different projects. The application can be started using Helm charts, and configured using configmaps. ConfigMaps are a Kubernetes resource that allows to inject configuration into the running containers, splitting the services definition and the values used for configuration.
+
+An important issue we solved was the Kafka configuration to communicate the `restapi` and `stockchecker` services. Thanks to Helm, the configuration of the Kafka cluster was very straightforward, but we spent quite some time with the setup of the both services to use Kafka.
+
 #### 4.4.1.1. Analysis and Design
 
 ##### 4.4.1.1.1. Use cases
@@ -494,6 +498,8 @@ message CountItemResponse {
     int32 numberOfItems = 1;
 }
 ```
+
+Although our `stockchecker` is able to send external REST notifications, taking into account the return of time invested, we decided to configure it just to log the notifications. Otherwise it would force us to implement that external end point in our tests.
 
 As it was commented in the 'State of the Art' chapter, proto files are IDLs that define a interface. This proto files must be transformed to real code using special tools. For example, as we are using Java in our Spring services, we decided to use **java-grpc** for this purpose.
 
@@ -627,6 +633,10 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 
 ### 4.4.2. Version 0.2
 
+Main characteristics:
+* Model extension to include more than one relation
+* Ingress configuration
+
 #### 4.4.2.1. Analysis and Design
 
 ##### 4.4.2.1.1. Use cases
@@ -635,6 +645,11 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 ![Order use cases](./uml/uses_cases-v02.png "Order use cases")
 
 ##### 4.4.2.1.2. Data Model
+
+The second version included a significant change in the model:
+
+![Model of version v0.2](./uml/model-v02.png "Model of version v0.2")
+
 
 ##### 4.4.2.1.3. Class Diagrams?
 
@@ -645,90 +660,6 @@ TODO: Meter aquí un UML con Order e Item
 TODO: Meter aquí un UML que explique un poco la parte de persistencia?
 
 #### 4.4.2.2. Implementation and Deployment
-
-Yo aquí metería:
- - RESTAPI de Order
- - Todos los IDLs de gRPC
-   - Creación de servicios, server and clients.
- - Cómo se ha implementado la persistencia de Order
-
-### 4.4.3. Version 0.3
-
-#### 4.4.3.1. Analysis and Design
-
-##### 4.4.3.1.1. Use cases
-
-TODO: N/A
-
-##### 4.4.3.1.2. Data Model
-
-TODO: N/A
-
-##### 4.4.3.1.3. Class Diagrams?
-
-TODO: N/A
-
-##### 4.4.3.1.4. Sequence Diagrams?
-
-TODO: N/A
-
-#### 4.4.3.2. Implementation and Deployment
-
-Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
-
-## 4.5. Implementation and tests
-
-We have implemented our application on a incremental way.
-
-### 4.5.1. Version 0.1
-
-The first release pretended to be a first contact with most of the technologies we planned to use during the lifetime of the project, providing a very easy application logic, focusing in the integration of all the services and the deployment in the minikube cluster.
-
-Main characteristics:
-
-- Basic functionality of all the components
-  - Basic model with only one entity.
-  - Providing REST API as input point with all needed CRUD operations.
-  - Communication between services using gRPC.
-  - Communication between services using message bus Kafka.
-  - Accessing to database.
-- Kafka setup
-- Helm charts
-- ConfigMaps
-- Automatic test execution for every commit
-
-In this first version of the application we setup the Github repository and the different projects. The application can be started using Helm charts, and configured using configmaps. ConfigMaps are a Kubernetes resource that allows to inject configuration into the running containers, splitting the services definition and the values used for configuration.
-
-An important issue we solved was the Kafka configuration to communicate the `restapi` and `stockchecker` services. Thanks to Helm, the configuration of the Kafka cluster was very straightforward, but we spent quite some time with the setup of the both services to use Kafka.
-
-At this stage of the application development, the model is very simple, containing just one entity, `Item`, which has an `id` and a `description` as attributes.
-
-![Model of version v0.1](./uml/model-v01.png "Model of version v0.1")
-
- The `restapi` component offers CRUD operations for `Item`:
- * POST `api/v1/items` : create an item
- * GET `api/v1/items` : list all items
- * GET `api/v1/items/{id}` : get an item
- * PUT `api/v1/items/{id}` : update an item
- * DELETE `api/v1/items/{id}` : delete an item
-
-![Example of creating an Item](./images/postman-1.png "Example of creating an Item")
-
-*Screenshoot of Postman while creating an item*
-
-Although our `stockchecker` is able to send external REST notifications, taking into account the return of time invested, we decided to configure it just to log the notifications. Otherwise it would force us to implement that external end point in our tests.
-
-
-
-### 4.5.2. Version 0.2
-
-Main characteristics:
-* Model extension to include more than one relation
-* Ingress configuration
-
-The second version included a significant change in the model:
-
-![Model of version v0.2](./uml/model-v02.png "Model of version v0.2")
 
 The `restapi` component offers the same operations than previous version for `Item` objects and new operations due to the new model:
 * POST `api/v2/items` : create an item
@@ -755,11 +686,38 @@ In case of using Minikube, as it was our case, it is necessary to enable ingress
 $> minikube addons enable ingress
 ```
 
-### 4.5.3. Version 0.3
 
-*Under development*
+Yo aquí metería:
+ [x] RESTAPI de Order
+ [] Todos los IDLs de gRPC
+ [] Creación de servicios, server and clients.
+ [] Cómo se ha implementado la persistencia de Order
 
-#### 4.5.3.1. Prometheus
+### 4.4.3. Version 0.3
+
+#### 4.4.3.1. Analysis and Design
+
+##### 4.4.3.1.1. Use cases
+
+TODO: N/A
+
+##### 4.4.3.1.2. Data Model
+
+TODO: N/A
+
+##### 4.4.3.1.3. Class Diagrams?
+
+TODO: N/A
+
+##### 4.4.3.1.4. Sequence Diagrams?
+
+TODO: N/A
+
+#### 4.4.3.2. Implementation and Deployment
+
+Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
+
+#### 4.4.3.2.1 Prometheus
 
 **Deployment in Kubernetes**
 
@@ -1005,9 +963,9 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 }
 ```
 
-#### 4.5.3.2. Grafana
+#### 4.4.3.2.2 Grafana
 
-#### 4.5.3.3 Elasticsearch
+#### 4.4.3.2.3 Elasticsearch
 
 Sadly, we had to discard the integration of the Elastic stack due to lack of time. We wasted too much time debugging the deployment of Kibana, Elasticsearch and Logstash in our Minikube cluster. As we did with Kafka, we tried to use a Helm chart from the Helm repository. So first we added the dependency to `requirements.yaml`:
 ```
@@ -1095,11 +1053,13 @@ elasticsearch:
 ```
 We reported this issue in the Github Helm repository [[5](#5)], but we have not received any comment so far.
 
-## 4.6. Deployment
 
-### 4.6.1. Installation
 
-#### 4.6.1.1. Docker image preparation
+## 4.5. User guide
+
+### 4.5.1. Installation
+
+#### 4.5.1.1. Docker image preparation
 
 `build.sh` script can be used to compile all the services and generate the Docker images.
 When executed, the following steps are performed:
@@ -1108,7 +1068,7 @@ When executed, the following steps are performed:
 * Build `stockchecker` project & generate Docker image
 * Build `dal` project & generate Docker image
 
-#### 4.6.1.2. Helm dependencies
+#### 4.5.1.2. Helm dependencies
 
 The application chart has dependendecies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
 
@@ -1135,7 +1095,7 @@ Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleap
 Deleting outdated charts
 ```
 
-#### 4.6.1.3. Deployment
+#### 4.5.1.3. Deployment
 
 ```bash
 $ cd $GIT_REPO/charts
@@ -1182,7 +1142,7 @@ statefulset.apps/tfm-almacar-zookeeper   3/3     23h
 
 ```
 
-#### 4.6.1.4. Delete the deployment
+#### 4.5.1.4. Delete the deployment
 
 ```bash
 $ helm del --purge tfm-almacar
