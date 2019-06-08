@@ -1,0 +1,21 @@
+@startuml
+package dal <<Rectangle>> {
+  abstract ItemPersistenceServiceImplBase << generated >>
+  class ItemPersistenceService
+  class GrpcServer
+  class EntityItem << JPA Entity >>
+}
+
+ItemPersistenceServiceImplBase <|-- ItemPersistenceService
+GrpcServer --> "uses" ItemPersistenceService
+ItemPersistenceService --> "uses" EntityItem
+
+package restapi,stockchecker <<Rectangle>> {
+  class ItemPersistenceGrpcClient
+  class ItemPersistenceServiceBlockingStub << generated >>
+  class Item
+}
+
+ItemPersistenceGrpcClient --> "uses" ItemPersistenceServiceBlockingStub
+ItemPersistenceGrpcClient --> "uses" Item
+@enduml
