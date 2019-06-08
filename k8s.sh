@@ -6,12 +6,17 @@ CHARTNAME="tfm-almacar"
 function usage() {
     echo "Usage:"
     echo "    -s | --start"
-    echo "    -h | --halt | --stop"
+    echo "    -t | --stop"
+}
+
+function add_repos() {
+    echo "Adding helm repos..."
+    helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 }
 
 function update_helm_dependecies() {
     cd ${BASEDIR}/charts
-    find . -iname "*.tgz" | xargs rm
+    find . -iname "*.tgz" | xargs rm -f
     helm dependency update ${CHARTNAME}
     cd ${BASEDIR}
 }
@@ -50,7 +55,7 @@ case $key in
     START="yes"
     shift # past argument
     ;;
-    -h|--halt|--stop)
+    -t|--stop)
     STOP="yes"
     shift # past argument
     ;;
@@ -63,6 +68,7 @@ done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if [[ ${START} == "yes" ]]; then
+    add_repos
     echo "Starting cluster..."
     update_helm_dependecies
     start_cluster
