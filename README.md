@@ -722,16 +722,12 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 *Travis CI reports in Slack.*
 
 
-- TODO: Describe how we did persistence
-- TODO: Describe how restapi and stockcker were integrated with Kafka
-- TODO: K8s stuff (dockerfiles, charts, etc)
-
 ### 4.4.2. Version 0.2
 
 Main characteristics:
 
 - Model extension to include more than one relation
-  - Many-to-many relationship between new entity Order and Item
+- Many-to-many relationship between new entity Order and Item
 - Ingress configuration
 
 #### 4.4.2.1. Analysis and Design
