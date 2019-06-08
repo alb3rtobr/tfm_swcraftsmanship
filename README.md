@@ -37,6 +37,12 @@
         - [4.4.1.1.3. Class Diagrams](#44113-class-diagrams)
         - [4.4.1.1.4. Sequence Diagrams](#44114-sequence-diagrams)
       - [4.4.1.2. Implementation and Deployment](#4412-implementation-and-deployment)
+        - [4.4.1.2.1. REST API](#44121-rest-api)
+        - [4.4.1.2.2. gRPC](#44122-grpc)
+        - [4.4.1.2.3. Kafka](#44123-kafka)
+        - [4.4.1.2.4. Persistence](#44124-persistence)
+        - [4.4.1.2.5. Kubernetes](#44125-kubernetes)
+        - [4.4.1.2.6. Travis](#44126-travis)
     - [4.4.2. Version 0.2](#442-version-02)
       - [4.4.2.1. Analysis and Design](#4421-analysis-and-design)
         - [4.4.2.1.1. Use cases](#44211-use-cases)
@@ -51,14 +57,10 @@
         - [4.4.3.1.3. Class Diagrams?](#44313-class-diagrams)
         - [4.4.3.1.4. Sequence Diagrams?](#44314-sequence-diagrams)
       - [4.4.3.2. Implementation and Deployment](#4432-implementation-and-deployment)
-  - [4.5. Implementation and tests](#45-implementation-and-tests)
-    - [4.5.1. Version 0.1](#451-version-01)
-    - [4.5.2. Version 0.2](#452-version-02)
-    - [4.5.3. Version 0.3](#453-version-03)
-      - [4.5.3.1. Prometheus](#4531-prometheus)
-      - [4.5.3.2. Grafana](#4532-grafana)
-      - [4.5.3.3 Elasticsearch](#4533-elasticsearch)
-  - [4.5. User guide](#45-userguide)
+      - [4.4.3.3. Prometheus](#4433-prometheus)
+      - [4.4.3.4. Grafana](#4434-grafana)
+      - [4.4.3.5. Elasticsearch](#4435-elasticsearch)
+  - [4.5. User guide](#45-user-guide)
     - [4.5.1. Installation](#451-installation)
       - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
       - [4.5.1.2. Helm dependencies](#4512-helm-dependencies)
@@ -420,6 +422,8 @@ At this stage of the application development, the model is very simple, containi
 
 #### 4.4.1.2. Implementation and Deployment
 
+##### 4.4.1.2.1. REST API
+
 The `restapi` component offers CRUD operations via a REST API for `Item` model:
 
 - POST `api/v1/items` : create an item
@@ -431,6 +435,8 @@ The `restapi` component offers CRUD operations via a REST API for `Item` model:
 ![Example of creating an Item](./images/postman-1.png "Example of creating an Item")
 
 *Screenshoot of Postman while creating an item*
+
+##### 4.4.1.2.2. gRPC
 
 Each time the `restapi` or `stockcheker` services need to access the persistence, it must access the `dal` service via **gRPC** interface. For that we have designed an IDL interface (based in proto files) to define a gRPC service able to expose CRUD operations for the persistence of Item entity:
 
@@ -499,8 +505,6 @@ message CountItemResponse {
 }
 ```
 
-Although our `stockchecker` is able to send external REST notifications, taking into account the return of time invested, we decided to configure it just to log the notifications. Otherwise it would force us to implement that external end point in our tests.
-
 As it was commented in the 'State of the Art' chapter, proto files are IDLs that define a interface. This proto files must be transformed to real code using special tools. For example, as we are using Java in our Spring services, we decided to use **java-grpc** for this purpose.
 
 In order to generate Java code from proto files it is needed to add the following dependencies in the `pom.xml` file of our maven project:
@@ -559,9 +563,11 @@ In addition it is needed to put our proto files inside `src/main/proto` director
 
 Once the Java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
 
+##### 4.4.1.2.3. Kafka
+
 One more thing it was developed in this iteration was the integration of some of the services with the selected Message Bus: **Kafka**. Kafka allows the services to publish and subscribe to streams of data so, in our project it has been used to communicate the services `restapi` (as producer) and `stockchecker` (as consumer).
 
-Each time a Item is modified (CREATED, UPDATED or DELETED), the `restapi` service produces a message in the topic `item_modified`. In this way the `stockchecker` is notified when an item is modified and it could determine if it is needed to ask for more stock. In order to achieve this, the `stockchecker` queries the `dal` to know what is the current stock of the modified item and, in case a threshold is exceeded, sends an external notification.
+Each time a Item is modified (CREATED, UPDATED or DELETED), the `restapi` service produces a message in the topic `item_modified`. In this way the `stockchecker` is notified when an item is modified and it could determine if it is needed to ask for more stock. In order to achieve this, the `stockchecker` queries the `dal` to know what is the current stock of the modified item and, in case a threshold is exceeded, sends an external notification. Although our `stockchecker` is able to send external REST notifications, taking into account the return of time invested, we decided to configure it just to log the notifications. Otherwise it would force us to implement that external end point in our tests.
 
 In order to integrate our code with Kafka we have used **Spring for Apache Kafka** library. This library applies main Spring concepts to the development of Kafka based applications. It provides classes that facilitates the tasks of producing and consuming messages from the Kafka bus.
 
@@ -597,6 +603,33 @@ public class ItemOperationService {
 ```
 
 For the **Consumer** TODO
+
+##### 4.4.1.2.4. Persistence
+
+TODO
+
+##### 4.4.1.2.5. Kubernetes
+
+Once the code of all the services were done, we started its integration with **Kubernetes**. The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile`used to create the image for the `restapi` service:
+
+```
+FROM openjdk:8-jre
+COPY /target/*.jar /usr/app/app.jar
+WORKDIR /usr/app
+CMD java $JAVA_OPTS -jar app.jar
+```
+
+And the image is created with the following command:
+
+```bash
+docker build --tag=almacar_restapi:0.1 --rm=true .
+```
+
+After this we used Helm Charts to describe all the Kubernetes resources needed to deploy the service in the cluster.
+
+TODO: Should we put here all the chart files or just comment the most important ones?
+
+##### 4.4.1.2.6. Travis
 
 Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
 
@@ -634,8 +667,10 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 ### 4.4.2. Version 0.2
 
 Main characteristics:
-* Model extension to include more than one relation
-* Ingress configuration
+
+- Model extension to include more than one relation
+  - Many-to-many relationship between new entity Order and Item
+- Ingress configuration
 
 #### 4.4.2.1. Analysis and Design
 
@@ -717,7 +752,7 @@ TODO: N/A
 
 Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
 
-#### 4.4.3.2.1 Prometheus
+#### 4.4.3.3. Prometheus
 
 **Deployment in Kubernetes**
 
@@ -963,9 +998,9 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 }
 ```
 
-#### 4.4.3.2.2 Grafana
+#### 4.4.3.4. Grafana
 
-#### 4.4.3.2.3 Elasticsearch
+#### 4.4.3.5. Elasticsearch
 
 Sadly, we had to discard the integration of the Elastic stack due to lack of time. We wasted too much time debugging the deployment of Kibana, Elasticsearch and Logstash in our Minikube cluster. As we did with Kafka, we tried to use a Helm chart from the Helm repository. So first we added the dependency to `requirements.yaml`:
 ```
