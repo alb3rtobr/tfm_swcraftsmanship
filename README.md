@@ -610,7 +610,24 @@ TODO
 
 ##### Kubernetes
 
-TODO
+Once the code of all the services were done, we started its integration with **Kubernetes**. The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile`used to create the image for the `restapi` service:
+
+```
+FROM openjdk:8-jre
+COPY /target/*.jar /usr/app/app.jar
+WORKDIR /usr/app
+CMD java $JAVA_OPTS -jar app.jar
+```
+
+And the image is created with the following command:
+
+```bash
+docker build --tag=almacar_restapi:0.1 --rm=true .
+```
+
+After this we used Helm Charts to describe all the Kubernetes resources needed to deploy the service in the cluster.
+
+TODO: Should we put here all the chart files or just comment the most important ones?
 
 ##### Travis
 
@@ -652,6 +669,7 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 Main characteristics:
 
 - Model extension to include more than one relation
+  - Many-to-many relationship between new entity Order and Item
 - Ingress configuration
 
 #### 4.4.2.1. Analysis and Design
