@@ -1,27 +1,24 @@
 @startuml
 
-interface Item {
-   +Long getId()
-   +void setId(Long id)
-   +String getName()
-   +void setName(String name)
-   +Long getPrice()
-   +void setPrice(Long price)
-   +int getStock()
-   +void setStock(int stock)
-   +boolean equals(Object o)
-   +int hashCode()
-   +String toString()
-}
-
-class DomainItem {
+class Item {
   -Long id
   -String name
   -Long price
   -int stock
-  -DomainItem()
-  -DomainItem(String name, Long price, int stock)
-  -DomainItem(DomainItem another)
+  -Item()
+  -Item(String name, Long price, int stock)
+  -Item(DomainItem another)
+  +Long getId()
+  +void setId(Long id)
+  +String getName()
+  +void setName(String name)
+  +Long getPrice()
+  +void setPrice(Long price)
+  +int getStock()
+  +void setStock(int stock)
+  +boolean equals(Object o)
+  +int hashCode()
+  +String toString()
 }
 
 class Builder << (S,#FF7700) Static >>
@@ -39,7 +36,11 @@ class Builder {
   +DomainItem build()
 }
 
-interface ItemPurchase {
+class ItemPurchase {
+  -Item item
+  -int quantity
+  +ItemPurchase()
+  +ItemPurchase(Item item, int quantity)
   +Item getItem()
   +int getQuantity()
   +boolean equals(Object o)
@@ -47,14 +48,11 @@ interface ItemPurchase {
   +String toString()
 }
 
-class DomainItemPurchase {
-  -DomainItem item
-  -int quantity
-  +DomainItemPurchase()
-  +DomainItemPurchase(DomainItem item, int quantity)
-}
-
-interface Order {
+class Order {
+  -Long id
+  -List<ItemPurchase> itemPurchases
+  +Order()
+  +Order(List<ItemPurchase> itemPurchases)
   +Long getId()
   +void setId(Long id)
   +void add(ItemPurchase itemPurchase)
@@ -62,13 +60,6 @@ interface Order {
   +boolean equals(Object o)
   +int hashCode()
   +String toString();
-}
-
-class DomainOrder {
-  -Long id
-  -List<DomainItemPurchase> itemPurchases
-  +DomainOrder()
-  +DomainOrder(List<DomainItemPurchase> itemPurchases)
 }
 
 class Builder. << (S,#FF7700) Static >>
@@ -104,14 +95,10 @@ enum OperationType{
   +String toValue()
 }
 
-
-Item <|.. DomainItem
-DomainItem *-- Builder
-ItemPurchase <|.. DomainItemPurchase
-DomainItemPurchase *-- DomainItem
-Order <|.. DomainOrder
-DomainOrder *-- DomainItemPurchase
-DomainOrder *-- "Builder."
+Item *-- Builder
+Order *-- ItemPurchase
+Order *-- "Builder."
+ItemPurchase *-- Item
 ItemOperation -- OperationType
 ItemOperation *-- Item
 
