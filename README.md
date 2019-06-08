@@ -414,7 +414,26 @@ At this stage of the application development, the model is very simple, containi
 
 ##### 4.4.1.1.3. Class Diagrams
 
-![Class Diagram v0.1](./uml/class_diagram-v01.png "Class Diagram v0.1")
+To allow our services to work with a stub of the persistence during unit test cases, we decided to create an interface `ItemPersistence` with two implementations:
+
+- `ItemPersistenceGrpc`: uses gRPC client to connect with the gRPC service.
+- `ItemPersistenceStub`: uses a hash map in memory. Only for unit testing.
+
+These classes will be used by the services that act as gRPC clients: `restapi` and `stockchecher`.
+
+![Persistence Class Diagram v0.1](./uml/class_diagram_persistence-v01.png "Persistence Class Diagram v0.1")
+
+Following class diagram represents the classes related to gRPC logic. `dal` service implements the gRPC server side and `restapi` and `stockchecker` the client side.
+
+![gRPC Class Diagram v0.1](./uml/class_diagram-v01.png "gRPC Class Diagram v0.1")
+
+These are the classes related to the Kafka logic:
+
+![Kafka Class Diagram v0.1](./uml/class_diagram_kafka-v01.png "Kafka Class Diagram v0.1")
+
+And finally, next diagram represents the classes related with REST API logic:
+
+![REST API Class Diagram v0.1](./uml/class_diagram_restapi-v01.png "REST API Diagram v0.1")
 
 ##### 4.4.1.1.4. Sequence Diagrams
 
@@ -646,6 +665,33 @@ public void consume(ItemOperation payload) throws CustomException {
   latch.countDown();
 }
 ```
+
+##### 4.4.1.2.4. Persistence
+
+TODO
+
+##### 4.4.1.2.5. Kubernetes
+
+Once the code of all the services were done, we started its integration with **Kubernetes**. The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile`used to create the image for the `restapi` service:
+
+```
+FROM openjdk:8-jre
+COPY /target/*.jar /usr/app/app.jar
+WORKDIR /usr/app
+CMD java $JAVA_OPTS -jar app.jar
+```
+
+And the image is created with the following command:
+
+```bash
+docker build --tag=almacar_restapi:0.1 --rm=true .
+```
+
+After this we used Helm Charts to describe all the Kubernetes resources needed to deploy the service in the cluster.
+
+TODO: Should we put here all the chart files or just comment the most important ones?
+
+##### 4.4.1.2.6. Travis
 
 ##### 4.4.1.2.4. Persistence
 

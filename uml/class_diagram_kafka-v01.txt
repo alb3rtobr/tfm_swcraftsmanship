@@ -1,0 +1,28 @@
+@startuml
+package restapi <<Rectangle>> {
+  class ItemOperationService << Service >>
+  class KafkaConfig << Configuration >>
+  class KafkaTemplate << Bean >>
+  class ProducerFactory << Bean >>
+}
+
+ItemOperationService --> "uses" KafkaTemplate
+KafkaConfig --> "creates" KafkaTemplate
+KafkaConfig --> "creates" ProducerFactory
+KafkaTemplate --> "uses" ProducerFactory
+
+package stockchecker <<Rectangle>> {
+  class ConsumerConfig << Configuration >>
+  class ConsumerFactory << Bean >>
+  class KafkaConsumer << KafkaListener >>
+  class ItemPersistenceGrpc
+}
+
+ConsumerConfig --> "creates" ConsumerFactory
+ConsumerConfig --> "creates" KafkaConsumer
+KafkaConsumer --> "uses" ItemPersistenceGrpc
+note left of KafkaConsumer
+  KafkaConsumer needs to query
+  the persistence to ask for stocks
+end note
+@enduml

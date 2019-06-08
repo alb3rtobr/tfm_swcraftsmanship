@@ -1,0 +1,15 @@
+@startuml
+package restapi <<Rectangle>> {
+  class RestApiController << RestController >>
+  class ItemOperationService << Service >>
+  class ItemPersistenceGrpc
+}
+
+RestApiController --> "uses" ItemPersistenceGrpc
+RestApiController --> "uses" ItemOperationService
+
+note bottom of ItemOperationService
+  Used for Kafka integration
+end note
+
+@enduml
