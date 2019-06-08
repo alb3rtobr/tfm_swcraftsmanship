@@ -471,7 +471,7 @@ message CountItemResponse {
 }
 ```
 
-As it was commented in the 'State of the Art' chapter, proto files are IDLs that define a interface. This proto files must be generated to real code using special tools. For example, as we are using Java in our Spring services, we decided to use **java-grpc** for this purpose.
+As it was commented in the 'State of the Art' chapter, proto files are IDLs that define a interface. This proto files must be transformed to real code using special tools. For example, as we are using Java in our Spring services, we decided to use **java-grpc** for this purpose.
 
 In order to generate Java code from proto files it is needed to add the following dependencies in the `pom.xml` file of our maven project:
 
