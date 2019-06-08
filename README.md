@@ -1160,6 +1160,7 @@ Spring Kafka related links:
 gRPC:
 - [gRPC](https://grpc.io/)
 - [gRPC-Java - An RPC library and framework](https://github.com/grpc/grpc-java)
+- [Maven Protocol Buffers Plugin](https://www.xolstice.org/protobuf-maven-plugin/)
 
 Prometheus and Grafana:
 
