@@ -47,7 +47,7 @@ public class KafkaConsumerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerTest.class);
 
-	private final static String RECEIVER_TOPIC = "mytopic";
+	private final static String RECEIVER_TOPIC = "item_modified";
 
 	@Autowired
 	private KafkaConsumer consumer;
