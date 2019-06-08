@@ -981,7 +981,9 @@ TODO: N/A
 
 ##### 4.4.3.1.2. Data Model
 
-TODO: N/A
+The only change in the data model is that a new value `EDITED` was added to the Operation enum.
+
+![v0.3 data model](./uml/model-v03.png)
 
 ##### 4.4.3.1.3. Class Diagrams?
 

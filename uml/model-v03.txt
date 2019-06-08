@@ -1,0 +1,106 @@
+@startuml
+
+class Item {
+  -Long id
+  -String name
+  -Long price
+  -int stock
+  -Item()
+  -Item(String name, Long price, int stock)
+  -Item(DomainItem another)
+  +Long getId()
+  +void setId(Long id)
+  +String getName()
+  +void setName(String name)
+  +Long getPrice()
+  +void setPrice(Long price)
+  +int getStock()
+  +void setStock(int stock)
+  +boolean equals(Object o)
+  +int hashCode()
+  +String toString()
+}
+
+class Builder << (S,#FF7700) Static >>
+class Builder {
+  -Long id
+  -String name
+  -Long price
+  -int stock
+  +Builder()
+  +Builder withId(Long id)
+  +Builder withName(String name)
+  +Builder withPrice(Long price)
+  +Builder withPrice(Integer price)
+  +Builder withStock(int stock)
+  +DomainItem build()
+}
+
+class ItemPurchase {
+  -Item item
+  -int quantity
+  +ItemPurchase()
+  +ItemPurchase(Item item, int quantity)
+  +Item getItem()
+  +int getQuantity()
+  +boolean equals(Object o)
+  +int hashCode()
+  +String toString()
+}
+
+class Order {
+  -Long id
+  -List<ItemPurchase> itemPurchases
+  +Order()
+  +Order(List<ItemPurchase> itemPurchases)
+  +Long getId()
+  +void setId(Long id)
+  +void add(ItemPurchase itemPurchase)
+  +List<ItemPurchase> getItemPurchases()
+  +boolean equals(Object o)
+  +int hashCode()
+  +String toString();
+}
+
+class Builder. << (S,#FF7700) Static >>
+class Builder. {
+  -Long id
+  -List<DomainItemPurchase> itemPurchases
+  +Builder()
+  +Builder withId(Long id)
+  +Builder addItem(DomainItem item, int stock)
+  +DomainOrder build()
+}
+
+class ItemOperation {
+  -OperationType type
+  -Item item
+  +ItemOperation()
+  +ItemOperation(OperationType type, Item itemResponse)
+  +Item getItem()
+  +void setItem(DomainItem item)
+  +OperationType getType()
+  +void setType(OperationType type)
+  +boolean equals(Object o)
+  +int hashCode()
+  +String toString()
+}
+
+enum OperationType{
+  CREATED
+  EDITED
+  DELETED
+  -String value
+  +OperationType(String value)
+  +{static}OperationType fromValue(String value)
+  +String toValue()
+}
+
+Item *-- Builder
+Order *-- ItemPurchase
+Order *-- "Builder."
+ItemPurchase *-- Item
+ItemOperation -- OperationType
+ItemOperation *-- Item
+
+@enduml
