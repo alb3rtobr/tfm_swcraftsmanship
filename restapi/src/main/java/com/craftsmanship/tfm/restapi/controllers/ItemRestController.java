@@ -65,7 +65,12 @@ public class ItemRestController {
     @RequestMapping(value = "/items/{id}", method = RequestMethod.PUT)
     public Item edit(@PathVariable Long id, @RequestBody Item item) throws ItemDoesNotExist {
         LOGGER.info("Edit item with id: " + id);
-        return itemPersistence.update(id, item);
+
+        Item itemResponse = itemPersistence.update(id, item);
+
+        // Send message to Kafka topic
+        itemOperationService.sendItemOperation(new ItemOperation(OperationType.EDITED, itemResponse));
+        return itemResponse;
     }
 
     @RequestMapping(value = "/items/{id}", method = RequestMethod.DELETE)

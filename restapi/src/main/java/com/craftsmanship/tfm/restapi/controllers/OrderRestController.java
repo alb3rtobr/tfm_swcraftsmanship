@@ -52,13 +52,12 @@ public class OrderRestController {
         LOGGER.info("Creating order");
 
         try {
-            Order orderResponse = (Order) orderPersistence.create(order);
+            Order orderResponse = orderPersistence.create(order);
 
             LOGGER.info("REST API orderResponse = " + orderResponse);
 
             // Send messages to Kafka topic
-
-            this.sendItemOperations(OperationType.CREATED, orderResponse.getItemPurchases());
+            this.sendItemOperations(OperationType.EDITED, orderResponse.getItemPurchases());
             return orderResponse;
         } catch (ItemDoesNotExist e) {
             throw new ResponseStatusException(
@@ -77,7 +76,7 @@ public class OrderRestController {
         LOGGER.info("Get order with id: " + id);
 
         try {
-            return (Order) orderPersistence.get(id);
+            return orderPersistence.get(id);
         } catch (OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);
@@ -89,7 +88,12 @@ public class OrderRestController {
         LOGGER.info("Edit order with id: " + id);
 
         try {
-            return (Order) orderPersistence.update(id, order);
+            Order orderResponse = orderPersistence.update(id, order);
+
+            // Send messages to Kafka topic
+            this.sendItemOperations(OperationType.EDITED, orderResponse.getItemPurchases());
+
+            return orderResponse;
         } catch (ItemDoesNotExist | OrderDoesNotExist e) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, e.getMessage(), e);

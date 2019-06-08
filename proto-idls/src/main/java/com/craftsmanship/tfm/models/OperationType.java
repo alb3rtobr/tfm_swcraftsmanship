@@ -1,7 +1,7 @@
 package com.craftsmanship.tfm.models;
 
 public enum OperationType {
-    CREATED("CREATED"), DELETED("DELETED");
+    CREATED("CREATED"), EDITED("EDITED"), DELETED("DELETED");
 
     private final String value;
 
