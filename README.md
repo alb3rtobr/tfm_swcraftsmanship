@@ -1536,7 +1536,7 @@ Summarizing what has been exposed in previous chapters of this document, we shou
 
 The application is able to store items and orders information, with the limitations of its data model described in previous chapters. This information is stored on a MySQL database but other database could be used just adapting one service, thanks to the usage of Spring Data JPA.
 
-The application offers its functionality via REST API. Although  Kafka and gRPC are used as internal communication mechanisms between our services. Metrics are also published using Prometheus.
+The application offers its functionality via REST API. Kafka and gRPC are used as internal communication mechanisms between our services. Metrics are also published using Prometheus.
 
 
 # 6. Conclusions and future work
