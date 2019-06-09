@@ -334,6 +334,8 @@ Although Spring was created originally for Java EE application, several subproje
 
 Cloud technologies evolve so fast and there are so many alternatives available, that when we were defining the scope of this project we elaborated a huge list of "nice-to-have" features. We decided that the best approach to develop our application was following an incremental approach, and it would allow us to keep focus on the tasks we have to perform, and prioritize issues accordingly. As each phase of our application has to provide functionality, we forced us not to start too many issues at the same time, and focus on finishing the open ones. This approach has resulted to be very useful for us, because although it was clear that we were not going to finish all the items of our first list, we are releasing an application that at least can provide some functionality.
 
+Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. Due to we were going to use different technologies we are not experts on, we considered it could be useful to run all our tests before merging a change into the repository, in order to identify as soon as possible if something is broken. We implemented this setup since first version of the application, using Travis. Details can be found in chapter 4.4.1.2.6.
+
 Trying to take advantage of all the learning opportunities during the development of this project, we decided to use two tools that are widely used in software development, but we are not familiar with: Slack & GitHub.
 
 Before this project, we were used to work with GitHub as source code repository, but we wanted to go one step beyond and use it also as project management tool, using features as the issue tracker and the usage of pull requests for code review. This allowed us to get experience on its usage and get familiar with the common GitHub way of working.
@@ -735,7 +737,7 @@ TODO: Should we put here all the chart files or just comment the most important 
 
 ##### 4.4.1.2.6. Travis
 
-Finally, one of the features we thought that would be nice to have, was a continuous integration (CI) setup. Although this was not a priority due to the topic of the project, being this Master about Software Craftsmanship, we decided to give it a chance and check how far we could go without spending too much time. During the course we learnt there are several CI tools that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
+As we explained in the Methodology chapter, we adopted the challenge of having some kind of continuous integration (CI) setup. During the course we learnt there are several CI tools free for not commercial use that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
 
 ```
 language: java
@@ -1457,6 +1459,7 @@ Next steps that could be done to improve this application would include:
 * Improve data model, providing more attributes or relatioships that could be useful taking into account the possible users.
 * Complete the integration of our application with the Elastic stack to have a centralized logging system.
 * Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
+* Review our CI setup, to learn more about Travis and improve our tests. For example, in the current setup if a component fails, the next ones in the pipeline are not executed.
 
 # 7. References
 
