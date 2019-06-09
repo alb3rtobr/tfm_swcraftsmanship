@@ -22,7 +22,6 @@ public class ItemDAO {
 
     public EntityItem create(EntityItem item) throws ItemAlreadyExists {
         if (itemRepository.existsById(item.getId())) {
-            // TODO: we should add here the item name
             throw new ItemAlreadyExists(item.getName());
         }
 

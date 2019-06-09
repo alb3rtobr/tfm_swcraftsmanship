@@ -30,17 +30,14 @@ public class KafkaConsumer {
 		return latch;
 	}
 
-	// TODO: Used in tests with Mockito
 	public ItemPersistence getItemsPersistence() {
 		return this.itemsPersistence;
 	}
 
-	// TODO: Used in tests with Mockito
 	public void setRestClient(RestClient restClient) {
 		this.restClient = restClient;
 	}
 
-	// TODO: UGLY!!!
 	public void resetLatch(int i) {
 		latch = new CountDownLatch(i);
 	}

@@ -115,11 +115,6 @@ public class OrderDAOTest {
     }
 
     @Test
-    public void given_order_with_no_items_when_created_then_exception() {
-        // TODO: it this allowed? or exception?
-    }
-
-    @Test
     public void given_order_requesting_item_with_no_enough_stock_when_created_then_exception() throws Exception {
         EntityItem itemWithLowStock = new EntityItem.Builder().withName("Seat").withPrice(200).withStock(1).build();
         EntityItem savedItem = itemRepository.saveAndFlush(itemWithLowStock);
