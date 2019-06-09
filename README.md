@@ -206,7 +206,7 @@ Four APIs may be used in Kafka:
 
 JPA (Java Persistence API) is a Java application programming interface specification that describes the management of relational data. This specification is implemented by several frameworks.
 
-Hibernate is a framework that implements this JPA specification, meaning that a Java application may use Hibernate framework to build a persistence layer based on the definitions and rules specified by JPA. Hibernate is not only a JPA implementation, but this project made use of the JPA implementation part of Hibernate.
+Hibernate is a framework that implements this JPA specification, meaning that a Java application may use Hibernate framework to build a persistence layer based on the definitions and rules specified by JPA. Although Hibernate provides some other functionalities, in this project we only made use of Hibernate as a JPA implementation.
 Hibernate minimizes the amount of JDBC code to write for connecting to the database as it is done through configuration. It handles SQL sentences and provides the ORM(Object-to-Relational Mapping) to map Java classes to database tables.
 
 To easily build up the persistence functionality in this project, Spring Data JPA library was choosen.
