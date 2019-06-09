@@ -69,9 +69,10 @@
   - [4.5. User guide](#45-user-guide)
     - [4.5.1. Installation](#451-installation)
       - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
-      - [4.5.1.2. Helm dependencies](#4512-helm-dependencies)
-      - [4.5.1.3. Deployment](#4513-deployment)
-      - [4.5.1.4. Delete the deployment](#4514-delete-the-deployment)
+      - [4.5.1.2. Kubernetes deployment](#4512-kubernetes-deployment)
+        - [Helm dependencies](#helm-dependencies)
+        - [Deployment](#deployment)
+        - [Delete the deployment](#delete-the-deployment)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -955,7 +956,7 @@ The second version included a significant change in the model:
 
 ##### 4.4.2.1.4. Sequence Diagrams
 
-TODO: Meter aquí un UML que explique un poco la parte de persistencia?
+![Order Secuence Diagram v0.2](./uml/sequence-v02.png "Order Secuence Diagram v0.2")
 
 #### 4.4.2.2. Implementation and Deployment
 
@@ -1238,8 +1239,6 @@ TODO: N/A
 TODO: N/A
 
 #### 4.4.3.2. Implementation and Deployment
-
-Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
 
 ##### 4.4.3.2.1. Prometheus
 
@@ -1603,28 +1602,53 @@ We reported this issue in the Github Helm repository [[5](#5)], but we have not 
 
 #### 4.5.1.1. Docker image preparation
 
-`build.sh` script can be used to compile all the services and generate the Docker images.
-When executed, the following steps are performed:
-* Build `proto-idls` project
-* Build `restapi` project & generate Docker image
-* Build `stockchecker` project & generate Docker image
-* Build `dal` project & generate Docker image
+Our project provides a bash script called `build.sh` to compile all the services and generate their Docker images. When executed, the following steps are performed:
 
-#### 4.5.1.2. Helm dependencies
+- Build `proto-idls` project and install generated JAR file in maven repository (this project keeps common classes shared by the rest of the projects)
+- Build `restapi` project & generate Docker image
+- Build `stockchecker` project & generate Docker image
+- Build `dal` project & generate Docker image
 
-The application chart has dependencies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
+#### 4.5.1.2. Kubernetes deployment
 
-First it is needed to install the Helm Incubator repository:
+Once all the Docker images of the services have been generated we may proceed to deploy the application in Kubernetes cluster. As Prometheus Operator chart leaves some spillovers and they have to be removed manually, we consider it would be useful to create a script (called `k8s.sh`) that will do some things automatically.
+
+For deploying the application:
+
+```bash
+$ ./k8s.sh --start
+```
+
+This command will:
+
+- Update Helm dependencies
+- Install the application in the cluster
+
+For removing the application from the cluster:
+
+```bash
+$ ./k8s.sh --stop
+```
+
+This command will:
+
+- Remove the application from the cluster
+- Remove the Prometheus Operator spillovers.
+
+We recommend to use this script to avoid some Kubernetes resources to be kept after removing the application (if `helm delete` command is used). Next sections will describe deeply what this script is doing.
+
+##### Helm dependencies
+
+The application chart has dependencies in external repositories for deploying Kafka and Prometheus Operator. By default, Helm installs the `stable` repository, however the used Kafka chart is located in *Helm Chart Incubator* repository. Thus, the `k8s.sh` script will add it:
 
 ```bash
 $ helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 "incubator" has been added to your repositories
 ```
 
-And update the dependencies:
+And then the script will update the dependencies:
 
-```
-$ cd $GIT_REPO/charts
+```bash
 $ helm dependency update tfm-almacar
 Hang tight while we grab the latest from your chart repositories...
 ...Unable to get an update from the "local" chart repository (http://127.0.0.1:8879/charts):
@@ -1637,59 +1661,253 @@ Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleap
 Deleting outdated charts
 ```
 
-#### 4.5.1.3. Deployment
+##### Deployment
+
+After installing Helm dependencies, the script will start install the application with the following Helm command:
 
 ```bash
-$ cd $GIT_REPO/charts
 $ helm install --name=tfm-almacar tfm-almacar
 ```
+
 The deployment is the following:
 
-TODO: update this with the current output
-
 ```bash
-NAME                                            READY   STATUS    RESTARTS   AGE
-pod/tfm-almacar-dal-84896976db-wc2cp            1/1     Running   2          23h
-pod/tfm-almacar-kafka-0                         1/1     Running   3          23h
-pod/tfm-almacar-mysql-fd97cb567-zbw8w           1/1     Running   0          23h
-pod/tfm-almacar-restapi-bc6cfd455-2qhc8         1/1     Running   0          23h
-pod/tfm-almacar-stockchecker-7ff8d66486-rlz6g   1/1     Running   4          23h
-pod/tfm-almacar-zookeeper-0                     1/1     Running   0          23h
-pod/tfm-almacar-zookeeper-1                     1/1     Running   0          23h
-pod/tfm-almacar-zookeeper-2                     1/1     Running   0          23h
+NAME:   tfm-almacar
+LAST DEPLOYED: Sun Jun  9 18:15:50 2019
+NAMESPACE: default
+STATUS: DEPLOYED
 
-NAME                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
-service/kubernetes                       ClusterIP   10.96.0.1        <none>        443/TCP                      64d
-service/tfm-almacar-dal                  ClusterIP   10.105.42.213    <none>        50057/TCP                    23h
-service/tfm-almacar-kafka                ClusterIP   10.102.174.201   <none>        9092/TCP                     23h
-service/tfm-almacar-kafka-headless       ClusterIP   None             <none>        9092/TCP                     23h
-service/tfm-almacar-mysql                ClusterIP   10.101.230.4     <none>        3306/TCP                     23h
-service/tfm-almacar-restapi              NodePort    10.100.175.116   <none>        8787:31034/TCP               23h
-service/tfm-almacar-zookeeper            ClusterIP   10.100.139.119   <none>        2181/TCP                     23h
-service/tfm-almacar-zookeeper-headless   ClusterIP   None             <none>        2181/TCP,3888/TCP,2888/TCP   23h
+RESOURCES:
+==> v1/ClusterRole
+NAME                                       AGE
+psp-tfm-almacar-kube-state-metrics         1s
+tfm-almacar-grafana-clusterrole            1s
+tfm-almacar-prometheus-ope-operator        1s
+tfm-almacar-prometheus-ope-operator-psp    1s
+tfm-almacar-prometheus-ope-prometheus      1s
+tfm-almacar-prometheus-ope-prometheus-psp  1s
 
-NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/tfm-almacar-dal            1/1     1            1           23h
-deployment.apps/tfm-almacar-mysql          1/1     1            1           23h
-deployment.apps/tfm-almacar-restapi        1/1     1            1           23h
-deployment.apps/tfm-almacar-stockchecker   1/1     1            1           23h
+==> v1/ClusterRoleBinding
+NAME                                       AGE
+psp-tfm-almacar-kube-state-metrics         1s
+rbac-default-namespace                     1s
+tfm-almacar-grafana-clusterrolebinding     1s
+tfm-almacar-prometheus-ope-operator        1s
+tfm-almacar-prometheus-ope-operator-psp    1s
+tfm-almacar-prometheus-ope-prometheus      1s
+tfm-almacar-prometheus-ope-prometheus-psp  1s
 
-NAME                                                  DESIRED   CURRENT   READY   AGE
-replicaset.apps/tfm-almacar-dal-84896976db            1         1         1       23h
-replicaset.apps/tfm-almacar-mysql-fd97cb567           1         1         1       23h
-replicaset.apps/tfm-almacar-restapi-bc6cfd455         1         1         1       23h
-replicaset.apps/tfm-almacar-stockchecker-7ff8d66486   1         1         1       23h
+==> v1/ConfigMap
+NAME                                                          DATA  AGE
+custom-dashboards                                             1     1s
+custom-dashboards-kafka                                       1     1s
+tfm-almacar-dal                                               1     1s
+tfm-almacar-dashboard                                         1     1s
+tfm-almacar-grafana                                           1     1s
+tfm-almacar-grafana-config-dashboards                         1     1s
+tfm-almacar-grafana-test                                      1     1s
+tfm-almacar-kafka-metrics                                     1     1s
+tfm-almacar-prometheus-ope-etcd                               1     1s
+tfm-almacar-prometheus-ope-grafana-datasource                 1     1s
+tfm-almacar-prometheus-ope-k8s-cluster-rsrc-use               1     1s
+tfm-almacar-prometheus-ope-k8s-coredns                        1     1s
+tfm-almacar-prometheus-ope-k8s-node-rsrc-use                  1     1s
+tfm-almacar-prometheus-ope-k8s-resources-cluster              1     1s
+tfm-almacar-prometheus-ope-k8s-resources-namespace            1     1s
+tfm-almacar-prometheus-ope-k8s-resources-pod                  1     1s
+tfm-almacar-prometheus-ope-k8s-resources-workload             1     1s
+tfm-almacar-prometheus-ope-k8s-resources-workloads-namespace  1     1s
+tfm-almacar-prometheus-ope-nodes                              1     1s
+tfm-almacar-prometheus-ope-persistentvolumesusage             1     1s
+tfm-almacar-prometheus-ope-pods                               1     1s
+tfm-almacar-prometheus-ope-statefulset                        1     1s
+tfm-almacar-restapi                                           1     1s
+tfm-almacar-stockchecker                                      1     1s
 
-NAME                                     READY   AGE
-statefulset.apps/tfm-almacar-kafka       1/1     23h
-statefulset.apps/tfm-almacar-zookeeper   3/3     23h
+==> v1/Deployment
+NAME                                 READY  UP-TO-DATE  AVAILABLE  AGE
+tfm-almacar-dal                      0/1    1           0          1s
+tfm-almacar-mysql                    0/1    1           0          1s
+tfm-almacar-prometheus-ope-operator  0/1    1           0          1s
+tfm-almacar-restapi                  0/1    1           0          1s
+tfm-almacar-stockchecker             0/1    1           0          1s
 
+==> v1/PersistentVolume
+NAME             CAPACITY  ACCESS MODES  RECLAIM POLICY  STATUS  CLAIM                   STORAGECLASS  REASON  AGE
+mysql-pv-volume  1Gi       RWO           Retain          Bound   default/mysql-pv-claim  manual        1s
+
+==> v1/PersistentVolumeClaim
+NAME            STATUS  VOLUME           CAPACITY  ACCESS MODES  STORAGECLASS  AGE
+mysql-pv-claim  Bound   mysql-pv-volume  1Gi       RWO           manual        1s
+
+==> v1/Pod(related)
+NAME                                                  READY  STATUS             RESTARTS  AGE
+tfm-almacar-dal-85bd8c74c6-smlcb                      0/1    Init:0/1           0         1s
+tfm-almacar-grafana-66b8ddfbf5-hplp9                  0/2    Pending            0         1s
+tfm-almacar-kafka-0                                   0/2    Pending            0         0s
+tfm-almacar-kube-state-metrics-5dfc69b6d5-qlcw2       0/1    Pending            0         0s
+tfm-almacar-mysql-5fb5d7cd84-ctjk9                    0/1    ContainerCreating  0         1s
+tfm-almacar-prometheus-node-exporter-94hhl            0/1    Pending            0         1s
+tfm-almacar-prometheus-ope-operator-5dffb7949c-wrdk2  0/1    Pending            0         0s
+tfm-almacar-restapi-c4d58bc65-bdrvf                   0/1    Pending            0         0s
+tfm-almacar-stockchecker-75b44df57f-tf7jj             0/1    Pending            0         0s
+tfm-almacar-zookeeper-0                               0/1    Pending            0         1s
+
+==> v1/Prometheus
+NAME                                   AGE
+tfm-almacar-prometheus-ope-prometheus  1s
+
+==> v1/PrometheusRule
+NAME                                                             AGE
+tfm-almacar-prometheus-ope-alertmanager.rules                    1s
+tfm-almacar-prometheus-ope-etcd                                  1s
+tfm-almacar-prometheus-ope-general.rules                         1s
+tfm-almacar-prometheus-ope-k8s.rules                             1s
+tfm-almacar-prometheus-ope-kube-apiserver.rules                  1s
+tfm-almacar-prometheus-ope-kube-prometheus-node-alerting.rules   1s
+tfm-almacar-prometheus-ope-kube-prometheus-node-recording.rules  1s
+tfm-almacar-prometheus-ope-kube-scheduler.rules                  1s
+tfm-almacar-prometheus-ope-kubernetes-absent                     0s
+tfm-almacar-prometheus-ope-kubernetes-apps                       0s
+tfm-almacar-prometheus-ope-kubernetes-resources                  0s
+tfm-almacar-prometheus-ope-kubernetes-storage                    0s
+tfm-almacar-prometheus-ope-kubernetes-system                     0s
+tfm-almacar-prometheus-ope-node-network                          0s
+tfm-almacar-prometheus-ope-node-time                             0s
+tfm-almacar-prometheus-ope-node.rules                            0s
+tfm-almacar-prometheus-ope-prometheus-operator                   0s
+tfm-almacar-prometheus-ope-prometheus.rules                      0s
+
+==> v1/Role
+NAME                                          AGE
+tfm-almacar-grafana-test                      1s
+tfm-almacar-prometheus-ope-prometheus         0s
+tfm-almacar-prometheus-ope-prometheus-config  1s
+
+==> v1/RoleBinding
+NAME                                          AGE
+tfm-almacar-grafana-test                      1s
+tfm-almacar-prometheus-ope-prometheus         0s
+tfm-almacar-prometheus-ope-prometheus-config  1s
+
+==> v1/Secret
+NAME                                                TYPE    DATA  AGE
+tfm-almacar-grafana                                 Opaque  3     1s
+tfm-almacar-prometheus-ope-prometheus-scrape-confg  Opaque  1     1s
+
+==> v1/Service
+NAME                                                TYPE       CLUSTER-IP      EXTERNAL-IP  PORT(S)                     AGE
+tfm-almacar-dal                                     ClusterIP  10.99.51.21     <none>       50057/TCP,8080/TCP          1s
+tfm-almacar-grafana                                 NodePort   10.98.102.45    <none>       3000:32714/TCP              1s
+tfm-almacar-kafka                                   ClusterIP  10.98.4.240     <none>       9092/TCP,5555/TCP           1s
+tfm-almacar-kafka-headless                          ClusterIP  None            <none>       9092/TCP                    1s
+tfm-almacar-kube-state-metrics                      ClusterIP  10.111.80.212   <none>       8080/TCP                    1s
+tfm-almacar-mysql                                   ClusterIP  10.107.212.255  <none>       3306/TCP                    1s
+tfm-almacar-prometheus-node-exporter                ClusterIP  10.101.38.133   <none>       9100/TCP                    1s
+tfm-almacar-prometheus-ope-coredns                  ClusterIP  None            <none>       9153/TCP                    1s
+tfm-almacar-prometheus-ope-kube-controller-manager  ClusterIP  None            <none>       10252/TCP                   1s
+tfm-almacar-prometheus-ope-kube-etcd                ClusterIP  None            <none>       2379/TCP                    1s
+tfm-almacar-prometheus-ope-kube-scheduler           ClusterIP  None            <none>       10251/TCP                   1s
+tfm-almacar-prometheus-ope-operator                 ClusterIP  10.102.240.108  <none>       8080/TCP                    1s
+tfm-almacar-prometheus-ope-prometheus               ClusterIP  10.101.161.226  <none>       9090/TCP                    1s
+tfm-almacar-restapi                                 NodePort   10.97.197.132   <none>       8080:30375/TCP              1s
+tfm-almacar-stockchecker                            ClusterIP  10.110.143.250  <none>       8080/TCP                    1s
+tfm-almacar-zookeeper                               ClusterIP  10.100.104.3    <none>       2181/TCP                    1s
+tfm-almacar-zookeeper-headless                      ClusterIP  None            <none>       2181/TCP,3888/TCP,2888/TCP  1s
+
+==> v1/ServiceAccount
+NAME                                   SECRETS  AGE
+tfm-almacar-grafana                    1        1s
+tfm-almacar-grafana-test               1        1s
+tfm-almacar-kube-state-metrics         1        1s
+tfm-almacar-prometheus-node-exporter   1        1s
+tfm-almacar-prometheus-ope-operator    1        1s
+tfm-almacar-prometheus-ope-prometheus  1        1s
+
+==> v1/ServiceMonitor
+NAME                                                AGE
+k8s-apps-http                                       0s
+tfm-almacar-kafka                                   0s
+tfm-almacar-prometheus-ope-apiserver                0s
+tfm-almacar-prometheus-ope-coredns                  0s
+tfm-almacar-prometheus-ope-grafana                  0s
+tfm-almacar-prometheus-ope-kube-controller-manager  0s
+tfm-almacar-prometheus-ope-kube-etcd                0s
+tfm-almacar-prometheus-ope-kube-scheduler           0s
+tfm-almacar-prometheus-ope-kube-state-metrics       0s
+tfm-almacar-prometheus-ope-kubelet                  0s
+tfm-almacar-prometheus-ope-node-exporter            0s
+tfm-almacar-prometheus-ope-operator                 0s
+tfm-almacar-prometheus-ope-prometheus               0s
+
+==> v1beta1/ClusterRole
+NAME                                      AGE
+psp-tfm-almacar-prometheus-node-exporter  1s
+tfm-almacar-kube-state-metrics            1s
+
+==> v1beta1/ClusterRoleBinding
+NAME                                      AGE
+psp-tfm-almacar-prometheus-node-exporter  1s
+tfm-almacar-kube-state-metrics            1s
+
+==> v1beta1/DaemonSet
+NAME                                  DESIRED  CURRENT  READY  UP-TO-DATE  AVAILABLE  NODE SELECTOR  AGE
+tfm-almacar-prometheus-node-exporter  1        1        0      1           0          <none>         1s
+
+==> v1beta1/Deployment
+NAME                            READY  UP-TO-DATE  AVAILABLE  AGE
+tfm-almacar-kube-state-metrics  0/1    1           0          1s
+
+==> v1beta1/Ingress
+NAME                         HOSTS  ADDRESS  PORTS  AGE
+tfm-almacar-restapi-ingress  *      80       1s
+
+==> v1beta1/PodDisruptionBudget
+NAME                   MIN AVAILABLE  MAX UNAVAILABLE  ALLOWED DISRUPTIONS  AGE
+tfm-almacar-zookeeper  N/A            1                0                    1s
+
+==> v1beta1/PodSecurityPolicy
+NAME                                   PRIV   CAPS      SELINUX           RUNASUSER  FSGROUP    SUPGROUP  READONLYROOTFS  VOLUMES
+tfm-almacar-grafana                    false  RunAsAny  RunAsAny          RunAsAny   RunAsAny   false     configMap,emptyDir,projected,secret,downwardAPI,persistentVolumeClaim
+tfm-almacar-grafana-test               false  RunAsAny  RunAsAny          RunAsAny   RunAsAny   false     configMap,downwardAPI,emptyDir,projected,secret
+tfm-almacar-kube-state-metrics         false  RunAsAny  MustRunAsNonRoot  MustRunAs  MustRunAs  false     secret
+tfm-almacar-prometheus-node-exporter   false  RunAsAny  RunAsAny          MustRunAs  MustRunAs  false     configMap,emptyDir,projected,secret,downwardAPI,persistentVolumeClaim,hostPath
+tfm-almacar-prometheus-ope-operator    false  RunAsAny  RunAsAny          MustRunAs  MustRunAs  false     configMap,emptyDir,projected,secret,downwardAPI,persistentVolumeClaim
+tfm-almacar-prometheus-ope-prometheus  false  RunAsAny  RunAsAny          MustRunAs  MustRunAs  false     configMap,emptyDir,projected,secret,downwardAPI,persistentVolumeClaim
+
+==> v1beta1/Role
+NAME                 AGE
+tfm-almacar-grafana  1s
+
+==> v1beta1/RoleBinding
+NAME                 AGE
+tfm-almacar-grafana  1s
+
+==> v1beta1/StatefulSet
+NAME                   READY  AGE
+tfm-almacar-kafka      0/1    1s
+tfm-almacar-zookeeper  0/1    1s
+
+==> v1beta2/Deployment
+NAME                 READY  UP-TO-DATE  AVAILABLE  AGE
+tfm-almacar-grafana  0/1    1           0          1s
 ```
 
-#### 4.5.1.4. Delete the deployment
+##### Delete the deployment
+
+When `k8s.sh --stop` is executed, the script will remove the application from Kubernetes cluster executing:
 
 ```bash
 $ helm del --purge tfm-almacar
+```
+
+And after that, it will remove the spillovers from Prometheus Operator manually:
+
+```bash
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
 ```
 
 # 5. Results
@@ -1699,7 +1917,6 @@ Summarizing what has been exposed in previous chapters of this document, we shou
 The application is able to store items and orders information, with the limitations of its data model described in previous chapters. This information is stored on a MySQL database but other database could be used just adapting one service, thanks to the usage of Spring Data JPA.
 
 The application offers its functionality via REST API. Kafka and gRPC are used as internal communication mechanisms between our services. Metrics are also published using Prometheus.
-
 
 # 6. Conclusions and future work
 
@@ -1715,13 +1932,12 @@ We spend more time than originally expected in the implementation of application
 
 Finally, we want to highlight which could be the next steps in this project, if it were possible to continue with the development:
 
-* Improve data model, providing more attributes or relationships that could be useful taking into account the possible users.
-* Complete the integration of our application with the Elastic stack to have a centralized logging system.
-* Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
-* Review our CI setup, to learn more about Travis and improve our tests. For example, in the current setup if a component fails, the next ones in the pipeline are not executed.
-* Include tracing. Use Zipkin or Jaegger to visualize how our application flow moves from one service to other and learn possible improvements.
-* Integrate Istio in our application. Although it was a nice-to-have feature, we knew since the beggining it was going to be very difficult to include it, due to lack of time. Istio is an application that allows to manage the whole service mesh (microservices and the interactions between them) of our application. Istio is a central point that provides traffic management, security configuration, observability... for the whole service mesh of an application.
-
+- Improve data model, providing more attributes or relationships that could be useful taking into account the possible users.
+- Complete the integration of our application with the Elastic stack to have a centralized logging system.
+- Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
+- Review our CI setup, to learn more about Travis and improve our tests. For example, in the current setup if a component fails, the next ones in the pipeline are not executed.
+- Include tracing. Use Zipkin or Jaegger to visualize how our application flow moves from one service to other and learn possible improvements.
+- Integrate Istio in our application. Although it was a nice-to-have feature, we knew since the beggining it was going to be very difficult to include it, due to lack of time. Istio is an application that allows to manage the whole service mesh (microservices and the interactions between them) of our application. Istio is a central point that provides traffic management, security configuration, observability... for the whole service mesh of an application.
 
 # 7. References
 
