@@ -149,7 +149,7 @@ Minikube runs a single-node Kubernetes cluster inside a Virtual Machine to be ab
 
 ![minikube architecture](./images/minikube-architecture.jpg)
 
-*Architecture of minikube*
+*Architecture of Minikube*
 
 ### 3.1.2. Helm
 
@@ -660,8 +660,9 @@ public class KafkaConsumerConfig {
   public KafkaConsumer kafkaConsumer() {
     return new KafkaConsumer();
   }
-
+}
 ```
+
 
 The `EnableKafka` annotation allows the creation of Kafka listener endpoints. For that, it is needed to provide a `ConcurrentKafkaListenerContainerFactory`. Finally, the `KafkaConsumer` is created, and the method to consume the message is as simple as follows due to we set to other class the resposibility of sending the message to the external REST API end point:
 
@@ -718,7 +719,7 @@ Inside `dal` we have decoupled the *gRPC* server implementation from the JPA Rep
 
 Once the services code implementation was done, we started its integration with **Kubernetes**.
 
-The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile` used to create the image for the `restapi` service (note that code has to be compiled previously into a `.jar` file):
+The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile` used to create the image for the `restapi` service (note that code has to be compiled previously into a `jar` file):
 
 ```docker
 #Dockerfile
@@ -1449,7 +1450,7 @@ When executed, the following steps are performed:
 
 #### 4.5.1.2. Helm dependencies
 
-The application chart has dependendecies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
+The application chart has dependencies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
 
 First it is needed to install the Helm Incubator repository:
 
@@ -1460,7 +1461,7 @@ $ helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis
 
 And update the dependencies:
 
-```bash
+```
 $ cd $GIT_REPO/charts
 $ helm dependency update tfm-almacar
 Hang tight while we grab the latest from your chart repositories...
@@ -1482,7 +1483,9 @@ $ helm install --name=tfm-almacar tfm-almacar
 ```
 The deployment is the following:
 
-```
+TODO: update this with the current output
+
+```bash
 NAME                                            READY   STATUS    RESTARTS   AGE
 pod/tfm-almacar-dal-84896976db-wc2cp            1/1     Running   2          23h
 pod/tfm-almacar-kafka-0                         1/1     Running   3          23h
@@ -1529,26 +1532,34 @@ $ helm del --purge tfm-almacar
 
 # 5. Results
 
-TODO
+Summarizing what has been exposed in previous chapters of this document, we should say we have implemented three versions of our application, each one improving its predecessor. As a result after these three iteractions, we have a microservice-based Spring application, implemented to be deployed on a Kubernetes cluster with Helm charts, that could be used as backed for a stock management system.
 
-We have been able to implement a cloud application using several technologies in a limited amount of time.
+The application is able to store items and orders information, with the limitations of its data model described in previous chapters. This information is stored on a MySQL database but other database could be used just adapting one service, thanks to the usage of Spring Data JPA.
+
+The application offers its functionality via REST API. Kafka and gRPC are used as internal communication mechanisms between our services. Metrics are also published using Prometheus.
+
 
 # 6. Conclusions and future work
 
-TODO
+Although we have had to discard some points we wanted to review at the beggining of the project, we can say we are very satisfied with the work done. We have been able to implement a cloud application using several technologies in a limited amount of time, and taking into account we had no previous experience with them. The kick-off of this project was very close in time with a new assignment in our jobs, where we also started working with cloud technologies, so it was a quick win-win for us: we could apply in this project concepts we learnt in our jobs, and we learnt aspects during the implementation of our project that were applied in our assignments.
 
-Conclusions:
-* Difficult to work locally when the app is big. Minikube is enough for small projects, but we had resources problems when trying to adapt Elastic, although we have just one replica per deployment.
-* Easy to divide microservices among several teams or developers, as it was our case.
-* Persistence was more difficult than we thought.
-* We increased our knowledge about several cloud technologies than when we started the development.
+It is amazing to experiment the huge amount of available tools, and how it is possible to build something from scratch combining some of them to solve your use case of choice. At the same time, all these technologies are alive, all of them have people working to improve them and it is easy to collaborate if you have a proposal or find a bug.
 
-Next steps that could be done to improve this application would include:
+We have also experiment how a microservice project can grow easily, being difficult to run it locally, which creates the opportunity for the PaaS vendors which are offering "Kubernetes as a service". Minikube is enough for small projects, but we had resources problems when trying to adapt Elastic, although we have just one replica per deployment.
 
-* Improve data model, providing more attributes or relatioships that could be useful taking into account the possible users.
+Using microservices, it has been easier to divide tasks among us. This is an advantage of this kind of architectures, as different teams can take ownership of different services and work in parallel, speeding the application development.
+
+We spend more time than the originally expected in the implementation of application persistence. TODO: complete
+
+Finally, we want to highlight which could be the next steps in this project, if it were possible to continue with the development:
+
+* Improve data model, providing more attributes or relationships that could be useful taking into account the possible users.
 * Complete the integration of our application with the Elastic stack to have a centralized logging system.
 * Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
 * Review our CI setup, to learn more about Travis and improve our tests. For example, in the current setup if a component fails, the next ones in the pipeline are not executed.
+* Include tracing. Use Zipkin or Jaegger to visualize how our application flow moves from one service to other and learn possible improvements.
+* Integrate Istio in our application. Although it was a nice-to-have feature, we knew since the beggining it was going to be very difficult to include it, due to lack of time. Istio is an application that allows to manage the whole service mesh (microservices and the interactions between them) of our application. Istio is a central point that provides traffic management, security configuration, observability... for the whole service mesh of an application.
+
 
 # 7. References
 
