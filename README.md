@@ -1611,9 +1611,9 @@ Our project provides a bash script called `build.sh` to compile all the services
 
 #### 4.5.1.2. Kubernetes deployment
 
-Once all the Docker images of the services have been generated we may proceed to start the cluster in Kubernetes. As Prometheus Operator chart leaves some spillovers and they have to be removed manually, we consider it would be useful to create a script (called `k8s.sh`) that will do some things automatically.
+Once all the Docker images of the services have been generated we may proceed to deploy the application in Kubernetes cluster. As Prometheus Operator chart leaves some spillovers and they have to be removed manually, we consider it would be useful to create a script (called `k8s.sh`) that will do some things automatically.
 
-For starting the cluster:
+For deploying the application:
 
 ```bash
 $ ./k8s.sh --start
@@ -1622,9 +1622,9 @@ $ ./k8s.sh --start
 This command will:
 
 - Update Helm dependencies
-- Start the cluster
+- Install the application in the cluster
 
-For stopping the cluster:
+For removing the application from the cluster:
 
 ```bash
 $ ./k8s.sh --stop
@@ -1632,14 +1632,14 @@ $ ./k8s.sh --stop
 
 This command will:
 
-- Stop de cluster
-- Remove manually the Prometheus Operator spillovers.
+- Remove the application from the cluster
+- Remove the Prometheus Operator spillovers.
 
-We recommend to use this script to avoid some Kubernetes resources to be kept after removing the cluster (if `helm delete` command is used). Next sections will describe deeply what this script is doing.
+We recommend to use this script to avoid some Kubernetes resources to be kept after removing the application (if `helm delete` command is used). Next sections will describe deeply what this script is doing.
 
 ##### Helm dependencies
 
-The application chart has dependencies in external repositories for deploying Kafka and Prometheus Operator. By default, Helm install the `stable` repository, however the used Kafka chart is located in *Helm Chart Incubator* repository. Thus, the `k8s.sh` script will add it:
+The application chart has dependencies in external repositories for deploying Kafka and Prometheus Operator. By default, Helm installs the `stable` repository, however the used Kafka chart is located in *Helm Chart Incubator* repository. Thus, the `k8s.sh` script will add it:
 
 ```bash
 $ helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
@@ -1663,7 +1663,7 @@ Deleting outdated charts
 
 ##### Deployment
 
-After installing Helm dependencies, the script will start the cluster calling the following bash command:
+After installing Helm dependencies, the script will start install the application with the following Helm command:
 
 ```bash
 $ helm install --name=tfm-almacar tfm-almacar
@@ -1895,7 +1895,7 @@ tfm-almacar-grafana  0/1    1           0          1s
 
 ##### Delete the deployment
 
-When `k8s.sh --stop` is executed, the script will stop the Kubernetes cluster executing:
+When `k8s.sh --stop` is executed, the script will remove the application from Kubernetes cluster executing:
 
 ```bash
 $ helm del --purge tfm-almacar
@@ -1918,7 +1918,6 @@ The application is able to store items and orders information, with the limitati
 
 The application offers its functionality via REST API. Kafka and gRPC are used as internal communication mechanisms between our services. Metrics are also published using Prometheus.
 
-
 # 6. Conclusions and future work
 
 Although we have had to discard some points we wanted to review at the beggining of the project, we can say we are very satisfied with the work done. We have been able to implement a cloud application using several technologies in a limited amount of time, and taking into account we had no previous experience with them. The kick-off of this project was very close in time with a new assignment in our jobs, where we also started working with cloud technologies, so it was a quick win-win for us: we could apply in this project concepts we learnt in our jobs, and we learnt aspects during the implementation of our project that were applied in our assignments.
@@ -1933,13 +1932,12 @@ We spend more time than the originally expected in the implementation of applica
 
 Finally, we want to highlight which could be the next steps in this project, if it were possible to continue with the development:
 
-* Improve data model, providing more attributes or relationships that could be useful taking into account the possible users.
-* Complete the integration of our application with the Elastic stack to have a centralized logging system.
-* Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
-* Review our CI setup, to learn more about Travis and improve our tests. For example, in the current setup if a component fails, the next ones in the pipeline are not executed.
-* Include tracing. Use Zipkin or Jaegger to visualize how our application flow moves from one service to other and learn possible improvements.
-* Integrate Istio in our application. Although it was a nice-to-have feature, we knew since the beggining it was going to be very difficult to include it, due to lack of time. Istio is an application that allows to manage the whole service mesh (microservices and the interactions between them) of our application. Istio is a central point that provides traffic management, security configuration, observability... for the whole service mesh of an application.
-
+- Improve data model, providing more attributes or relationships that could be useful taking into account the possible users.
+- Complete the integration of our application with the Elastic stack to have a centralized logging system.
+- Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
+- Review our CI setup, to learn more about Travis and improve our tests. For example, in the current setup if a component fails, the next ones in the pipeline are not executed.
+- Include tracing. Use Zipkin or Jaegger to visualize how our application flow moves from one service to other and learn possible improvements.
+- Integrate Istio in our application. Although it was a nice-to-have feature, we knew since the beggining it was going to be very difficult to include it, due to lack of time. Istio is an application that allows to manage the whole service mesh (microservices and the interactions between them) of our application. Istio is a central point that provides traffic management, security configuration, observability... for the whole service mesh of an application.
 
 # 7. References
 
