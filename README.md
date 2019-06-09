@@ -831,6 +831,68 @@ CMD [ "java", "-Dgrpc-server.port=${GRPC_SERVER_PORT}", "-Dspring.datasource.url
 
 One more need was the storage space in the Kubernetes cluste to persist the data. This is specified through `pv.yaml` and `pvc.yaml` template files.
 
+
+**ConfigMaps**
+
+So far, application configuration is loaded at start-up (through environment variables) and cannot be modified without stoping the services affected.
+
+Kubernetes provides a resource called `ConfigMap` to provide the parameters to pass to a service in the form of key-value pairs.
+
+We wanted to explore the integration of this resource in our application and we decided to use **Spring Cloud Kubernetes Config** project. This framework/libray makes Kubernetes ConfigMap's available during application bootstrapping and, even more important, it triggers hot reloading of beans or Spring context when changes are produced in the ConfigMap.
+
+So, to take advantages of the Spring Cloud Kubernetes Config we introduced a new dependency in our pom.xml files:
+
+```xml
+<!--pom.xml-->
+
+       <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
+        </dependency>
+```
+
+It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap witch the name of your Spring application.
+
+```properties
+#bootstrap.properties
+
+# Bootstrap settings for ConfigMap
+spring.application.name=tfm-almacar-dal
+```
+
+Then, we included a new template file in the charts of the microservices to define every ConfigMap. Shown `restapi` ConfigMap as example:
+
+```yaml
+# configmap_properties.yaml 
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "restapi.fullname" . }}
+data:
+  application.yaml: |-
+    server:
+      port: {{ .Values.service.port }}
+
+    kafka:
+      bootstrap-servers: {{ .Values.global.kafka.host }}:{{ .Values.global.kafka.port }}
+      topic:
+        receiver: receiver.t
+
+    dal:
+      host: {{ .Values.global.dal.host }}
+      port: {{ .Values.global.dal.port }}
+```
+
+Last thing to do is to read the configuration in the application code. Configuration parameteres may be injected in a `Configuration Java Class` like this (showing how to inject *dal.host* parameter):
+
+```java
+# ConfigurationClass.java
+
+  @Value(value = "${dal.host}")
+  private String serverHost;
+```
+
 ##### 4.4.1.2.6. Travis
 
 As we explained in the Methodology chapter, we adopted the challenge of having some kind of continuous integration (CI) setup. During the course we learnt there are several CI tools free for not commercial use that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
