@@ -1349,7 +1349,21 @@ public class ItemPersistenceService extends ItemPersistenceServiceImplBase {
 
 ##### 4.4.3.2.2. Grafana
 
-TODO
+Prometheus Operator chart also provides an instance of **Grafana** to visualize the data exported by Prometheus. The chart automatically configures the instance of Prometheus as the default data source for Grafana.
+
+Grafana has a very powerful dashboard web application that allows the user to add new graphs and configure them with the selected metrics. Even, these dashboards may be exported and shared in the Grafana's web page. For the purpose of our project, we based our dashboard in one made by the community, called **JVM Micrometer**, that visualizes a selection of metrics automatically exported by **Spring Actuator for Prometheus** endpoint. We selected the graphs we considered were the most representative to know what is the status of the services. Next graphs are one example of them:
+
+![Grafana JVM CPU](./images/grafana_jvm_cpu_graph.png "Grafana JVM CPU")
+
+![Grafana JVM Heap](./images/grafana_jvm_heap_graph.png "Grafana JVM Heap")
+
+In addition, we included some more graphs representing the total **HTTP Requests** (both sucess and errors), the **custom metrics** we introduced in our code (gRPC queries to Item and Order services) and the rate of messages published in the **Kafka Topic** used by our application (**item_modified**). For example:
+
+![Grafana HTTP 200](./images/grafana_http_200_graph.png "Grafana HTTP 200")
+
+![Grafana gRPC Queries](./images/grafana_grpc_graph.png "Grafana gRPC Queries")
+
+![Grafana Kafka Topics](./images/grafana_topic_graph.png "Grafana Kafka Topics")
 
 ##### 4.4.3.2.3. Elasticsearch
 

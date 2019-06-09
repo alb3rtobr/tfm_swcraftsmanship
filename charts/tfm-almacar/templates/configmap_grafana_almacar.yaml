@@ -38,7 +38,7 @@ data:
       "editable": true,
       "gnetId": 4701,
       "graphTooltip": 1,
-      "iteration": 1559933148556,
+      "iteration": 1560097308759,
       "links": [],
       "panels": [
         {
@@ -639,14 +639,14 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "item_grpc_request_total{application=\"$application\", instance=\"$instance\"}",
+              "expr": "item_grpc_request_total",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "item_grpc_request_total",
               "refId": "A"
             },
             {
-              "expr": "order_grpc_request_total{application=\"$application\", instance=\"$instance\"}",
+              "expr": "order_grpc_request_total",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "order_grpc_request_total",
@@ -2244,6 +2244,7 @@ data:
             "allFormat": "glob",
             "allValue": null,
             "current": {
+              "selected": true,
               "text": "All",
               "value": "$__all"
             },
