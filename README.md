@@ -1119,7 +1119,21 @@ TODO: Talk more about order services and clients?
 
 ##### 4.4.2.2.3. Persistence
 
-TODO
+Persistence area became more complexe in this iteration due to new data model entities and their relations requirements.
+
+During the implementation we took some decisions that finally were not so good so we decided to redesign the code following extreme programming techniques due to our test covarage was good enough to trust in the changes we were implementing.
+
+When we were testing the client side of gRPC services we generated `server stub` classes that were pretty much the same as the real server ones. But they were different in the data model classes they used. 
+
+Then, we decided to redesign the implementation to avoid the duplicated code. To afford this, we designed data model interfaces that were implemented in a different manner in the server and client side. Doing so, we avoided the duplicated code, but at the end we were coupling the server and the client sides, making not possible to change one without impacting the other. 
+
+At this point we were not satisfied with any of those approaches but we took a design decission despite the point to break the rule of avoiding duplication of code. We considered that having the server and the client coupled was worse than duplicating a few classes.
+
+So, we went back in design and removed all the interfaces for the data model classes.
+
+Although it was not the main aim of the project we wanted to take the better decission based on our learnts.
+
+We want to remark that it was crucial to have tests covering the functionality to be able to change the implementation back and forth.
 
 ##### 4.4.2.2.4. Kubernetes
 
