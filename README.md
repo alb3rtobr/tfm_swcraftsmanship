@@ -716,9 +716,13 @@ Inside `dal` we have decoupled the *gRPC* server implementation from the JPA Rep
 
 ##### 4.4.1.2.5. Kubernetes
 
-Once the code of all the services were done, we started its integration with **Kubernetes**. The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile`used to create the image for the `restapi` service:
+Once the services code implementation was done, we started its integration with **Kubernetes**. 
 
-```
+The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile` used to create the image for the `restapi` service (note that code has to be compiled previously into a `.jar` file):
+
+```docker
+#Dockerfile
+
 FROM openjdk:8-jre
 COPY /target/*.jar /usr/app/app.jar
 WORKDIR /usr/app
@@ -731,9 +735,92 @@ And the image is created with the following command:
 docker build --tag=almacar_restapi:0.1 --rm=true .
 ```
 
-After this we used Helm Charts to describe all the Kubernetes resources needed to deploy the service in the cluster.
+**Helm Charts**
 
-TODO: Should we put here all the chart files or just comment the most important ones?
+To create objects/resources in Kubernetes we decided to use `Helm` package manager to handle the deployment of the application in the Kubernetes cluster.
+
+The set of files that a microservice defines to be deployed in Kubernetes using Helm is called `Helm Chart`. It also allows to compress all the files in a .*tgz* file.
+
+Helm Charts can be organized hierarchically, so we created an structured that fulfill our needs:
+- Application umbrella chart (tfm-almacar)
+  - dal chart
+  - restapi chart
+  - stockchecker chart
+  - database chart
+  - dependencies to other external charts
+
+Every Helm Chart has the same structure:
+  - Helm Chart
+    - Chart.yaml
+    - values.yaml
+    - templates
+      - set of files for the different kubernetes objects to define
+
+The main application chart also defines the dependencies to other charts in the `requirements.yaml` file:
+
+```yaml
+#requirements.yaml
+
+dependencies:
+  - name: kafka
+    version: 0.14.4
+    repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+```
+
+To make this dependency effective `helm add repo` and `helm dependency update` commands must be executed before installing (explained in detail in the installation chapter).
+
+In order to set default configuration values for the microservices when they start up we used the `values.yaml` file and `mustache` annotations in the template files. Example from `dal` chart:
+
+```yaml
+#values.yaml
+  
+image:
+  repository: almacar_dal
+  tag: 0.1
+  pullPolicy: IfNotPresent
+```
+
+```yaml
+#templates/deployment.yaml:
+
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+```
+
+
+To inject configuration in the running container we made use of environment variables. In the template file it is specified the variable to inject in the container:
+
+```yaml
+#templates/deployment.yaml
+
+        env:
+        - name: GRPC_SERVER_PORT
+          value: "{{ .Values.global.dal.port }}"
+        - name: MYSQL_HOST
+          value: "{{ .Values.global.mysql.host }}"
+        - name: MYSQL_PORT
+          value: "{{ .Values.global.mysql.port }}"
+```
+
+*Dockerfile* uses the environment variables:
+
+```docker
+#Dockerfile
+
+FROM openjdk:8-jre
+COPY /target/*.jar /usr/app/app.jar
+WORKDIR /usr/app
+CMD [ "java", "-Dgrpc-server.port=${GRPC_SERVER_PORT}", "-Dspring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/mybbdd", "-jar", "app.jar" ]
+```
+
+One more need was the storage space in the Kubernetes cluste to persist the data. This is specified through `pv.yaml` and `pvc.yaml` template files.
+
+
+
+
+
 
 ##### 4.4.1.2.6. Travis
 
