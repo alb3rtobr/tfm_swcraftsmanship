@@ -1,6 +1,7 @@
 package com.craftsmanship.tfm.grpc.services;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.CreateOrderRequest;
@@ -51,6 +52,8 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
             responseObserver.onCompleted();
         } catch (ItemDoesNotExist e) {
             responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+        } catch (ItemWithNoStockAvailable e) {
+            responseObserver.onError(Status.FAILED_PRECONDITION.withDescription(e.getMessage()).asRuntimeException());
         }
     }
 
@@ -80,8 +83,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (OrderDoesNotExist e) {
-            responseObserver.onError(Status.NOT_FOUND
-                    .withDescription(e.getMessage()).asRuntimeException());
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         }
     }
 
@@ -98,16 +100,15 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
             GrpcOrder grpcOrderResponse = conversionLogic.getGrpcOrderFromOrder(updatedOrder);
 
             UpdateOrderResponse response = UpdateOrderResponse.newBuilder().setOrder(grpcOrderResponse).build();
-    
+
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (OrderDoesNotExist e) {
-            responseObserver.onError(Status.NOT_FOUND
-                    .withDescription(e.getMessage()).asRuntimeException());
-
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (ItemDoesNotExist e) {
-            responseObserver.onError(Status.NOT_FOUND
-                    .withDescription(e.getMessage()).asRuntimeException());
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+        } catch (ItemWithNoStockAvailable e) {
+            responseObserver.onError(Status.FAILED_PRECONDITION.withDescription(e.getMessage()).asRuntimeException());
         }
     }
 
@@ -123,8 +124,7 @@ public class OrderPersistenceService extends OrderPersistenceServiceImplBase {
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (OrderDoesNotExist e) {
-            responseObserver.onError(Status.NOT_FOUND
-                    .withDescription(e.getMessage()).asRuntimeException());
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
 
         }
     }
