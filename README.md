@@ -1151,6 +1151,70 @@ In case of using Minikube, as it was our case, it is necessary to enable ingress
 $> minikube addons enable ingress
 ```
 
+Additionally, as we started to play with some technologies we wanted to introduce in the next iteration, we found that it was needed to tune the resources assigned to the services. It is known that Java applications consumes a lot of RAM memory, so we configure our services with the next values:
+
+```yaml
+# charts/tfm-almacar/values.yaml
+global:
+  dal:
+    jvm:
+      startheapmemory: 128m
+      maxheapmemory: 256m
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  stockchecker:
+    jvm:
+      startheapmemory: 128m
+      maxheapmemory: 256m
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  restapi:
+    jvm:
+      startheapmemory: 128m
+      maxheapmemory: 256m
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+```
+
+All these values are used by the deployment files from each service. For example, in the `restapi` service (only relevant configuration is shown):
+
+```yaml
+# charts/tfm-almacar/charts/restapi/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+      containers:
+      - name: {{ .Chart.Name }}
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx{{ .Values.global.restapi.jvm.maxheapmemory }} -Xms{{ .Values.global.restapi.jvm.startheapmemory }}"
+        resources:
+          requests:
+            memory: "{{ .Values.global.restapi.resources.requests.memory }}"
+            cpu: "{{ .Values.global.restapi.resources.requests.cpu }}"
+          limits:
+            memory: "{{ .Values.global.restapi.resources.limits.memory }}"
+            cpu: "{{ .Values.global.restapi.resources.limits.cpu }}"
+```
+
+First it was configured the container resources assigned by Kubernetes (resources section) and also, we introduced an environment variable `JAVA_OPTS` that will be used by the Docker image. This variable will set the JVM options `-Xms` and `-Xmx` that will select the initial and maximum memory sizes available to the JVM, respectively.
+
 ### 4.4.3. Version 0.3
 
 #### 4.4.3.1. Analysis and Design
