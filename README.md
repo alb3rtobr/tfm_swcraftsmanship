@@ -42,12 +42,34 @@
         - [4.4.1.2.3. Kafka](#44123-kafka)
         - [4.4.1.2.4. Persistence](#44124-persistence)
         - [4.4.1.2.5. Kubernetes](#44125-kubernetes)
-          - [Helm Charts](#helm-charts)
-- [Default values for tfm-almacar application.](#default-values-for-tfm-almacar-application)
-- [Declare variables to be passed into your templates.](#declare-variables-to-be-passed-into-your-templates)
-- [charts/tfm-almacar/requirements.yaml](#chartstfm-almacarrequirementsyaml)
-- [charts/tfm-almacar/templates/configmap_grafana_kafka_dashboard.yaml](#chartstfm-almacartemplatesconfigmapgrafanakafkadashboardyaml)
-- [charts/tfm-almacar/values.yaml](#chartstfm-almacarvaluesyaml)
+        - [4.4.1.2.6. Travis](#44126-travis)
+    - [4.4.2. Version 0.2](#442-version-02)
+      - [4.4.2.1. Analysis and Design](#4421-analysis-and-design)
+        - [4.4.2.1.1. Use cases](#44211-use-cases)
+        - [4.4.2.1.2. Data Model](#44212-data-model)
+        - [4.4.2.1.3. Class Diagrams?](#44213-class-diagrams)
+        - [4.4.2.1.4. Sequence Diagrams?](#44214-sequence-diagrams)
+      - [4.4.2.2. Implementation and Deployment](#4422-implementation-and-deployment)
+        - [4.4.2.2.1. REST API](#44221-rest-api)
+        - [4.4.2.2.2. gRPC](#44222-grpc)
+        - [4.4.2.2.3. Persistence](#44223-persistence)
+        - [4.4.2.2.4. Kubernetes](#44224-kubernetes)
+    - [4.4.3. Version 0.3](#443-version-03)
+      - [4.4.3.1. Analysis and Design](#4431-analysis-and-design)
+        - [4.4.3.1.1. Use cases](#44311-use-cases)
+        - [4.4.3.1.2. Data Model](#44312-data-model)
+        - [4.4.3.1.3. Class Diagrams?](#44313-class-diagrams)
+        - [4.4.3.1.4. Sequence Diagrams?](#44314-sequence-diagrams)
+      - [4.4.3.2. Implementation and Deployment](#4432-implementation-and-deployment)
+        - [4.4.3.2.1. Prometheus](#44321-prometheus)
+        - [4.4.3.2.2. Grafana](#44322-grafana)
+        - [4.4.3.2.3. Elasticsearch](#44323-elasticsearch)
+  - [4.5. User guide](#45-user-guide)
+    - [4.5.1. Installation](#451-installation)
+      - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
+      - [4.5.1.2. Helm dependencies](#4512-helm-dependencies)
+      - [4.5.1.3. Deployment](#4513-deployment)
+      - [4.5.1.4. Delete the deployment](#4514-delete-the-deployment)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -707,7 +729,7 @@ And the image is created with the following command:
 docker build --tag=almacar_restapi:0.1 --rm=true .
 ```
 
-###### Helm Charts
+**Helm Charts**
 
 To create objects/resources in Kubernetes we decided to use `Helm` package manager to handle the deployment of the application in the Kubernetes cluster.
 
@@ -739,112 +761,35 @@ dependencies:
 
 To make this dependency effective `helm add repo` and `helm dependency update` commands must be executed before installing (explained in detail in the installation chapter).
 
-The different files that compose these charts are (shown one per type as example):
-
-**Chart.yaml**
-
-It includes the name of the chart, its version and description.
-
- ```yaml
-apiVersion: v1
-appVersion: "1.0"
-description: spring cloud k8s application
-name: tfm-almacar
-version: 1.0.0
-```
-
-**values.yaml**
-
-It includes default configuration values that are taken during release installation (`helm install`). These values can be read in the template files.
+In order to set default configuration values for the microservices when they start up we used the `values.yaml` file and `mustache` annotations in the template files. Example from `dal` chart:
 
 ```yaml
-# Default values for tfm-almacar application.
-# Declare variables to be passed into your templates.
+from values.yaml:
 
-global:
-  kafka:
-    host: tfm-almacar-kafka
-    port: 9092
-  dal:
-    host: tfm-almacar-dal
-    port: 50057
-  mysql:
-    host: tfm-almacar-mysql
-    port: 3306
-  stockchecker:
-    threshold: 2
-    rest:
-      host: localhost
-      port: 8082
-      endpoint: order
-
-kafka:
-  headless:
-    port: 9092
-  replicas: 1
-  configurationOverrides:
-    "offsets.topic.replication.factor": 1
-  zookeeper:
-    replicaCount: 1
-
-restapi:
-  replicaCount: 1
-  service:
-    type: NodePort
-    port: 8080
-
-dal:
-  replicaCount: 1
-
-stockchecker:
-  replicaCount: 1
-
+  :  
+image:
+  repository: almacar_dal
+  tag: 0.1
+  pullPolicy: IfNotPresent
+  :
 ```
 
-In the `templates` folder different files are included depending on the specific need of that chart.
-
-**deployment.yaml**
-
-It specifies the image that is going to be run inside the container. It also sets how deployment is done like the number of `replicas`, the `strategy` to follow when deploying, `ports` for the container, and even environment variables to be set in the container. Default values set in `values.yaml` file can be read in this files using `mustache` annotations.
-
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "dal.fullname" . }}
-  labels:
-    app.kubernetes.io/name: {{ include "dal.fullname" . }}
-    app.kubernetes.io/component: {{ include "dal.fullname" . }}
-    app.kubernetes.io/part-of: {{ .Values.global.appname }}
-    {{- range .Values.global.labels }}
-    {{ .name }}: {{ .value }}
-    {{- end }}
-spec:
-  strategy:
-    type: Recreate
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ include "dal.fullname" . }}
-      app.kubernetes.io/component: {{ include "dal.fullname" . }}
-      app.kubernetes.io/part-of: {{ .Values.global.appname }}
-  replicas: {{ .Values.replicaCount }}
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: {{ include "dal.fullname" . }}
-        app.kubernetes.io/component: {{ include "dal.fullname" . }}
-        app.kubernetes.io/part-of: {{ .Values.global.appname }}
-    spec:
-      initContainers:
-      - name: init-mysql
-        image: busybox:1.28
-        command: ['sh', '-c', "until nslookup {{ .Release.Name }}-mysql; do echo waiting for myservice; sleep 2; done;"]
+from templates/deployment.yaml:
+
+      :
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        ports:
-        - containerPort: {{ .Values.global.dal.port }}
+      :
+```
+
+
+To inject configuration in the running container we made use of environment variables. In the template file it is specified the variable to inject in the container:
+
+```yaml
+        :
         env:
         - name: GRPC_SERVER_PORT
           value: "{{ .Values.global.dal.port }}"
@@ -852,70 +797,23 @@ spec:
           value: "{{ .Values.global.mysql.host }}"
         - name: MYSQL_PORT
           value: "{{ .Values.global.mysql.port }}"
-
+        :
 ```
 
-**service.yaml**
-
-If a microservice is exposing a port to the rest of the cluster, it is specified in this file.
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "dal.fullname" . }}
-  labels:
-    app.kubernetes.io/name: {{ include "dal.fullname" . }}
-    app.kubernetes.io/component: {{ include "dal.fullname" . }}
-    app.kubernetes.io/part-of: {{ .Values.global.appname }}
-    {{- range .Values.global.labels }}
-    {{ .name }}: {{ .value }}
-    {{- end }}
-spec:
-  selector:
-    app.kubernetes.io/component: {{ include "dal.fullname" . }}
-  ports:
-  - port: {{ .Values.global.dal.port }}
+*Dockerfile* uses the environment variables:
+```docker
+FROM openjdk:8-jre
+COPY /target/*.jar /usr/app/app.jar
+WORKDIR /usr/app
+CMD [ "java", "-Dgrpc-server.port=${GRPC_SERVER_PORT}", "-Dspring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/mybbdd", "-jar", "app.jar" ]
 ```
 
-**pv.yaml**
+One more need was the storage space in the Kubernetes cluste to persist the data. This is specified through `pv.yaml` and `pvc.yaml` template files.
 
-`pv` stands for *Persistent Volume*. This template orders to Kubernetes to create a Storage to be used by other Kubernetes objects.
 
-```yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pv-claim
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-```
 
-**pvc.yaml**
 
-Stading for *Persistent Volume Claim* specifies a request to use a persistent volume if available.
 
-```yaml
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mysql-pv-volume
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/mnt/data"
-```
 
 ##### 4.4.1.2.6. Travis
 
