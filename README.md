@@ -89,6 +89,8 @@ We have implemented a simple application with the following requirements:
 
 Our application is a draft of a stock system that could be found on a shop or a warehouse. The application allows CRUD operations over generic items, create orders with items in stock, and it automatically performs order of new items to an external end point when the stock of an item is below a given threshold.
 
+Both source code and this document are open source and are published on Github: [https://github.com/alb3rtobr/tfm_swcraftsmanship](https://github.com/alb3rtobr/tfm_swcraftsmanship).
+
 ## 1.2. Goals
 
 * **Implement a cloud native application from scratch, offering a REST API.**
@@ -601,7 +603,6 @@ In addition it is needed to put our proto files inside `src/main/proto` director
 
 Once the Java generated code is available, we may make use of the generated stubs to develop code in the clients and implement the provided interfaces for the services with the business logic in the server. The `dal` microservice will provide a server with the `ItemPersistenceService` service and `restapi` and `stockchecker` will implement a client to communicate with it.
 
-TODO: Talk more about order services and clients?
 
 ##### 4.4.1.2.3. Kafka
 
@@ -864,7 +865,7 @@ spring.application.name=tfm-almacar-dal
 Then, we included a new template file in the charts of the microservices to define every ConfigMap. Shown `restapi` ConfigMap as example:
 
 ```yaml
-# configmap_properties.yaml 
+# configmap_properties.yaml
 
 kind: ConfigMap
 apiVersion: v1
@@ -1116,7 +1117,6 @@ message DeleteOrderResponse {
 
 The way to generate the Java code from the proto files is similar as comented in iteration 0.1.
 
-TODO: Talk more about order services and clients?
 
 ##### 4.4.2.2.3. Persistence
 
@@ -1124,9 +1124,9 @@ Persistence area became more complex in this iteration due to new data model ent
 
 During the implementation we took some decisions that finally were not so good so we decided to redesign the code following extreme programming techniques due to our test covarage was good enough to trust in the changes we were implementing.
 
-When we were testing the client side of gRPC services we generated `server stub` classes that were pretty much the same as the real server ones. But they were different in the data model classes they used. 
+When we were testing the client side of gRPC services we generated `server stub` classes that were pretty much the same as the real server ones. But they were different in the data model classes they used.
 
-Then, we decided to redesign the implementation to avoid the duplicated code. To afford this, we designed data model interfaces that were implemented in a different manner in the server and client side. Doing so, we avoided the duplicated code, but at the end we were coupling the server and the client sides, making not possible to change one without impacting the other. 
+Then, we decided to redesign the implementation to avoid the duplicated code. To afford this, we designed data model interfaces that were implemented in a different manner in the server and client side. Doing so, we avoided the duplicated code, but at the end we were coupling the server and the client sides, making not possible to change one without impacting the other.
 
 At this point we were not satisfied with any of those approaches but we took a design decission despite the point to break the rule of avoiding duplication of code. We considered that having the server and the client coupled was worse than duplicating a few classes.
 
@@ -1222,7 +1222,7 @@ First it was configured the container resources assigned by Kubernetes (resource
 
 ##### 4.4.3.1.1. Use cases
 
-TODO: N/A
+This version had no impacts on the existing use cases.
 
 ##### 4.4.3.1.2. Data Model
 
@@ -1232,11 +1232,11 @@ The only change in the data model is that a new value `EDITED` was added to the 
 
 ##### 4.4.3.1.3. Class Diagrams?
 
-TODO: N/A
+This version had no impact on the class diagram of version 0.2.
 
 ##### 4.4.3.1.4. Sequence Diagrams?
 
-TODO: N/A
+This version had no impact on the sequence diagrams of version 0.2.
 
 #### 4.4.3.2. Implementation and Deployment
 
@@ -1930,6 +1930,8 @@ Using microservices, it has been easier to divide tasks among us. This is an adv
 
 We spend more time than originally expected in the implementation of application persistence. As it was already mentioned in the second iteration section, when we worked in this part of the application we redesigned the code several times, and we finally took a decision (but we still wonder if it was the better one): we duplicated a few classes code to avoid coupling client and server classes, anyhow we still kept classes in a common project (*proto-idls*) that were used by all the gRPC clients avoiding duplication. Lets say that we just duplicated the classes that avoided the coupling between client classes and server classes.  But the better learnt of this part was that having a good base of testing is fundamental to be able to redesign part of an application.
 
+During this project we made the effort to adopt as much as possible the way of working of open source project, which has been also a new experience. We worked using a main repository under the Github account of one of us, while the other team members created forks to contribute to the main repository. With this we were able to experience how is to create a pull request, and the process of code review, ask for changes, etc... This, together with the adoption of a widely used CI tools as Travis, have been interesting experiences outside the scope of the project but we are glad to add to our professional experience.
+
 Finally, we want to highlight which could be the next steps in this project, if it were possible to continue with the development:
 
 - Improve data model, providing more attributes or relationships that could be useful taking into account the possible users.
@@ -1944,7 +1946,7 @@ Finally, we want to highlight which could be the next steps in this project, if 
 - [1]: "Building Microservices", Sam Newman, O'Reilly Media
 - [2]: [Microservice Trade-Offs](https://www.martinfowler.com/articles/microservice-trade-offs.html), Martin Fowler
 - [3]: [Kubernetes Github repository](https://github.com/kubernetes/kubernetes)
-- [3]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
+- [4]: [Slack, the red hot $3.8 billion startup, has a hidden meaning behind its name"](https://www.businessinsider.com/where-did-slack-get-its-name-2016-9), Bussiness Insider
 - [5]: [elastic-stack issue opened during the project](https://github.com/helm/charts/issues/14445)
 
 Reference sites:
