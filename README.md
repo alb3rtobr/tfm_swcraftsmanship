@@ -714,9 +714,13 @@ Inside `dal` we have decoupled the *gRPC* server implementation from the JPA Rep
 
 ##### 4.4.1.2.5. Kubernetes
 
-Once the code of all the services were done, we started its integration with **Kubernetes**. The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile`used to create the image for the `restapi` service:
+Once the services code implementation was done, we started its integration with **Kubernetes**. 
 
-```
+The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile` used to create the image for the `restapi` service (note that code has to be compiled previously into a `.jar` file):
+
+```docker
+#Dockerfile
+
 FROM openjdk:8-jre
 COPY /target/*.jar /usr/app/app.jar
 WORKDIR /usr/app
@@ -753,6 +757,8 @@ Every Helm Chart has the same structure:
 The main application chart also defines the dependencies to other charts in the `requirements.yaml` file:
 
 ```yaml
+#requirements.yaml
+
 dependencies:
   - name: kafka
     version: 0.14.4
@@ -764,32 +770,29 @@ To make this dependency effective `helm add repo` and `helm dependency update` c
 In order to set default configuration values for the microservices when they start up we used the `values.yaml` file and `mustache` annotations in the template files. Example from `dal` chart:
 
 ```yaml
-from values.yaml:
-
-  :  
+#values.yaml
+  
 image:
   repository: almacar_dal
   tag: 0.1
   pullPolicy: IfNotPresent
-  :
 ```
 
 ```yaml
-from templates/deployment.yaml:
+#templates/deployment.yaml:
 
-      :
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-      :
 ```
 
 
 To inject configuration in the running container we made use of environment variables. In the template file it is specified the variable to inject in the container:
 
 ```yaml
-        :
+#templates/deployment.yaml
+
         env:
         - name: GRPC_SERVER_PORT
           value: "{{ .Values.global.dal.port }}"
@@ -797,11 +800,13 @@ To inject configuration in the running container we made use of environment vari
           value: "{{ .Values.global.mysql.host }}"
         - name: MYSQL_PORT
           value: "{{ .Values.global.mysql.port }}"
-        :
 ```
 
 *Dockerfile* uses the environment variables:
+
 ```docker
+#Dockerfile
+
 FROM openjdk:8-jre
 COPY /target/*.jar /usr/app/app.jar
 WORKDIR /usr/app
