@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.ItemPurchase;
 import com.craftsmanship.tfm.models.Order;
@@ -27,10 +28,9 @@ public class OrderPersistenceStub implements OrderPersistence {
     }
 
     @Override
-    public Order create(Order order) throws ItemDoesNotExist {
+    public Order create(Order order) throws ItemDoesNotExist, ItemWithNoStockAvailable {
         checkItemsExists(order);
-
-        // TODO: Order should be a COPY
+        checkItemStocks(order);
 
         order.setId(currentIndex);
         orders.put(currentIndex, order);
@@ -90,6 +90,16 @@ public class OrderPersistenceStub implements OrderPersistence {
         for (ItemPurchase itemPurchase : order.getItemPurchases()) {
             LOGGER.info("Checking if Item exists: " + itemPurchase.getItem());
             itemPersistenceStub.get(itemPurchase.getItem().getId());
+        }
+    }
+
+    private void checkItemStocks(Order order) throws ItemWithNoStockAvailable {
+        for (ItemPurchase itemPurchase : order.getItemPurchases()) {
+            LOGGER.info("Checking stock for item: " + itemPurchase.getItem());
+            if (itemPurchase.getQuantity() > itemPurchase.getItem().getStock()) {
+                throw new ItemWithNoStockAvailable(itemPurchase.getItem().getId(), itemPurchase.getItem().getStock(),
+                        itemPurchase.getQuantity());
+            }
         }
     }
 }

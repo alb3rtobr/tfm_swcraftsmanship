@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import com.craftsmanship.tfm.exceptions.CustomException;
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.Item;
 import com.craftsmanship.tfm.models.ItemOperation;
@@ -156,9 +157,9 @@ public class OrderRestControllerTest {
     }
 
     private void createSomeItems() throws ItemAlreadyExists {
-        Item item1 = new Item.Builder().withName("PS4").withStock(15).build();
-        Item item2 = new Item.Builder().withName("Switch").withPrice(350).withStock(10).build();
-        Item item3 = new Item.Builder().withName("NES").withPrice(80).build();
+        Item item1 = new Item.Builder().withName("PS4").withStock(500).build();
+        Item item2 = new Item.Builder().withName("Switch").withPrice(350).withStock(500).build();
+        Item item3 = new Item.Builder().withName("NES").withPrice(80).withStock(500).build();
 
         itemPersistence.create(item1);
         itemPersistence.create(item2);
@@ -176,7 +177,8 @@ public class OrderRestControllerTest {
 
     private ResponseEntity<List<Order>> listOrders() throws HttpClientErrorException {
         String url = "http://localhost:" + restPort + "/api/v1/orders/";
-        return new RestTemplate().exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Order>>() {});
+        return new RestTemplate().exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Order>>() {
+        });
     }
 
     private ResponseEntity<Order> createOrder(Order order) throws HttpClientErrorException {
@@ -213,8 +215,7 @@ public class OrderRestControllerTest {
     }
 
     @Test
-    public void test_when_order_is_created_then_order_persisted_and_kafka_messages_generated()
-            throws Exception {
+    public void test_when_order_is_created_then_order_persisted_and_kafka_messages_generated() throws Exception {
 
         Order order = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(getItem(3), 2).build();
 
@@ -243,7 +244,8 @@ public class OrderRestControllerTest {
 
         Item itemNotPersisted = new Item.Builder().withName("NES").withPrice(80).build();
 
-        Order order = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(itemNotPersisted, 2).build();
+        Order order = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).addItem(itemNotPersisted, 2)
+                .build();
 
         try {
             createOrder(order);
@@ -352,7 +354,7 @@ public class OrderRestControllerTest {
 
     @Test
     public void test_given_some_orders_when_delete_order_then_order_is_deleted()
-            throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist {
+            throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist, ItemWithNoStockAvailable {
         // Given
         Order order1 = new Order.Builder().addItem(getItem(1), 1).addItem(getItem(2), 5).build();
         Order orderCreated1 = orderPersistence.create(order1);

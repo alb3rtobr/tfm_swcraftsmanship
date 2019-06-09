@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.idls.v2.OrderPersistenceServiceGrpc;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
@@ -59,7 +60,7 @@ public class OrderPersistenceGrpcClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Order create(Order order) throws ItemDoesNotExist {
+    public Order create(Order order) throws ItemDoesNotExist, ItemWithNoStockAvailable {
         logger.info("Creating Order");
 
         GrpcOrder grpcOrder = domainConversion.getGrpcOrderFromOrder(order);
@@ -78,6 +79,8 @@ public class OrderPersistenceGrpcClient {
                 throw new ItemDoesNotExist(0L);
             } else if (status.getCode() == Status.Code.INTERNAL) {
                 throw new RuntimeException(status.getDescription());
+            } else if (status.getCode() == Status.Code.FAILED_PRECONDITION) {
+                throw new ItemWithNoStockAvailable(e.getMessage());
             } else {
                 throw new RuntimeException("UNKNOWN ERROR");
             }
@@ -136,7 +139,7 @@ public class OrderPersistenceGrpcClient {
         return order;
     }
 
-    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
+    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist, ItemWithNoStockAvailable {
         logger.info("Updating order with id: " + id);
 
         UpdateOrderRequest request = UpdateOrderRequest.newBuilder().setId(id)
@@ -157,6 +160,8 @@ public class OrderPersistenceGrpcClient {
                 }
             } else if (status.getCode() == Status.Code.INTERNAL) {
                 throw new RuntimeException(status.getDescription());
+            } else if (status.getCode() == Status.Code.FAILED_PRECONDITION) {
+                throw new ItemWithNoStockAvailable(e.getMessage());
             } else {
                 throw new RuntimeException("UNKNOWN ERROR");
             }

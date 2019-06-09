@@ -13,6 +13,7 @@ import com.craftsmanship.tfm.dal.repository.OrderItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 
 @Component
 public class OrderDAO {
@@ -84,9 +85,10 @@ public class OrderDAO {
     private void checkItemsStocks(EntityOrder order) throws ItemWithNoStockAvailable {
         LOGGER.info("Checking stocks");
         for (OrderItem itemPurchase : order.getOrderItems()) {
-            EntityItem item = itemPurchase.getItem();
-            if (itemPurchase.getQuantity() > item.getStock()) {
-                throw new ItemWithNoStockAvailable(item, itemPurchase.getQuantity());
+            Long itemId = itemPurchase.getItem().getId();
+            EntityItem persistedItem = itemRepository.findById(itemId).get();
+            if (itemPurchase.getQuantity() > persistedItem.getStock()) {
+                throw new ItemWithNoStockAvailable(persistedItem.getId(), persistedItem.getStock(), itemPurchase.getQuantity());
             }
         }
         LOGGER.info("Stocks are ok");

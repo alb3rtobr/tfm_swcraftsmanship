@@ -2,9 +2,9 @@ package com.craftsmanship.tfm.dal.grpc.services;
 
 import com.craftsmanship.tfm.dal.grpc.server.EntityConversion;
 import com.craftsmanship.tfm.dal.model.EntityOrder;
-import com.craftsmanship.tfm.dal.model.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.dal.model.OrderDAO;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.idls.v2.ItemPersistence.Empty;
 import com.craftsmanship.tfm.idls.v2.OrderPersistence.CreateOrderRequest;

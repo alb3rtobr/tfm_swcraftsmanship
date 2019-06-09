@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.ItemAlreadyExists;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.grpc.servers.PersistenceInProcessGrpcServer;
 import com.craftsmanship.tfm.grpc.services.OrderPersistenceService;
@@ -72,17 +73,18 @@ public class OrderPersistenceGrpcTest {
 
     @Test
     public void test_given_order_with_several_existing_items_when_created_then_is_persisted()
-            throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist {
+            throws InterruptedException, ItemAlreadyExists, ItemDoesNotExist, ItemWithNoStockAvailable {
         // Given
-        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
-        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(500).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).withStock(500).build();
+        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).withStock(500).build();
 
         Item createdItem1 = itemPersistenceStub.create(item1);
         Item createdItem2 = itemPersistenceStub.create(item2);
         Item createdItem3 = itemPersistenceStub.create(item3);
 
-        Order order = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
+        Order order = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1)
+                .build();
 
         // When
         Order createdOrder = grpcClient.create(order);
@@ -94,7 +96,8 @@ public class OrderPersistenceGrpcTest {
     }
 
     @Test
-    public void test_given_order_with_non_existing_item_when_created_then_exception() throws ItemDoesNotExist {
+    public void test_given_order_with_non_existing_item_when_created_then_exception()
+            throws ItemDoesNotExist, ItemWithNoStockAvailable {
         // Given
         Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
         Order order = new Order.Builder().addItem(item1, 5).build();
@@ -107,18 +110,35 @@ public class OrderPersistenceGrpcTest {
     }
 
     @Test
-    public void test_given_several_orders_persisted_when_listed_then_orders_returned()
-            throws ItemAlreadyExists, ItemDoesNotExist {
+    public void test_given_order_with_item_with_not_enough_stock_when_created_then_exception()
+            throws ItemDoesNotExist, ItemWithNoStockAvailable, ItemAlreadyExists {
         // Given
         Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
-        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).build();
+        Item createdItem1 = itemPersistenceStub.create(item1);
+
+        Order order = new Order.Builder().addItem(createdItem1, 1000).build();
+
+        exceptionRule.expect(ItemWithNoStockAvailable.class);
+        exceptionRule.expectMessage("");
+
+        // When
+        grpcClient.create(order);
+    }
+
+    @Test
+    public void test_given_several_orders_persisted_when_listed_then_orders_returned()
+            throws ItemAlreadyExists, ItemDoesNotExist, ItemWithNoStockAvailable {
+        // Given
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(500).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).withStock(500).build();
+        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).withStock(500).build();
 
         Item createdItem1 = itemPersistenceStub.create(item1);
         Item createdItem2 = itemPersistenceStub.create(item2);
         Item createdItem3 = itemPersistenceStub.create(item3);
 
-        Order order1 = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
+        Order order1 = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1)
+                .build();
         Order order2 = new Order.Builder().addItem(createdItem2, 1).addItem(createdItem3, 8).build();
         Order order3 = new Order.Builder().addItem(createdItem3, 10).build();
 
@@ -139,10 +159,10 @@ public class OrderPersistenceGrpcTest {
 
     @Test
     public void test_given_order_persisted_when_get_then_order_returned()
-            throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
+            throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist, ItemWithNoStockAvailable {
         // Given
-        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(500).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).withStock(500).build();
 
         Item createdItem1 = itemPersistenceStub.create(item1);
         Item createdItem2 = itemPersistenceStub.create(item2);
@@ -159,7 +179,8 @@ public class OrderPersistenceGrpcTest {
     }
 
     @Test
-    public void test_when_get_order_does_not_exist_then_exception() throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
+    public void test_when_get_order_does_not_exist_then_exception()
+            throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
         Long id = 1000L;
         exceptionRule.expect(OrderDoesNotExist.class);
         exceptionRule.expectMessage("Order with id " + id + " does not exist");
@@ -169,11 +190,12 @@ public class OrderPersistenceGrpcTest {
     }
 
     @Test
-    public void test_given_order_persisted_when_updated_then_updated_order_returned() throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
+    public void test_given_order_persisted_when_updated_then_updated_order_returned()
+            throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist, ItemWithNoStockAvailable {
         // Given
-        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
-        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).build();
-        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).build();
+        Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(500).build();
+        Item item2 = new Item.Builder().withName("XBOX").withPrice(143).withStock(500).build();
+        Item item3 = new Item.Builder().withName("SWITCH").withStock(13).withStock(500).build();
 
         Item createdItem1 = itemPersistenceStub.create(item1);
         Item createdItem2 = itemPersistenceStub.create(item2);
@@ -182,7 +204,8 @@ public class OrderPersistenceGrpcTest {
         Order order = new Order.Builder().addItem(createdItem1, 5).build();
         Order createdOrder = orderPersistenceStub.create(order);
 
-        Order newOrder = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1).build();
+        Order newOrder = new Order.Builder().addItem(createdItem1, 5).addItem(createdItem2, 9).addItem(createdItem3, 1)
+                .build();
 
         // When
         Order updatedOrder = grpcClient.update(createdOrder.getId(), newOrder);
@@ -193,7 +216,7 @@ public class OrderPersistenceGrpcTest {
     }
 
     @Test
-    public void test_when_updated_and_id_does_not_exist_then_exception() throws OrderDoesNotExist, ItemDoesNotExist {
+    public void test_when_updated_and_id_does_not_exist_then_exception() throws OrderDoesNotExist, ItemDoesNotExist, ItemWithNoStockAvailable {
         Long id = 1000L;
         exceptionRule.expect(OrderDoesNotExist.class);
         exceptionRule.expectMessage("Order with id " + id + " does not exist");
@@ -206,7 +229,8 @@ public class OrderPersistenceGrpcTest {
     }
 
     @Test
-    public void test_given_order_persisted_when_updated_with_non_existing_item_then_exception() throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
+    public void test_given_order_persisted_when_updated_with_non_existing_item_then_exception()
+            throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist, ItemWithNoStockAvailable {
         // Given
         Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
 
@@ -226,7 +250,8 @@ public class OrderPersistenceGrpcTest {
     }
 
     @Test
-    public void test_given_order_persisted_when_deleted_then_deleted() throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist {
+    public void test_given_order_persisted_when_deleted_then_deleted()
+            throws ItemAlreadyExists, ItemDoesNotExist, OrderDoesNotExist, ItemWithNoStockAvailable {
         // Given
         Item item1 = new Item.Builder().withName("PS4").withPrice(200).withStock(5).build();
 

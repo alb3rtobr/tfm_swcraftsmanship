@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.grpc.OrderPersistenceGrpcClient;
 
@@ -35,7 +36,7 @@ public class OrderPersistenceGrpc implements OrderPersistence {
     }
 
     @Override
-    public Order create(Order order) throws ItemDoesNotExist {
+    public Order create(Order order) throws ItemDoesNotExist, ItemWithNoStockAvailable {
         return grpcClient.create(order);
     }
 
@@ -50,7 +51,7 @@ public class OrderPersistenceGrpc implements OrderPersistence {
     }
 
     @Override
-    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist {
+    public Order update(Long id, Order order) throws OrderDoesNotExist, ItemDoesNotExist, ItemWithNoStockAvailable {
         return grpcClient.update(id, order);
     }
 

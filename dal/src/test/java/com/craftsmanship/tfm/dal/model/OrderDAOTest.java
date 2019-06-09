@@ -12,6 +12,7 @@ import com.craftsmanship.tfm.dal.repository.ItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderItemRepository;
 import com.craftsmanship.tfm.dal.repository.OrderRepository;
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 
 import org.junit.After;

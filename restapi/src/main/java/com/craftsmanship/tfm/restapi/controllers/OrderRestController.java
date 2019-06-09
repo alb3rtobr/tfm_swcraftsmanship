@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.craftsmanship.tfm.exceptions.ItemDoesNotExist;
+import com.craftsmanship.tfm.exceptions.ItemWithNoStockAvailable;
 import com.craftsmanship.tfm.exceptions.OrderDoesNotExist;
 import com.craftsmanship.tfm.models.ItemOperation;
 import com.craftsmanship.tfm.models.ItemPurchase;
@@ -60,8 +61,9 @@ public class OrderRestController {
             this.sendItemOperations(OperationType.EDITED, orderResponse.getItemPurchases());
             return orderResponse;
         } catch (ItemDoesNotExist e) {
-            throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        } catch (ItemWithNoStockAvailable e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
 
@@ -78,8 +80,7 @@ public class OrderRestController {
         try {
             return orderPersistence.get(id);
         } catch (OrderDoesNotExist e) {
-            throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 
@@ -95,8 +96,9 @@ public class OrderRestController {
 
             return orderResponse;
         } catch (ItemDoesNotExist | OrderDoesNotExist e) {
-            throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        } catch (ItemWithNoStockAvailable e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
 
@@ -107,8 +109,7 @@ public class OrderRestController {
         try {
             return (Order) orderPersistence.delete(id);
         } catch (OrderDoesNotExist e) {
-            throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }
