@@ -763,7 +763,6 @@ Once it was setup, we integrated Travis with Slack, to be notified automatically
 
 *Travis CI reports in Slack.*
 
-
 ### 4.4.2. Version 0.2
 
 Main characteristics:
@@ -787,7 +786,6 @@ In this iteration we included the `Order` entity that will maintain a Many-To-Ma
 Following diagrama shows the relation:
 
 ![Data Model v0.2](./uml/data_model-v02.png "Data Model v0.2")
-
 
 ##### 4.4.2.1.3. Class Diagrams
 
@@ -816,7 +814,11 @@ In this iteration the `restapi` component offers the same operations than previo
 - PUT `api/v2/orders/{id}` : update an order
 - DELETE `api/v2/orders/{id}` : delete an order
 
-TODO: Put here an image with the creation of an order
+Next imagenes shows how Items and Orders may be created using Postman application:
+
+![Item create v0.2](./images/item_create-v02.png "Item create v0.2")
+
+![Order create v0.2](./images/order_create-v02.png "Order create v0.2")
 
 ##### 4.4.2.2.2. gRPC
 
