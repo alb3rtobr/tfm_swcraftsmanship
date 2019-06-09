@@ -1711,7 +1711,7 @@ We have also experiment how a microservice project can grow easily, being diffic
 
 Using microservices, it has been easier to divide tasks among us. This is an advantage of this kind of architectures, as different teams can take ownership of different services and work in parallel, speeding the application development.
 
-We spend more time than the originally expected in the implementation of application persistence. TODO: complete
+We spend more time than originally expected in the implementation of application persistence. As it was already mentioned in the second iteration section, when we worked in this part of the application we redesigned the code several times, and we finally took a decision (but we still wonder if it was the better one): we duplicated a few classes code to avoid coupling client and server classes, anyhow we still kept classes in a common project (*proto-idls*) that were used by all the gRPC clients avoiding duplication. Lets say that we just duplicated the classes that avoided the coupling between client classes and server classes.  But the better learnt of this part was that having a good base of testing is fundamental to be able to redesign part of an application.
 
 Finally, we want to highlight which could be the next steps in this project, if it were possible to continue with the development:
 
