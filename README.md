@@ -834,7 +834,7 @@ One more need was the storage space in the Kubernetes cluste to persist the data
 
 **ConfigMaps**
 
-So far, application configuration is loaded at start-up (through environment variables) and cannot be modified without stoping the services affected.
+So far, application configuration is loaded at start-up (through environment variables) and cannot be modified without stopping the services affected.
 
 Kubernetes provides a resource called `ConfigMap` to provide the parameters to pass to a service in the form of key-value pairs.
 
@@ -851,7 +851,7 @@ So, to take advantages of the Spring Cloud Kubernetes Config we introduced a new
         </dependency>
 ```
 
-It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap witch the name of your Spring application.
+It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap witch the name of your Spring application. Actually, we are setting the name of the application in the `bootstrap.properties` file and Spring Cloud Config automatically tries to find a configmap deployed in kubernetes with the name of the application.
 
 ```properties
 #bootstrap.properties
@@ -884,7 +884,7 @@ data:
       port: {{ .Values.global.dal.port }}
 ```
 
-Last thing to do is to read the configuration in the application code. Configuration parameteres may be injected in a `Configuration Java Class` like this (showing how to inject *dal.host* parameter):
+Last thing to do is to read the configuration in the application code. Configuration parameteres may be injected in a `Spring Configuration Java Class` like this (showing how to inject *dal.host* parameter):
 
 ```java
 # ConfigurationClass.java
