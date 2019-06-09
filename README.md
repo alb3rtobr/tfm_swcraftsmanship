@@ -121,15 +121,15 @@ Kubernetes architecture is based on a set of components that are deployed in sev
 
 *Basic Architecture of Kubernetes*
 
-Distributed application code run in the containers that are deployed inside the kubernetes PODs.
+Distributed application code run in the containers that are deployed inside the Kubernetes PODs.
 
-Application is deployed in the kubernetes cluster defining a set of resources specified via .yaml files. Every resource is then handled by kubernetes system.
+Application is deployed in the Kubernetes cluster defining a set of resources specified via yaml files. Every resource is then handled by Kubernetes system.
 
 Application components binaries are packed into docker images that will be used to start the containers.
 
 To expose this containers to the cluster (i.e. exposing ports for communication) a *service* resouce type must be defined.
 
-Other important kubernetes resources are:
+Other important Kubernetes resources are:
 
 * **Volume**
 * **Deployment**
@@ -140,7 +140,7 @@ Other important kubernetes resources are:
 
 Managing the Kubernetes objects/resources is done through the *kubectl* command line tool.
 
-For a complete reference about kubernetes check [Kubernetes](https://kubernetes.io/).
+A more complete reference can be checked in the [official Kubernetes site](https://kubernetes.io/).
 
 ### 3.1.1. Minikube
 
@@ -183,7 +183,7 @@ Server and client applications could be written in different languages, but they
 
 *gRPC server and clients. (gRPC official site)*
 
-By default, gRPC uses `protocol buffers` as mechanism to serialize structured data. With the specification of how your the data will be structured, it is possible to automatically generate source code to write and read that from different data streams and using different languages. `Protocol buffers` uses `.proto` files to define messages in its interface definition language (IDL), representing your data.
+By default, gRPC uses `protocol buffers` as mechanism to serialize structured data. With the specification of how your the data will be structured, it is possible to automatically generate source code to write and read that from different data streams and using different languages. `Protocol buffers` uses `proto` files to define messages in its interface definition language (IDL), representing your data.
 
 ### 3.2.3. Apache Kafka
 
@@ -206,7 +206,7 @@ Four APIs may be used in Kafka:
 
 JPA (Java Persistence API) is a Java application programming interface specification that describes the management of relational data. This specification is implemented by several frameworks.
 
-Hibernate is a framework that implements this JPA specification, meaning that a Java application may use Hibernate framework to build a persistence layer based on the definitions and rules specified by JPA. Hibernate is not only JPA implementation, but this project made use of the JPA implementation part of Hibernate.
+Hibernate is a framework that implements this JPA specification, meaning that a Java application may use Hibernate framework to build a persistence layer based on the definitions and rules specified by JPA. Although Hibernate provides some other functionalities, in this project we only made use of Hibernate as a JPA implementation.
 Hibernate minimizes the amount of JDBC code to write for connecting to the database as it is done through configuration. It handles SQL sentences and provides the ORM(Object-to-Relational Mapping) to map Java classes to database tables.
 
 To easily build up the persistence functionality in this project, Spring Data JPA library was choosen.
@@ -215,11 +215,11 @@ Spring Data JPA helps to improve the implementacion of data access layer reducin
 ### 3.3.2. H2 & MySQL
 
 While designing the database functionality it was decided to make use of a simple in-memory database that could be easily use for testing purposes.
-H2 database is an in-memory opensource database that provides JDBC API to connect to java applications. Spring provides support for H2 database so it was taken as the database to be used when running automatic test cases.
+H2 database is an in-memory opensource database that provides JDBC API to connect to Java applications. Spring provides support for H2 database so it was taken as the database to be used when running automatic test cases.
 
-In order to deploy a database in the kubernetes cluster it was decided to deploy mysql as the persistence database. Main reason to use mysql was the support by Spring Data to easily integrate with mysql database.
+In order to deploy a database in the Kubernetes cluster it was decided to deploy MySQL as the persistence database. Main reason to use MySQL was the support by Spring Data to easily integrate with this database.
 
-As both H2 and mysql are relational databases providing SQL interface, they integrate easily with Hibernate framework.
+As both H2 and MySQL are relational databases providing SQL interface, they integrate easily with Hibernate framework.
 
 
 ## 3.4. Monitoring
@@ -291,7 +291,7 @@ The following diagram illustrates the architecure of Prometheus and some of its 
 
 ![architecture draft extended](./images/prometheus-architecture.png "Prometheus architecture")
 
-Prometheus scrapes metrics from instrumented jobs, directly or via push gateway. It stores all the obtained metrics locally and offers the possibility of execute rules over the stored data or generate alerts. Even, this data may be graphically represented using tools as **Grafana**, also used in the development of this project.
+Prometheus scrapes metrics from instrumented jobs, directly or via push gateway. It stores all the obtained metrics locally and offers the possibility of executing rules over the stored data or generate alerts. Even, this data may be graphically represented using tools as **Grafana**, also used in the development of this project.
 
 For the aim of this project only the monitoring part of Prometheus was used but it could be adapted in the future to take advantage of the Alert system.
 
@@ -385,7 +385,7 @@ The application is composed of the following services:
 
 ### 4.4.1. Version 0.1
 
-The first release pretended to be a first contact with most of the technologies we planned to use during the lifetime of the project, providing a very easy application logic, focusing in the integration of all the services and the deployment in the minikube cluster.
+The first release pretended to be a first contact with most of the technologies we planned to use during the lifetime of the project, providing a very easy application logic, focusing in the integration of all the services and the deployment in the Minikube cluster.
 
 Main characteristics:
 
@@ -716,7 +716,7 @@ Inside `dal` we have decoupled the *gRPC* server implementation from the JPA Rep
 
 ##### 4.4.1.2.5. Kubernetes
 
-Once the services code implementation was done, we started its integration with **Kubernetes**. 
+Once the services code implementation was done, we started its integration with **Kubernetes**.
 
 The first thing to do was to create **Docker** images of all the services. For example, this is the `Dockerfile` used to create the image for the `restapi` service (note that code has to be compiled previously into a `.jar` file):
 
@@ -773,7 +773,7 @@ In order to set default configuration values for the microservices when they sta
 
 ```yaml
 #values.yaml
-  
+
 image:
   repository: almacar_dal
   tag: 0.1
