@@ -831,6 +831,68 @@ CMD [ "java", "-Dgrpc-server.port=${GRPC_SERVER_PORT}", "-Dspring.datasource.url
 
 One more need was the storage space in the Kubernetes cluste to persist the data. This is specified through `pv.yaml` and `pvc.yaml` template files.
 
+
+**ConfigMaps**
+
+So far, application configuration is loaded at start-up (through environment variables) and cannot be modified without stopping the services affected.
+
+Kubernetes provides a resource called `ConfigMap` to provide the parameters to pass to a service in the form of key-value pairs.
+
+We wanted to explore the integration of this resource in our application and we decided to use **Spring Cloud Kubernetes Config** project. This framework/libray makes Kubernetes ConfigMap's available during application bootstrapping and, even more important, it triggers hot reloading of beans or Spring context when changes are produced in the ConfigMap.
+
+So, to take advantages of the Spring Cloud Kubernetes Config we introduced a new dependency in our pom.xml files:
+
+```xml
+<!--pom.xml-->
+
+       <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
+        </dependency>
+```
+
+It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap with the name of your Spring application.
+
+```properties
+#bootstrap.properties
+
+# Bootstrap settings for ConfigMap
+spring.application.name=tfm-almacar-dal
+```
+
+Then, we included a new template file in the charts of the microservices to define every ConfigMap. Shown `restapi` ConfigMap as example:
+
+```yaml
+# configmap_properties.yaml 
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "restapi.fullname" . }}
+data:
+  application.yaml: |-
+    server:
+      port: {{ .Values.service.port }}
+
+    kafka:
+      bootstrap-servers: {{ .Values.global.kafka.host }}:{{ .Values.global.kafka.port }}
+      topic:
+        receiver: receiver.t
+
+    dal:
+      host: {{ .Values.global.dal.host }}
+      port: {{ .Values.global.dal.port }}
+```
+
+Last thing to do is to read the configuration in the application code. Configuration parameteres may be injected in a `Spring Configuration Java Class` like this (showing how to inject *dal.host* parameter):
+
+```java
+# ConfigurationClass.java
+
+  @Value(value = "${dal.host}")
+  private String serverHost;
+```
+
 ##### 4.4.1.2.6. Travis
 
 As we explained in the Methodology chapter, we adopted the challenge of having some kind of continuous integration (CI) setup. During the course we learnt there are several CI tools free for not commercial use that could be integrated with Github projects. We selected one of them, Travis CI, to automatically run our tests when a commit is sent to our repository. The `.travis.yml` file contains the different stages we run for every commit:
@@ -1057,7 +1119,21 @@ TODO: Talk more about order services and clients?
 
 ##### 4.4.2.2.3. Persistence
 
-TODO
+Persistence area became more complex in this iteration due to new data model entities and their relations requirements.
+
+During the implementation we took some decisions that finally were not so good so we decided to redesign the code following extreme programming techniques due to our test covarage was good enough to trust in the changes we were implementing.
+
+When we were testing the client side of gRPC services we generated `server stub` classes that were pretty much the same as the real server ones. But they were different in the data model classes they used. 
+
+Then, we decided to redesign the implementation to avoid the duplicated code. To afford this, we designed data model interfaces that were implemented in a different manner in the server and client side. Doing so, we avoided the duplicated code, but at the end we were coupling the server and the client sides, making not possible to change one without impacting the other. 
+
+At this point we were not satisfied with any of those approaches but we took a design decission despite the point to break the rule of avoiding duplication of code. We considered that having the server and the client coupled was worse than duplicating a few classes.
+
+So, we went back in design and removed all the interfaces for the data model classes.
+
+Although it was not the main aim of the project we wanted to take the better decission based on our learnts.
+
+We want to remark that it was crucial to have tests covering the functionality to be able to change the implementation back and forth.
 
 ##### 4.4.2.2.4. Kubernetes
 
