@@ -1239,8 +1239,6 @@ TODO: N/A
 
 #### 4.4.3.2. Implementation and Deployment
 
-Aquí hablaríamos de Prometheus y Grafana. Incluso, podemos meter hasta dónde hemos llegado con Elastic?
-
 ##### 4.4.3.2.1. Prometheus
 
 **Deployment in Kubernetes**
