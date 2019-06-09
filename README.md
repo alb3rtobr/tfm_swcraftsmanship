@@ -851,7 +851,7 @@ So, to take advantages of the Spring Cloud Kubernetes Config we introduced a new
         </dependency>
 ```
 
-It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap with the name of your Spring application. Actually, we are setting the name of the application in the `bootstrap.properties` file and Spring Cloud Config automatically tries to find a configmap deployed in kubernetes with the name of the application.
+It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap with the name of your Spring application.
 
 ```properties
 #bootstrap.properties
