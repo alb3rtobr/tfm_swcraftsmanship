@@ -75,7 +75,6 @@ public class OrderPersistenceGrpcClient {
             logger.error("Exception creating Order: " + e.getMessage());
             Status status = Status.fromThrowable(e);
             if (status.getCode() == Status.Code.NOT_FOUND) {
-                // TODO: how to get the item id from the error?
                 throw new ItemDoesNotExist(0L);
             } else if (status.getCode() == Status.Code.INTERNAL) {
                 throw new RuntimeException(status.getDescription());
