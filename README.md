@@ -851,7 +851,7 @@ So, to take advantages of the Spring Cloud Kubernetes Config we introduced a new
         </dependency>
 ```
 
-It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap witch the name of your Spring application. Actually, we are setting the name of the application in the `bootstrap.properties` file and Spring Cloud Config automatically tries to find a configmap deployed in kubernetes with the name of the application.
+It was also needed to include `bootstrap.properties` file in the services to indicate the name of the ConfigMap. If it is not specified, it will search for a ConfigMap with the name of your Spring application. Actually, we are setting the name of the application in the `bootstrap.properties` file and Spring Cloud Config automatically tries to find a configmap deployed in kubernetes with the name of the application.
 
 ```properties
 #bootstrap.properties
@@ -1119,7 +1119,7 @@ TODO: Talk more about order services and clients?
 
 ##### 4.4.2.2.3. Persistence
 
-Persistence area became more complexe in this iteration due to new data model entities and their relations requirements.
+Persistence area became more complex in this iteration due to new data model entities and their relations requirements.
 
 During the implementation we took some decisions that finally were not so good so we decided to redesign the code following extreme programming techniques due to our test covarage was good enough to trust in the changes we were implementing.
 
