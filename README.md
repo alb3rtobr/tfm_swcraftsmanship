@@ -69,9 +69,10 @@
   - [4.5. User guide](#45-user-guide)
     - [4.5.1. Installation](#451-installation)
       - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
-      - [4.5.1.2. Helm dependencies](#4512-helm-dependencies)
-      - [4.5.1.3. Deployment](#4513-deployment)
-      - [4.5.1.4. Delete the deployment](#4514-delete-the-deployment)
+      - [4.5.1.2. Kubernetes deployment](#4512-kubernetes-deployment)
+        - [Helm dependencies](#helm-dependencies)
+        - [Deployment](#deployment)
+        - [Delete the deployment](#delete-the-deployment)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -1601,28 +1602,53 @@ We reported this issue in the Github Helm repository [[5](#5)], but we have not 
 
 #### 4.5.1.1. Docker image preparation
 
-`build.sh` script can be used to compile all the services and generate the Docker images.
-When executed, the following steps are performed:
-* Build `proto-idls` project
-* Build `restapi` project & generate Docker image
-* Build `stockchecker` project & generate Docker image
-* Build `dal` project & generate Docker image
+Our project provides a bash script called `build.sh` to compile all the services and generate their Docker images. When executed, the following steps are performed:
 
-#### 4.5.1.2. Helm dependencies
+- Build `proto-idls` project and install generated JAR file in maven repository (this project keeps common classes shared by the rest of the projects)
+- Build `restapi` project & generate Docker image
+- Build `stockchecker` project & generate Docker image
+- Build `dal` project & generate Docker image
 
-The application chart has dependencies in external Chart files for Kafka and Zookeeper services. It is needed, prior the application deployment, to update the helm dependencies in order to download the charts for these services.
+#### 4.5.1.2. Kubernetes deployment
 
-First it is needed to install the Helm Incubator repository:
+Once all the Docker images of the services have been generated we may proceed to start the cluster in Kubernetes. As Prometheus Operator chart leaves some spillovers and they have to be removed manually, we consider it would be useful to create a script (called `k8s.sh`) that will do some things automatically.
+
+For starting the cluster:
+
+```bash
+$ ./k8s.sh --start
+```
+
+This command will:
+
+- Update Helm dependencies
+- Start the cluster
+
+For stopping the cluster:
+
+```bash
+$ ./k8s.sh --stop
+```
+
+This command will:
+
+- Stop de cluster
+- Remove manually the Prometheus Operator spillovers.
+
+We recommend to use this script to avoid some Kubernetes resources to be kept after removing the cluster (if `helm delete` command is used). Next sections will describe deeply what this script is doing.
+
+##### Helm dependencies
+
+The application chart has dependencies in external repositories for deploying Kafka and Prometheus Operator. By default, Helm install the `stable` repository, however the used Kafka chart is located in *Helm Chart Incubator* repository. Thus, the `k8s.sh` script will add it:
 
 ```bash
 $ helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 "incubator" has been added to your repositories
 ```
 
-And update the dependencies:
+And then the script will update the dependencies:
 
-```
-$ cd $GIT_REPO/charts
+```bash
 $ helm dependency update tfm-almacar
 Hang tight while we grab the latest from your chart repositories...
 ...Unable to get an update from the "local" chart repository (http://127.0.0.1:8879/charts):
@@ -1635,10 +1661,11 @@ Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleap
 Deleting outdated charts
 ```
 
-#### 4.5.1.3. Deployment
+##### Deployment
+
+After installing Helm dependencies, the script will start the cluster calling the following bash command:
 
 ```bash
-$ cd $GIT_REPO/charts
 $ helm install --name=tfm-almacar tfm-almacar
 ```
 
@@ -1866,10 +1893,21 @@ NAME                 READY  UP-TO-DATE  AVAILABLE  AGE
 tfm-almacar-grafana  0/1    1           0          1s
 ```
 
-#### 4.5.1.4. Delete the deployment
+##### Delete the deployment
+
+When `k8s.sh --stop` is executed, the script will stop the Kubernetes cluster executing:
 
 ```bash
 $ helm del --purge tfm-almacar
+```
+
+And after that, it will remove the spillovers from Prometheus Operator manually:
+
+```bash
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
 ```
 
 # 5. Results
