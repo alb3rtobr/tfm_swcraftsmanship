@@ -47,8 +47,8 @@
       - [4.4.2.1. Analysis and Design](#4421-analysis-and-design)
         - [4.4.2.1.1. Use cases](#44211-use-cases)
         - [4.4.2.1.2. Data Model](#44212-data-model)
-        - [4.4.2.1.3. Class Diagrams?](#44213-class-diagrams)
-        - [4.4.2.1.4. Sequence Diagrams?](#44214-sequence-diagrams)
+        - [4.4.2.1.3. Class Diagrams](#44213-class-diagrams)
+        - [4.4.2.1.4. Sequence Diagrams](#44214-sequence-diagrams)
       - [4.4.2.2. Implementation and Deployment](#4422-implementation-and-deployment)
         - [4.4.2.2.1. REST API](#44221-rest-api)
         - [4.4.2.2.2. gRPC](#44222-grpc)
@@ -782,16 +782,20 @@ Main characteristics:
 
 ##### 4.4.2.1.2. Data Model
 
+In this iteration we included the `Order` entity that will maintain a Many-To-Many relationship with the entity `Item`. As we want to keep information of the relationship we included an intermediate or join table to keep that data.
+
+Following diagrama shows the relation:
+
+![Data Model v0.2](./uml/data_model-v02.png "Data Model v0.2")
+
+
+##### 4.4.2.1.3. Class Diagrams
+
 The second version included a significant change in the model:
 
 ![Model of version v0.2](./uml/model-v02.png "Model of version v0.2")
 
-
-##### 4.4.2.1.3. Class Diagrams?
-
-TODO: Meter aquí un UML con Order e Item
-
-##### 4.4.2.1.4. Sequence Diagrams?
+##### 4.4.2.1.4. Sequence Diagrams
 
 TODO: Meter aquí un UML que explique un poco la parte de persistencia?
 

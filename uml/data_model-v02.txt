@@ -1,0 +1,19 @@
+@startuml
+object Item
+Item : id
+Item : name
+Item : price
+Item : stock
+
+object Order
+Order : id
+
+object OrderItem
+OrderItem : id
+OrderItem : item_id
+OrderItem : order_id
+OrderItem : quantity
+
+Item "1" -right- "*" OrderItem
+OrderItem "*" -right- "1" Order
+@enduml
