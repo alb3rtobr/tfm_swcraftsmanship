@@ -1533,19 +1533,23 @@ $ helm del --purge tfm-almacar
 # 5. Results
 
 Summarizing what has been exposed in previous chapters of this document, we should say we have implemented three versions of our application, each one improving its predecessor. As a result after these three iteractions, we have a microservice-based Spring application, implemented to be deployed on a Kubernetes cluster with Helm charts, that could be used as backed for a stock management system.
+
 The application is able to store items and orders information, with the limitations of its data model described in previous chapters. This information is stored on a MySQL database but other database could be used just adapting one service, thanks to the usage of Spring Data JPA.
+
 The application offers its functionality via REST API. Although  Kafka and gRPC are used as internal communication mechanisms between our services. Metrics are also published using Prometheus.
 
 
 # 6. Conclusions and future work
 
-Although we have to discard some points we wanted to review at the beggining of the project, we can say we are very satisfied with the work done. We have been able to implement a cloud application using several technologies in a limited amount of time, and taking into account we had no previous experience with them. It is amazing to experiment the huge amount of available tools, and how it is possible to build something from scratch combining some of them to solve your use case of choice. At the same time, all these technologies are alive, all of them have people working to improve them and it is easy to collaborate if you have a proposal or find a bug.
+Although we have had to discard some points we wanted to review at the beggining of the project, we can say we are very satisfied with the work done. We have been able to implement a cloud application using several technologies in a limited amount of time, and taking into account we had no previous experience with them. The kick-off of this project was very close in time with a new assignment in our jobs, where we also started working with cloud technologies, so it was a quick win-win for us: we could apply in this project concepts we learnt in our jobs, and we learnt aspects during the implementation of our project that were applied in our assignments.
+
+It is amazing to experiment the huge amount of available tools, and how it is possible to build something from scratch combining some of them to solve your use case of choice. At the same time, all these technologies are alive, all of them have people working to improve them and it is easy to collaborate if you have a proposal or find a bug.
 
 We have also experiment how a microservice project can grow easily, being difficult to run it locally, which creates the opportunity for the PaaS vendors which are offering "Kubernetes as a service". Minikube is enough for small projects, but we had resources problems when trying to adapt Elastic, although we have just one replica per deployment.
 
 Using microservices, it has been easier to divide tasks among us. This is an advantage of this kind of architectures, as different teams can take ownership of different services and work in parallel, speeding the application development.
 
-Persistence was more difficult than we thought. TODO: complete
+We spend more time than the originally expected in the implementation of application persistence. TODO: complete
 
 Finally, we want to highlight which could be the next steps in this project, if it were possible to continue with the development:
 
@@ -1553,6 +1557,9 @@ Finally, we want to highlight which could be the next steps in this project, if 
 * Complete the integration of our application with the Elastic stack to have a centralized logging system.
 * Test our application on a bigger environment, as we only used Minikube. This would allow the execution of KPIs to check how the application responses to traffic.
 * Review our CI setup, to learn more about Travis and improve our tests. For example, in the current setup if a component fails, the next ones in the pipeline are not executed.
+* Include tracing. Use Zipkin or Jaegger to visualize how our application flow moves from one service to other and learn possible improvements.
+* Integrate Istio in our application. Although it was a nice-to-have feature, we knew since the beggining it was going to be very difficult to include it, due to lack of time. Istio is an application that allows to manage the whole service mesh (microservices and the interactions between them) of our application. Istio is a central point that provides traffic management, security configuration, observability... for the whole service mesh of an application.
+
 
 # 7. References
 
