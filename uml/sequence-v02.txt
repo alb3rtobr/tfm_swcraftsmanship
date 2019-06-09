@@ -1,0 +1,26 @@
+@startuml
+Actor User
+
+User -> restapi: Http Request /orders
+restapi -> dal : CRUD operation
+dal -> DB : db transaction
+DB -> dal : response
+dal -> restapi : response
+note right
+	Exception if some item
+	does not exist or not
+	enough stock
+end note
+loop per item in order
+    alt only create, edit and update orders
+        restapi -> Kafka : publish notification
+        Kafka -> stockchecker : receives notification
+        stockchecker -> dal : get item stock
+        dal -> DB : db transaction
+        DB -> dal : response
+        dal -> stockchecker : response
+        stockchecker -> EndPoint : send notification (if condition fulfilled)
+    end
+end
+
+@enduml

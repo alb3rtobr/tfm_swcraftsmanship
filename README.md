@@ -955,7 +955,7 @@ The second version included a significant change in the model:
 
 ##### 4.4.2.1.4. Sequence Diagrams
 
-TODO: Meter aquí un UML que explique un poco la parte de persistencia?
+![Order Secuence Diagram v0.2](./uml/sequence-v02.png "Order Secuence Diagram v0.2")
 
 #### 4.4.2.2. Implementation and Deployment
 
