@@ -23,6 +23,8 @@
         - [3.4.1.1.2. Data storage, index and analysis: Elasticsearch](#34112-data-storage-index-and-analysis-elasticsearch)
         - [3.4.1.1.3. User interface: Kibana](#34113-user-interface-kibana)
     - [3.4.2. Metrics](#342-metrics)
+      - [3.4.2.1. Prometheus](#3421-prometheus)
+      - [3.4.2.2. Grafana](#3422-grafana)
     - [3.4.3. Tracing](#343-tracing)
   - [3.5. Spring framework](#35-spring-framework)
 - [4. Project development](#4-project-development)
@@ -283,17 +285,27 @@ There are two models of metrics aggregation:
 - **Push**: the service publish its metrics in a metric service aggregator.
 - **Pull**: the metric service aggregator asks the service for the metrics.
 
+#### 3.4.2.1. Prometheus
+
 One of the most famous and most used metrics aggregator service in the cloud world is **Prometheus**. It is very easily integrated in Kubernetes and, the fact it is already used in the project we are currently working on, has facilitated us its election.
 
 Prometheus is an open-source tool used mainly in cloud applications for monitoring and alerting purposes.
 
 The following diagram illustrates the architecure of Prometheus and some of its more important components:
 
-![architecture draft extended](./images/prometheus-architecture.png "Prometheus architecture")
+![Prometheus architecture](./images/prometheus-architecture.png "Prometheus architecture")
 
 Prometheus scrapes metrics from instrumented jobs, directly or via push gateway. It stores all the obtained metrics locally and offers the possibility of executing rules over the stored data or generate alerts. Even, this data may be graphically represented using tools as **Grafana**, also used in the development of this project.
 
 For the aim of this project only the monitoring part of Prometheus was used but it could be adapted in the future to take advantage of the Alert system.
+
+#### 3.4.2.2. Grafana
+
+**Grafana** is an open-source platform for data visualization, monitoring and analysis. This tool is highly used in cloud system, supporting several data sources as **ElasticSearch**, **Mysql**, **Prometheus**, to analyze and visualize metrics of microservices such as CPU load, memory consumption, I/O statistics, etc.
+
+Provides a powerful web application where the users may define Dashboards with several graphs where to represent specific metrics over a set time-frame. Even, there is an active community creating dashboards that may be shared as json files.
+
+![Grafana](./images/grafana.png "Grafana")
 
 ### 3.4.3. Tracing
 
@@ -743,6 +755,7 @@ To create objects/resources in Kubernetes we decided to use `Helm` package manag
 The set of files that a microservice defines to be deployed in Kubernetes using Helm is called `Helm Chart`. It also allows to compress all the files in a .*tgz* file.
 
 Helm Charts can be organized hierarchically, so we created an structured that fulfill our needs:
+
 - Application umbrella chart (tfm-almacar)
   - dal chart
   - restapi chart
@@ -751,11 +764,12 @@ Helm Charts can be organized hierarchically, so we created an structured that fu
   - dependencies to other external charts
 
 Every Helm Chart has the same structure:
-  - Helm Chart
-    - Chart.yaml
-    - values.yaml
-    - templates
-      - set of files for the different kubernetes objects to define
+
+- Helm Chart
+  - Chart.yaml
+  - values.yaml
+  - templates
+    - set of files for the different kubernetes objects to define
 
 The main application chart also defines the dependencies to other charts in the `requirements.yaml` file:
 
@@ -790,7 +804,6 @@ image:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
 ```
 
-
 To inject configuration in the running container we made use of environment variables. In the template file it is specified the variable to inject in the container:
 
 ```yaml
@@ -817,11 +830,6 @@ CMD [ "java", "-Dgrpc-server.port=${GRPC_SERVER_PORT}", "-Dspring.datasource.url
 ```
 
 One more need was the storage space in the Kubernetes cluste to persist the data. This is specified through `pv.yaml` and `pvc.yaml` template files.
-
-
-
-
-
 
 ##### 4.4.1.2.6. Travis
 
