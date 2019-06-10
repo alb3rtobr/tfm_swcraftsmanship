@@ -60,8 +60,8 @@
       - [4.4.3.1. Analysis and Design](#4431-analysis-and-design)
         - [4.4.3.1.1. Use cases](#44311-use-cases)
         - [4.4.3.1.2. Data Model](#44312-data-model)
-        - [4.4.3.1.3. Class Diagrams?](#44313-class-diagrams)
-        - [4.4.3.1.4. Sequence Diagrams?](#44314-sequence-diagrams)
+        - [4.4.3.1.3. Class Diagrams](#44313-class-diagrams)
+        - [4.4.3.1.4. Sequence Diagrams](#44314-sequence-diagrams)
       - [4.4.3.2. Implementation and Deployment](#4432-implementation-and-deployment)
         - [4.4.3.2.1. Prometheus](#44321-prometheus)
         - [4.4.3.2.2. Grafana](#44322-grafana)
@@ -70,9 +70,10 @@
     - [4.5.1. Installation](#451-installation)
       - [4.5.1.1. Docker image preparation](#4511-docker-image-preparation)
       - [4.5.1.2. Kubernetes deployment](#4512-kubernetes-deployment)
-        - [Helm dependencies](#helm-dependencies)
-        - [Deployment](#deployment)
-        - [Delete the deployment](#delete-the-deployment)
+        - [4.5.1.2.1. Helm dependencies](#45121-helm-dependencies)
+        - [4.5.1.2.2. Deployment](#45122-deployment)
+        - [4.5.1.2.3. Delete the deployment](#45123-delete-the-deployment)
+    - [4.5.2. REST INTERFACE](#452-rest-interface)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -965,16 +966,16 @@ The second version included a significant change in the model:
 
 In this iteration the `restapi` component offers the same operations than previous version for `Item` objects and new operations due to the new model `Order`:
 
-- POST `api/v2/items` : create an item
-- GET `api/v2/items` : list all items
-- GET `api/v2/items/{id}` : get an item
-- PUT `api/v2/items/{id}` : update an item
-- DELETE `api/v2/items/{id}` : delete an item
-- POST `api/v2/orders` : create a order
-- GET `api/v2/orders` : list all orders
-- GET `api/v2/orders/{id}` : list an orders
-- PUT `api/v2/orders/{id}` : update an order
-- DELETE `api/v2/orders/{id}` : delete an order
+- POST `api/v1/items` : create an item
+- GET `api/v1/items` : list all items
+- GET `api/v1/items/{id}` : get an item
+- PUT `api/v1/items/{id}` : update an item
+- DELETE `api/v1/items/{id}` : delete an item
+- POST `api/v1/orders` : create a order
+- GET `api/v1/orders` : list all orders
+- GET `api/v1/orders/{id}` : list an orders
+- PUT `api/v1/orders/{id}` : update an order
+- DELETE `api/v1/orders/{id}` : delete an order
 
 Next imagenes shows how Items and Orders may be created using Postman application:
 
@@ -1230,11 +1231,11 @@ The only change in the data model is that a new value `EDITED` was added to the 
 
 ![v0.3 data model](./uml/model-v03.png)
 
-##### 4.4.3.1.3. Class Diagrams?
+##### 4.4.3.1.3. Class Diagrams
 
 This version had no impact on the class diagram of version 0.2.
 
-##### 4.4.3.1.4. Sequence Diagrams?
+##### 4.4.3.1.4. Sequence Diagrams
 
 This version had no impact on the sequence diagrams of version 0.2.
 
@@ -1637,7 +1638,7 @@ This command will:
 
 We recommend to use this script to avoid some Kubernetes resources to be kept after removing the application (if `helm delete` command is used). Next sections will describe deeply what this script is doing.
 
-##### Helm dependencies
+##### 4.5.1.2.1. Helm dependencies
 
 The application chart has dependencies in external repositories for deploying Kafka and Prometheus Operator. By default, Helm installs the `stable` repository, however the used Kafka chart is located in *Helm Chart Incubator* repository. Thus, the `k8s.sh` script will add it:
 
@@ -1661,7 +1662,7 @@ Downloading kafka from repo https://kubernetes-charts-incubator.storage.googleap
 Deleting outdated charts
 ```
 
-##### Deployment
+##### 4.5.1.2.2. Deployment
 
 After installing Helm dependencies, the script will start install the application with the following Helm command:
 
@@ -1893,7 +1894,7 @@ NAME                 READY  UP-TO-DATE  AVAILABLE  AGE
 tfm-almacar-grafana  0/1    1           0          1s
 ```
 
-##### Delete the deployment
+##### 4.5.1.2.3. Delete the deployment
 
 When `k8s.sh --stop` is executed, the script will remove the application from Kubernetes cluster executing:
 
@@ -1908,6 +1909,59 @@ kubectl delete crd prometheuses.monitoring.coreos.com
 kubectl delete crd prometheusrules.monitoring.coreos.com
 kubectl delete crd servicemonitors.monitoring.coreos.com
 kubectl delete crd alertmanagers.monitoring.coreos.com
+```
+
+### 4.5.2. REST INTERFACE
+
+REST API provides the next endpoints:
+
+- POST `api/v1/items` : create an item
+- GET `api/v1/items` : list all items
+- GET `api/v1/items/{id}` : get an item
+- PUT `api/v1/items/{id}` : update an item
+- DELETE `api/v1/items/{id}` : delete an item
+- POST `api/v1/orders` : create a order
+- GET `api/v1/orders` : list all orders
+- GET `api/v1/orders/{id}` : list an orders
+- PUT `api/v1/orders/{id}` : update an order
+- DELETE `api/v1/orders/{id}` : delete an order
+
+To create an item you must post a *json* like:
+
+```json
+#POST
+{
+  "name": "Cherry",
+  "price": 13,
+  "stock": 1000
+}
+```
+
+To create an order you must post a *json* like (items must be previously created, otherwise an HTTP Error will be received):
+
+```json
+#POST
+{
+  "itemPurchases":[
+  {
+    "item":{
+      "id": 1,
+      "name": "Cherry",
+      "price": 10,
+      "stock": 15
+    },
+    "quantity": 1
+  },
+  {
+    "item":{
+      "id": 2,
+      "name": "Apple",
+      "price": 7,
+      "stock": 10
+    },
+    "quantity": 5
+  }]
+}
 ```
 
 # 5. Results
