@@ -73,7 +73,7 @@
         - [4.5.1.2.1. Helm dependencies](#45121-helm-dependencies)
         - [4.5.1.2.2. Deployment](#45122-deployment)
         - [4.5.1.2.3. Delete the deployment](#45123-delete-the-deployment)
-    - [4.5.2. REST INTERFACE](#452-rest-interface)
+    - [4.5.2. REST Interface](#452-rest-interface)
 - [5. Results](#5-results)
 - [6. Conclusions and future work](#6-conclusions-and-future-work)
 - [7. References](#7-references)
@@ -1911,7 +1911,7 @@ kubectl delete crd servicemonitors.monitoring.coreos.com
 kubectl delete crd alertmanagers.monitoring.coreos.com
 ```
 
-### 4.5.2. REST INTERFACE
+### 4.5.2. REST Interface
 
 REST API provides the next endpoints:
 
